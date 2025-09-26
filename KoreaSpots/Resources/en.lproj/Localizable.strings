@@ -1,0 +1,21 @@
+/*
+  Localizable.strings (English)
+  KoreaSpots
+*/
+
+// Home
+"home_title" = "Home";
+
+// Section Headers
+"section_festival" = "Current Festivals";
+"section_nearby" = "Nearby Spots";
+"section_theme" = "Themes";
+"section_placeholder" = "Coming Soon";
+
+// Actions
+"action_open_map" = "Open Map";
+"action_see_more" = "See More";
+"action_confirm" = "OK";
+
+// Errors
+"error_title" = "Error";
