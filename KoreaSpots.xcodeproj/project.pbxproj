@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		17A08FCD2E869198003AF0A6 /* SkeletonView in Frameworks */ = {isa = PBXBuildFile; productRef = 17A08FCC2E869198003AF0A6 /* SkeletonView */; };
 		17DDE7522E85324100E6057A /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 17DDE7512E85324100E6057A /* SnapKit */; };
 		17DDE7552E85325F00E6057A /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 17DDE7542E85325F00E6057A /* RealmSwift */; };
 		17DDE7582E85327700E6057A /* RxMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 17DDE7572E85327700E6057A /* RxMoya */; };
@@ -49,6 +50,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				17A08FCD2E869198003AF0A6 /* SkeletonView in Frameworks */,
 				17DDE7612E8532CF00E6057A /* Toast in Frameworks */,
 				17DDE7672E85330700E6057A /* IQKeyboardManagerSwift in Frameworks */,
 				17DDE7582E85327700E6057A /* RxMoya in Frameworks */,
@@ -111,6 +113,7 @@
 				17DDE7662E85330700E6057A /* IQKeyboardManagerSwift */,
 				17DDE7692E85333000E6057A /* TextFieldEffects */,
 				17DDE76C2E853B0F00E6057A /* ReactorKit */,
+				17A08FCC2E869198003AF0A6 /* SkeletonView */,
 			);
 			productName = KoreaSpots;
 			productReference = 17DDE6862E851F2D00E6057A /* KoreaSpots.app */;
@@ -152,6 +155,7 @@
 				17DDE7652E85330700E6057A /* XCRemoteSwiftPackageReference "IQKeyboardManager" */,
 				17DDE7682E85333000E6057A /* XCRemoteSwiftPackageReference "TextFieldEffects" */,
 				17DDE76B2E853B0F00E6057A /* XCRemoteSwiftPackageReference "ReactorKit" */,
+				17A08FCB2E869198003AF0A6 /* XCRemoteSwiftPackageReference "SkeletonView" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 17DDE6872E851F2D00E6057A /* Products */;
@@ -389,6 +393,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		17A08FCB2E869198003AF0A6 /* XCRemoteSwiftPackageReference "SkeletonView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Juanpe/SkeletonView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.31.0;
+			};
+		};
 		17DDE7502E85324100E6057A /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
@@ -472,6 +484,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		17A08FCC2E869198003AF0A6 /* SkeletonView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17A08FCB2E869198003AF0A6 /* XCRemoteSwiftPackageReference "SkeletonView" */;
+			productName = SkeletonView;
+		};
 		17DDE7512E85324100E6057A /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 17DDE7502E85324100E6057A /* XCRemoteSwiftPackageReference "SnapKit" */;
