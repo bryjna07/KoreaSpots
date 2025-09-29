@@ -10,6 +10,7 @@
 "section_festival" = "지금 열리는 축제";
 "section_nearby" = "내 주변 스팟";
 "section_theme" = "테마 모음";
+"section_area_quick_link" = "지역 퀵링크";
 "section_placeholder" = "준비 중";
 
 // Actions
@@ -19,3 +20,52 @@
 
 // Errors
 "error_title" = "오류";
+"error_fetch_festival_failed" = "축제 정보를 불러올 수 없습니다.";
+"error_fetch_places_failed" = "주변 관광지 정보를 불러올 수 없습니다.";
+
+// Search
+"search_placeholder" = "어디로 가시나요?";
+"search_title" = "검색";
+"search_navigation_message" = "검색 화면으로 이동합니다";
+
+// Area Names
+"area_seoul" = "서울";
+"area_incheon" = "인천";
+"area_daejeon" = "대전";
+"area_daegu" = "대구";
+"area_gwangju" = "광주";
+"area_busan" = "부산";
+"area_ulsan" = "울산";
+"area_sejong" = "세종";
+"area_gyeonggi" = "경기도";
+"area_gangwon" = "강원도";
+"area_chungbuk" = "충북";
+"area_chungnam" = "충남";
+"area_gyeongbuk" = "경북";
+"area_gyeongnam" = "경남";
+"area_jeonbuk" = "전북";
+"area_jeonnam" = "전남";
+"area_jeju" = "제주";
+
+// Categories
+"category_nature" = "자연";
+"category_culture" = "인문";
+"category_sports" = "레포츠";
+"category_shopping" = "쇼핑";
+"category_food" = "음식";
+"category_accommodation" = "숙박";
+"category_course" = "추천코스";
+
+// Theme Categories
+"theme_ocean" = "바다";
+"theme_mountain" = "산";
+"theme_valley" = "계곡";
+"theme_river" = "강";
+"theme_forest" = "휴양림";
+"theme_cave" = "동굴";
+"theme_park" = "공원";
+"theme_theme_park" = "테마파크";
+"theme_spa" = "온천";
+"theme_tradition" = "전통체험";
+"theme_history" = "역사";
+"theme_etc" = "기타";

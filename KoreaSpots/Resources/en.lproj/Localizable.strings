@@ -10,6 +10,7 @@
 "section_festival" = "Current Festivals";
 "section_nearby" = "Nearby Spots";
 "section_theme" = "Themes";
+"section_area_quick_link" = "Area Quick Link";
 "section_placeholder" = "Coming Soon";
 
 // Actions
@@ -19,3 +20,52 @@
 
 // Errors
 "error_title" = "Error";
+"error_fetch_festival_failed" = "Unable to load festival information.";
+"error_fetch_places_failed" = "Unable to load nearby places information.";
+
+// Search
+"search_placeholder" = "Where would you like to go?";
+"search_title" = "Search";
+"search_navigation_message" = "Navigate to search screen";
+
+// Area Names
+"area_seoul" = "Seoul";
+"area_incheon" = "Incheon";
+"area_daejeon" = "Daejeon";
+"area_daegu" = "Daegu";
+"area_gwangju" = "Gwangju";
+"area_busan" = "Busan";
+"area_ulsan" = "Ulsan";
+"area_sejong" = "Sejong";
+"area_gyeonggi" = "Gyeonggi-do";
+"area_gangwon" = "Gangwon-do";
+"area_chungbuk" = "Chungbuk";
+"area_chungnam" = "Chungnam";
+"area_gyeongbuk" = "Gyeongbuk";
+"area_gyeongnam" = "Gyeongnam";
+"area_jeonbuk" = "Jeonbuk";
+"area_jeonnam" = "Jeonnam";
+"area_jeju" = "Jeju";
+
+// Categories
+"category_nature" = "Nature";
+"category_culture" = "Culture";
+"category_sports" = "Sports";
+"category_shopping" = "Shopping";
+"category_food" = "Food";
+"category_accommodation" = "Accommodation";
+"category_course" = "Recommended Course";
+
+// Theme Categories
+"theme_ocean" = "Ocean";
+"theme_mountain" = "Mountain";
+"theme_valley" = "Valley";
+"theme_river" = "River";
+"theme_forest" = "Forest Resort";
+"theme_cave" = "Cave";
+"theme_park" = "Park";
+"theme_theme_park" = "Theme Park";
+"theme_spa" = "Hot Spring";
+"theme_tradition" = "Traditional Experience";
+"theme_history" = "History";
+"theme_etc" = "Others";
