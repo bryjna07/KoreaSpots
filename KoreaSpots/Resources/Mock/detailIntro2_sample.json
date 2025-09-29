@@ -1,0 +1,104 @@
+{
+  "response": {
+    "header": { "resultCode": "0000", "resultMsg": "OK" },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "contentid": "3000001",
+            "contenttypeid": "12",
+            "usetime": "09:00~18:00 (하절기 09:00~18:30)",
+            "restdate": "화요일",
+            "usefee": "성인 3,000원, 청소년 1,500원, 어린이 1,500원",
+            "infocenter": "02-3700-3900",
+            "parking": "주차 가능 (유료)"
+          },
+          {
+            "contentid": "3000002",
+            "contenttypeid": "12",
+            "usetime": "10:00~22:00",
+            "restdate": "연중무휴",
+            "usefee": "전망대 유료",
+            "infocenter": "02-3455-9277",
+            "parking": "주차장 유료"
+          },
+          {
+            "contentid": "3000003",
+            "contenttypeid": "12",
+            "usetime": "09:00~18:00",
+            "restdate": "월요일",
+            "usefee": "유료",
+            "infocenter": "02-3668-2300",
+            "parking": "주차 불가"
+          },
+          {
+            "contentid": "3000004",
+            "contenttypeid": "12",
+            "usetime": "06:00~21:00",
+            "restdate": "없음",
+            "usefee": "무료",
+            "infocenter": "02-774-1784",
+            "parking": "주차 불가"
+          },
+          {
+            "contentid": "3000005",
+            "contenttypeid": "25",
+            "usetime": "상점별 상이",
+            "restdate": "상점별 상이",
+            "usefee": "무료",
+            "infocenter": "",
+            "parking": "공영주차장 이용"
+          },
+          {
+            "contentid": "3000006",
+            "contenttypeid": "12",
+            "usetime": "상시 개방(주민 생활공간 예절 준수)",
+            "restdate": "없음",
+            "usefee": "무료",
+            "infocenter": "02-2133-1372",
+            "parking": "주차 불가"
+          },
+          {
+            "contentid": "3000007",
+            "contenttypeid": "12",
+            "usetime": "09:00~21:00 (시설별 상이)",
+            "restdate": "월요일 일부 시설 휴관",
+            "usefee": "유료",
+            "infocenter": "02-771-9951",
+            "parking": "주차 가능 (유료)"
+          },
+          {
+            "contentid": "3000008",
+            "contenttypeid": "12",
+            "usetime": "00:00~24:00",
+            "restdate": "없음",
+            "usefee": "무료",
+            "infocenter": "120 다산콜센터",
+            "parking": "인근 주차장 이용"
+          },
+          {
+            "contentid": "3000009",
+            "contenttypeid": "12",
+            "usetime": "시설별 상이",
+            "restdate": "시설별 상이",
+            "usefee": "일부 유료",
+            "infocenter": "02-6000-0114",
+            "parking": "주차 가능 (유료)"
+          },
+          {
+            "contentid": "3000010",
+            "contenttypeid": "12",
+            "usetime": "10:00~22:00 (전망대 기준)",
+            "restdate": "연중무휴",
+            "usefee": "전망대 유료",
+            "infocenter": "1661-2000",
+            "parking": "주차 가능 (유료)"
+          }
+        ]
+      },
+      "numOfRows": 10,
+      "pageNo": 1,
+      "totalCount": 10
+    }
+  }
+}
