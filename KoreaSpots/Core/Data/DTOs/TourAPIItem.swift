@@ -39,6 +39,9 @@ struct TourAPIItem: Decodable {
     let tel: String?
     let zipcode: String?
     let cpyrhtDivCd: String?
+    let usetime: String?
+    let restdate: String?
+    let usefee: String?
 
     // MARK: - 위치기반 API 응답 전용 필드들 (요청에는 미사용)
     let lDongRegnCd: String?
@@ -81,6 +84,9 @@ struct TourAPIItem: Decodable {
         tel = try container.decodeIfPresent(String.self, forKey: .tel)
         zipcode = try container.decodeIfPresent(String.self, forKey: .zipcode)
         cpyrhtDivCd = try container.decodeIfPresent(String.self, forKey: .cpyrhtDivCd)
+        usetime = try container.decodeIfPresent(String.self, forKey: .usetime)
+        restdate = try container.decodeIfPresent(String.self, forKey: .restdate)
+        usefee = try container.decodeIfPresent(String.self, forKey: .usefee)
 
         // MARK: - 위치기반 API 응답 전용 필드들 디코딩
         lDongRegnCd = try container.decodeIfPresent(String.self, forKey: .lDongRegnCd)
@@ -96,6 +102,7 @@ struct TourAPIItem: Decodable {
         case eventenddate, eventstartdate, firstimage, firstimage2
         case mapx, mapy, mlevel, modifiedtime, overview
         case readcount, sigungucode, tel, title, zipcode, cpyrhtDivCd
+        case usetime, restdate, usefee
         case lDongRegnCd, lDongSignguCd, lclsSystm1, lclsSystm2, lclsSystm3
     }
 }

@@ -26,7 +26,6 @@ enum LocalizedKeys {
     // MARK: - Actions
     enum Action {
         static let openMap = "action_open_map"
-        static let seeMore = "action_see_more"
         static let confirm = "action_confirm"
     }
 

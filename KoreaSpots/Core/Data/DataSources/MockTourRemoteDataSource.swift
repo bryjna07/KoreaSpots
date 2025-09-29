@@ -85,27 +85,8 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
     }
 
     private func determineLocationMockFile(mapX: Double, mapY: Double) -> String {
-        // 서울 지역 (위도: 37.4~37.7, 경도: 126.7~127.2)
-        if mapY >= 37.4 && mapY <= 37.7 && mapX >= 126.7 && mapX <= 127.2 {
-            // 명동 근처 (위도: 37.56~37.57, 경도: 126.98~126.99)
-            if mapY >= 37.56 && mapY <= 37.57 && mapX >= 126.98 && mapX <= 126.99 {
-                return "locationBasedList2_sample" // 명동 맛집 데이터
-            }
-            // 기타 서울 지역
-            return "areaBasedList2_seoul" // 서울 관광지 데이터
-        }
-        // 부산 지역 (위도: 35.0~35.3, 경도: 129.0~129.3)
-        else if mapY >= 35.0 && mapY <= 35.3 && mapX >= 129.0 && mapX <= 129.3 {
-            return "areaBasedList2_busan"
-        }
-        // 제주 지역 (위도: 33.1~33.6, 경도: 126.1~126.9)
-        else if mapY >= 33.1 && mapY <= 33.6 && mapX >= 126.1 && mapX <= 126.9 {
-            return "areaBasedList2_jeju"
-        }
-        // 기본값 (명동 맛집)
-        else {
-            return "locationBasedList2_sample"
-        }
+        // 유저 지역에 따라. api 제공
+        return "locationBasedList2_sample"
     }
 
     func fetchDetailCommon(

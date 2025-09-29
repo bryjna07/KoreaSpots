@@ -46,6 +46,9 @@ extension TourAPIItem {
             return nil
         }
 
+        let parsedDistance = parseDistance(dist)
+        print("🏢 Creating Place '\(title)' with distance: \(parsedDistance?.description ?? "nil") (from dist: '\(dist ?? "nil")')")
+
         return Place(
             contentId: contentid,
             title: title.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -56,7 +59,7 @@ extension TourAPIItem {
             tel: processPhone(tel),
             overview: processOverview(overview),
             contentTypeId: parseInt(contenttypeid) ?? 12,
-            distance: parseDistance(dist)
+            distance: parsedDistance
         )
     }
 
@@ -94,12 +97,23 @@ extension TourAPIItem {
 
     private func parseDistance(_ distance: String?) -> Int? {
         guard let distance = distance?.trimmingCharacters(in: .whitespacesAndNewlines),
-              !distance.isEmpty else { return nil }
+              !distance.isEmpty else {
+            print("🚫 parseDistance: distance is nil or empty")
+            return nil
+        }
+
+        print("📏 parseDistance: parsing '\(distance)'")
+
         if let intValue = Int(distance) {
+            print("✅ parseDistance: parsed as int = \(intValue)")
             return intValue
         } else if let doubleValue = Double(distance) {
-            return Int(doubleValue)
+            let result = Int(doubleValue)
+            print("✅ parseDistance: parsed as double \(doubleValue) -> int \(result)")
+            return result
         }
+
+        print("❌ parseDistance: failed to parse '\(distance)'")
         return nil
     }
 }

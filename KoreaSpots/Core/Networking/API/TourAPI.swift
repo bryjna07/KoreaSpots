@@ -16,6 +16,12 @@ enum TourAPI {
     case searchFestival(eventStartDate: String, eventEndDate: String, numOfRows: Int, pageNo: Int, arrange: String)
     /// 위치기반 관광지: mapX/mapY 좌표 기준 반경 내 관광지
     case locationBasedList(mapX: Double, mapY: Double, radius: Int, numOfRows: Int, pageNo: Int, arrange: String)
+    /// 상세정보 공통: contentId로 기본 상세정보 조회
+    case detailCommon(contentId: String, contentTypeId: Int?)
+    /// 상세정보 소개: contentId로 운영정보 등 상세 소개정보 조회
+    case detailIntro(contentId: String, contentTypeId: Int)
+    /// 상세이미지: contentId로 이미지 목록 조회
+    case detailImage(contentId: String, numOfRows: Int, pageNo: Int)
 }
 
 extension TourAPI: TargetType {
@@ -35,6 +41,12 @@ extension TourAPI: TargetType {
             return "/B551011/KorService2/searchFestival2"
         case .locationBasedList:
             return "/B551011/KorService2/locationBasedList2"
+        case .detailCommon:
+            return "/B551011/KorService2/detailCommon2"
+        case .detailIntro:
+            return "/B551011/KorService2/detailIntro2"
+        case .detailImage:
+            return "/B551011/KorService2/detailImage2"
         }
     }
 
@@ -85,6 +97,29 @@ extension TourAPI: TargetType {
                 "numOfRows": numOfRows,
                 "pageNo": pageNo,
                 "arrange": arrange
+            ]
+
+        case let .detailCommon(contentId, contentTypeId):
+            var p: [String: Any] = [
+                "contentId": contentId
+            ]
+            if let c = contentTypeId {
+                p["contentTypeId"] = c
+            }
+            return p
+
+        case let .detailIntro(contentId, contentTypeId):
+            return [
+                "contentId": contentId,
+                "contentTypeId": contentTypeId
+            ]
+
+        case let .detailImage(contentId, numOfRows, pageNo):
+            return [
+                "contentId": contentId,
+                "imageYN": "Y",
+                "numOfRows": numOfRows,
+                "pageNo": pageNo
             ]
         }
     }

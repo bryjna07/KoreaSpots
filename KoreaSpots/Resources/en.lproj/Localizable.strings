@@ -15,7 +15,6 @@
 
 // Actions
 "action_open_map" = "Open Map";
-"action_see_more" = "See More";
 "action_confirm" = "OK";
 
 // Errors

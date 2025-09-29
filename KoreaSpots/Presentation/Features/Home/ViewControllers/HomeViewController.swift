@@ -194,7 +194,6 @@ final class HomeViewController: BaseViewController, View {
         let actionTitle: String? = {
             switch section.section {
             case .nearby: return LocalizedKeys.Action.openMap.localized
-            case .theme: return LocalizedKeys.Action.seeMore.localized
             default: return nil
             }
         }()
