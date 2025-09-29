@@ -7,10 +7,16 @@
 
 import UIKit.UIView
 
-protocol ReusableView: AnyObject { }
+protocol ReusableView: AnyObject {
+    static var reuseIdentifier: String { get }
+}
 
-extension ReusableView where Self: UIView {
+extension UIView: ReusableView {
     static var reuseIdentifier: String {
-        return String(describing: self)
+        String(describing: self)
+    }
+    
+    static var elementKind: String {
+        String(describing: self) + "ElementKind"
     }
 }
