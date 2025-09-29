@@ -18,6 +18,12 @@ extension TourAPIResponse {
     }
 }
 
+extension TourAPIImageResponse {
+    func toPlaceImages() -> [PlaceImage] {
+        return response.body?.items?.item.compactMap { $0.toPlaceImage() } ?? []
+    }
+}
+
 // MARK: - TourAPIItem to Domain Entity Mapping
 extension TourAPIItem {
     func toFestival() -> Festival? {
@@ -60,6 +66,15 @@ extension TourAPIItem {
             overview: processOverview(overview),
             contentTypeId: parseInt(contenttypeid) ?? 12,
             distance: parsedDistance
+        )
+    }
+
+    func toOperatingInfo() -> OperatingInfo {
+        return OperatingInfo(
+            useTime: usetime?.isEmpty == true ? nil : usetime,
+            restDate: restdate?.isEmpty == true ? nil : restdate,
+            useFee: usefee?.isEmpty == true ? nil : usefee,
+            homepage: nil // homepage는 별도 처리 필요
         )
     }
 
@@ -115,6 +130,21 @@ extension TourAPIItem {
 
         print("❌ parseDistance: failed to parse '\(distance)'")
         return nil
+    }
+}
+
+// MARK: - TourAPIImageItem to Domain Entity Mapping
+extension TourAPIImageItem {
+    func toPlaceImage() -> PlaceImage? {
+        guard !contentid.isEmpty,
+              !originimgurl.isEmpty else { return nil }
+
+        return PlaceImage(
+            contentId: contentid,
+            originImageURL: originimgurl,
+            imageName: imgname?.isEmpty == true ? nil : imgname,
+            smallImageURL: smallimageurl?.isEmpty == true ? nil : smallimageurl
+        )
     }
 }
 

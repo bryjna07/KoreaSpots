@@ -111,6 +111,21 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
             .asSingle()
     }
 
+    func fetchDetailImages(
+        contentId: String,
+        numOfRows: Int,
+        pageNo: Int
+    ) -> Single<[PlaceImage]> {
+        print("🖼️ Detail images - contentId: \(contentId)")
+        print("📂 Using mock file: detailImage2_sample")
+
+        return loadMockImageData(filename: "detailImage2_sample")
+            .map { response in
+                response.toPlaceImages()
+            }
+            .asSingle()
+    }
+
     private func loadMockData(filename: String) -> Observable<TourAPIResponse> {
         return Observable.create { [weak self] observer in
             print("🔄 Loading mock data: \(filename).json")
@@ -170,6 +185,69 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
                 observer.onCompleted()
             } catch {
                 print("❌ Failed to decode mock data from \(filename).json")
+                print("❌ Error details: \(error)")
+                if let decodingError = error as? DecodingError {
+                    print("❌ Decoding error details: \(decodingError)")
+                }
+                observer.onError(DataSourceError.parseError)
+            }
+
+            return Disposables.create()
+        }
+        .delay(.milliseconds(100), scheduler: MainScheduler.instance) // 실제 네트워크 지연 시뮬레이션
+    }
+
+    private func loadMockImageData(filename: String) -> Observable<TourAPIImageResponse> {
+        return Observable.create { [weak self] observer in
+            print("🔄 Loading mock image data: \(filename).json")
+            guard let self = self else {
+                observer.onError(DataSourceError.cacheError)
+                return Disposables.create()
+            }
+
+            // 먼저 Bundle에서 Mock 디렉토리의 파일을 찾아보기
+            var url: URL?
+
+            // 1. Bundle의 Mock 하위 디렉토리에서 찾기
+            url = Bundle.main.url(forResource: filename, withExtension: "json", subdirectory: "Mock")
+            if url != nil {
+                print("📁 Found in Bundle Mock: \(filename).json")
+            }
+
+            // 2. Bundle의 Resources/Mock 하위 디렉토리에서 찾기
+            if url == nil {
+                url = Bundle.main.url(forResource: filename, withExtension: "json", subdirectory: "Resources/Mock")
+                if url != nil {
+                    print("📁 Found in Bundle Resources/Mock: \(filename).json")
+                }
+            }
+
+            // 3. 파일 시스템에서 직접 찾기 (개발 중에만 사용)
+            if url == nil {
+                let mockPath = "/Users/youngjin/Desktop/SaeSsac/KoreaSpots/KoreaSpots/Resources/Mock/\(filename).json"
+                if FileManager.default.fileExists(atPath: mockPath) {
+                    url = URL(fileURLWithPath: mockPath)
+                    print("📁 Using file system path: \(mockPath)")
+                }
+            }
+
+            guard let mockURL = url else {
+                let errorMessage = "Mock image file not found: \(filename).json in Bundle or file system"
+                print("⚠️ \(errorMessage)")
+                observer.onError(DataSourceError.parseError)
+                return Disposables.create()
+            }
+
+            do {
+                let data = try Data(contentsOf: mockURL)
+                print("📄 Mock image data size: \(data.count) bytes")
+                let response = try self.jsonDecoder.decode(TourAPIImageResponse.self, from: data)
+                print("✅ Successfully decoded mock image data from: \(mockURL.lastPathComponent)")
+                print("📊 Images count: \(response.response.body?.items?.item.count ?? 0)")
+                observer.onNext(response)
+                observer.onCompleted()
+            } catch {
+                print("❌ Failed to decode mock image data from \(filename).json")
                 print("❌ Error details: \(error)")
                 if let decodingError = error as? DecodingError {
                     print("❌ Decoding error details: \(decodingError)")

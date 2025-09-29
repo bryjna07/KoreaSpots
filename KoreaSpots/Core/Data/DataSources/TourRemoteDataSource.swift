@@ -44,4 +44,10 @@ protocol TourRemoteDataSource {
         contentId: String,
         contentTypeId: Int
     ) -> Single<Place>
+
+    func fetchDetailImages(
+        contentId: String,
+        numOfRows: Int,
+        pageNo: Int
+    ) -> Single<[PlaceImage]>
 }
