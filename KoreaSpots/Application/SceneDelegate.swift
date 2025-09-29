@@ -13,13 +13,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        
+
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        
-        window?.rootViewController = ViewController()
+
+        // Mock 데이터 사용 설정
+        AppContainer.shared.setUseMockData(true)
+
+        // HomeViewController 생성
+        let homeVC = AppContainer.shared.makeHomeViewController()
+
+        // 네비게이션 컨트롤러에 embedded
+        let navigationController = UINavigationController(rootViewController: homeVC)
+
+        window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
-        
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
