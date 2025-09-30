@@ -11,6 +11,7 @@
 "section_nearby" = "내 주변 관광지";
 "section_theme" = "테마별 관광지";
 "section_area_quick_link" = "지역별 보기";
+"section_category" = "카테고리별 보기";
 "section_placeholder" = "날씨 정보";
 "section_operating_info" = "운영 정보";
 "section_location" = "상세 위치";
@@ -54,12 +55,16 @@
 
 // Categories
 "category_nature" = "자연";
-"category_culture" = "인문";
+"category_culture" = "문화시설";
 "category_sports" = "레포츠";
 "category_shopping" = "쇼핑";
-"category_food" = "음식";
+"category_food" = "음식점";
 "category_accommodation" = "숙박";
-"category_course" = "추천코스";
+"category_course" = "여행코스";
+"category_festival" = "축제";
+"category_performance" = "공연·전시";
+"category_leisure" = "레포츠";
+"category_lodging" = "숙박";
 
 // Theme Categories
 "theme_ocean" = "바다";

@@ -166,15 +166,15 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PlaceCardCell.reuseIdentifier, for: indexPath) as? PlaceCardCell else { return UICollectionViewCell() }
             cell.configure(with: place)
             return cell
-
-        case .theme(let theme):
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ThemeCardCell.reuseIdentifier, for: indexPath) as? ThemeCardCell else { return UICollectionViewCell() }
-            cell.configure(with: theme)
+            
+        case .category(let category):
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RectangleCell.reuseIdentifier, for: indexPath) as? RectangleCell else { return UICollectionViewCell() }
+            cell.configure(with: category)
             return cell
 
-        case .areaCode(let areaCode):
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AreaQuickLinkCell.reuseIdentifier, for: indexPath) as? AreaQuickLinkCell else { return UICollectionViewCell() }
-            cell.configure(with: areaCode)
+        case .theme(let theme):
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RoundCell.reuseIdentifier, for: indexPath) as? RoundCell else { return UICollectionViewCell() }
+            cell.configure(with: theme)
             return cell
 
         case .placeholder(let text, _):
@@ -226,9 +226,9 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             // TODO: Navigate to theme category
             print("Theme selected: \(theme.title)")
 
-        case .areaCode(let areaCode):
-            // TODO: Navigate to area-based places
-            print("Area selected: \(areaCode.displayName)")
+        case .category(let category):
+            // TODO: Navigate to category list
+            print("Category selected: \(category.title) (contentTypeId: \(category.contentType.contentTypeId?.rawValue ?? 0))")
 
         case .placeholder(_, _):
             // TODO: Handle placeholder action
@@ -249,9 +249,9 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             // TODO: Navigate to theme list
             print("Navigate to theme list")
             break
-        case .areaQuickLink:
-            // TODO: areaQuickLink to theme list
-            print("areaQuickLink to theme list")
+        case .category:
+            // TODO: Navigate to category list
+            print("Navigate to category list")
             break
         case .placeholder:
             // TODO: Handle placeholder action

@@ -11,6 +11,7 @@
 "section_nearby" = "Nearby Spots";
 "section_theme" = "Themes";
 "section_area_quick_link" = "Area Quick Link";
+"section_category" = "Categories";
 "section_placeholder" = "Coming Soon";
 "section_operating_info" = "Operating Information";
 "section_location" = "Location";
@@ -54,12 +55,16 @@
 
 // Categories
 "category_nature" = "Nature";
-"category_culture" = "Culture";
+"category_culture" = "Cultural Facilities";
 "category_sports" = "Sports";
 "category_shopping" = "Shopping";
-"category_food" = "Food";
+"category_food" = "Restaurant";
 "category_accommodation" = "Accommodation";
-"category_course" = "Recommended Course";
+"category_course" = "Travel Course";
+"category_festival" = "Festival";
+"category_performance" = "Performance";
+"category_leisure" = "Leisure Sports";
+"category_lodging" = "Lodging";
 
 // Theme Categories
 "theme_ocean" = "Ocean";

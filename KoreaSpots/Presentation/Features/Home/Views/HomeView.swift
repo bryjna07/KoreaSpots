@@ -85,8 +85,8 @@ extension HomeView {
             $0.refreshControl = refreshControl
             $0.register(cell: FestivalCardCell.self)
             $0.register(cell: PlaceCardCell.self)
-            $0.register(cell: ThemeCardCell.self)
-            $0.register(cell: AreaQuickLinkCell.self)
+            $0.register(cell: RectangleCell.self)
+            $0.register(cell: RoundCell.self)
             $0.register(cell: PlaceholderCardCell.self)
             $0.register(header: SectionHeaderView.self)
             $0.register(supplementary: FestivalPageIndicatorView.self)

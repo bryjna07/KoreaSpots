@@ -21,6 +21,7 @@ enum LocalizedKeys {
         static let nearby = "section_nearby"
         static let theme = "section_theme"
         static let areaQuickLink = "section_area_quick_link"
+        static let category = "section_category"
         static let operatingInfo = "section_operating_info"
         static let location = "section_location"
         static let nearbyPlaces = "section_nearby_places"
@@ -79,6 +80,12 @@ enum LocalizedKeys {
         static let food = "category_food"
         static let accommodation = "category_accommodation"
         static let course = "category_course"
+
+        // 홈 카테고리 (8개)
+        static let festival = "category_festival"
+        static let performance = "category_performance"
+        static let leisure = "category_leisure"
+        static let lodging = "category_lodging"
     }
 
     // MARK: - Theme Categories

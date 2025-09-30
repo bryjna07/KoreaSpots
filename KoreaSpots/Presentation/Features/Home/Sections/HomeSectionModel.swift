@@ -18,7 +18,7 @@ extension HomeSectionModel {
         case festival
         case nearby
         case theme
-        case areaQuickLink
+        case category
         case placeholder
 
         var headerTitle: String {
@@ -29,8 +29,8 @@ extension HomeSectionModel {
                 return LocalizedKeys.Section.nearby.localized
             case .theme:
                 return LocalizedKeys.Section.theme.localized
-            case .areaQuickLink:
-                return LocalizedKeys.Section.areaQuickLink.localized
+            case .category:
+                return LocalizedKeys.Section.category.localized
             case .placeholder:
                 return "준비중"
             }
@@ -50,8 +50,8 @@ extension HomeSectionModel {
 enum HomeSectionItem: IdentifiableType, Equatable {
     case festival(Festival)
     case place(Place)
+    case category(Category)
     case theme(Theme)
-    case areaCode(AreaCode)
     case placeholder(String, index: Int = 0)
 
     var identity: String {
@@ -60,15 +60,15 @@ enum HomeSectionItem: IdentifiableType, Equatable {
             return "festival_\(f.contentId)"
         case .place(let p):
             return "place_\(p.contentId)"
+        case .category(let c):
+            return "category_\(c.id)"
         case .theme(let t):
             return "theme_\(t.title)"
-        case .areaCode(let a):
-            return "area_\(a.rawValue)"
         case .placeholder(let s, let index):
             return "placeholder_\(s)_\(index)"
         }
     }
-    
+
     static func == (lhs: HomeSectionItem, rhs: HomeSectionItem) -> Bool {
         return lhs.identity == rhs.identity
     }

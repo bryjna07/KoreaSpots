@@ -37,13 +37,13 @@ final class HomeReactor: Reactor {
     let initialState: State = {
         let festivalItems = (0..<3).map { HomeSectionItem.placeholder("축제 정보를 불러오는 중...", index: $0) }
         let nearbyItems = (0..<4).map { HomeSectionItem.placeholder("주변 관광지를 불러오는 중...", index: $0) }
-        let areaItems = AreaCode.allCases.map { HomeSectionItem.areaCode($0) }
+        let categoryItems = Category.homeCategories.map { HomeSectionItem.category($0) }
 
         let initialSections = [
             HomeSectionModel(section: .festival, items: festivalItems),
             HomeSectionModel(section: .nearby, items: nearbyItems),
+            HomeSectionModel(section: .category, items: categoryItems),
             HomeSectionModel(section: .theme, items: Theme.staticThemes.map { HomeSectionItem.theme($0) }),
-            HomeSectionModel(section: .areaQuickLink, items: areaItems),
             HomeSectionModel(section: .placeholder, items: [HomeSectionItem.placeholder("추가 기능이 여기에 표시됩니다", index: 0)])
         ]
         return State(sections: initialSections)
@@ -185,13 +185,13 @@ private extension HomeReactor {
             : nearbyPlaces.map { HomeSectionItem.place($0) }
         sections.append(HomeSectionModel(section: .nearby, items: placeItems))
 
+        // Category Section (Always show)
+        let categoryItems = Category.homeCategories.map { HomeSectionItem.category($0) }
+        sections.append(HomeSectionModel(section: .category, items: categoryItems))
+
         // Theme Section (Always show)
         let themeItems = Theme.staticThemes.map { HomeSectionItem.theme($0) }
         sections.append(HomeSectionModel(section: .theme, items: themeItems))
-
-        // Area QuickLink Section (Always show)
-        let areaItems = AreaCode.allCases.map { HomeSectionItem.areaCode($0) }
-        sections.append(HomeSectionModel(section: .areaQuickLink, items: areaItems))
 
         // Placeholder Section
         sections.append(HomeSectionModel(section: .placeholder, items: [.placeholder("추가 기능이 여기에 표시됩니다", index: 0)]))

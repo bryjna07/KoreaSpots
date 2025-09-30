@@ -1,5 +1,5 @@
 //
-//  ThemeCardCell.swift
+//  RectangleCell.swift
 //  KoreaSpots
 //
 //  Created by YoungJin on 9/25/25.
@@ -10,7 +10,7 @@ import SnapKit
 import Then
 import SkeletonView
 
-final class ThemeCardCell: BaseCollectionViewCell {
+final class RectangleCell: BaseCollectionViewCell {
 
     // MARK: - UI Components
     private let containerView = UIView()
@@ -18,35 +18,14 @@ final class ThemeCardCell: BaseCollectionViewCell {
     private let titleLabel = UILabel()
 
     // MARK: - Configuration
-    func configure(with theme: Theme) {
-        titleLabel.text = theme.title
-
-        // 시스템 아이콘으로 대체 (실제로는 커스텀 이미지 사용)
-        let iconName: String = {
-            switch theme.id {
-            case "beach":
-                return Constants.Icon.Theme.beach
-            case "mountain":
-                return Constants.Icon.Theme.mountain
-            case "night":
-                return Constants.Icon.Theme.night
-            case "culture":
-                return Constants.Icon.Theme.culture
-            case "market":
-                return Constants.Icon.Theme.market
-            case "park":
-                return Constants.Icon.Theme.park
-            default:
-                return Constants.Icon.Theme.defaultIcon
-            }
-        }()
-
-        iconImageView.image = UIImage(systemName: iconName)
+    func configure(with category: Category) {
+        titleLabel.text = category.title
+        iconImageView.image = UIImage(systemName: category.iconName)
     }
 }
 
     // MARK: - ConfigureUI
-extension ThemeCardCell {
+extension RectangleCell {
     override func configureHierarchy() {
         contentView.addSubview(containerView)
         containerView.addSubviews(

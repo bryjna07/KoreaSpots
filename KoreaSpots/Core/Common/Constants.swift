@@ -59,15 +59,15 @@ enum Constants {
                 static let imageHeight: CGFloat = 100
             }
 
-            enum Theme {
+            enum Category {
                 static let itemHeight: CGFloat = 80
                 static let containerHeight: CGFloat = 256
                 static let columnsCount = 4
-                static let rowsCount = 3
+                static let rowsCount = 2
                 static let itemWidthFraction: CGFloat = 1.0/4.0
             }
 
-            enum AreaQuickLink {
+            enum Theme {
                 static let itemWidth: CGFloat = 70
                 static let itemHeight: CGFloat = 90
                 static let imageSize: CGFloat = 50

@@ -16,10 +16,10 @@ extension HomeView {
                 return self.createFestivalSection(environment: environment)
             case 1: // Nearby Places Section
                 return self.createNearbySection()
-            case 2: // Theme Section
+            case 2: // Category Section (4x2 grid)
+                return self.createCategorySection()
+            case 3: // Theme Section (horizontal scroll)
                 return self.createThemeSection()
-            case 3: // Area QuickLink Section
-                return self.createAreaQuickLinkSection()
             default: // Placeholder Section
                 return self.createPlaceholderSection()
             }
@@ -71,9 +71,10 @@ extension HomeView {
         return section
     }
 
-    func createThemeSection() -> NSCollectionLayoutSection {
+    func createCategorySection() -> NSCollectionLayoutSection {
+        // 4x2 grid layout for categories
         let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(Constants.UI.CollectionView.Theme.itemWidthFraction),
+            widthDimension: .fractionalWidth(Constants.UI.CollectionView.Category.itemWidthFraction),
             heightDimension: .absolute(Constants.UI.CollectionView.Theme.itemHeight)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
@@ -91,17 +92,17 @@ extension HomeView {
         let rowGroup = NSCollectionLayoutGroup.horizontal(
             layoutSize: rowSize,
             repeatingSubitem: item,
-            count: Constants.UI.CollectionView.Theme.columnsCount
+            count: Constants.UI.CollectionView.Category.columnsCount
         )
 
         let containerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(Constants.UI.CollectionView.Theme.containerHeight)
+            heightDimension: .absolute(Constants.UI.CollectionView.Category.itemHeight * 2 + Constants.UI.Spacing.small)
         )
         let containerGroup = NSCollectionLayoutGroup.vertical(
             layoutSize: containerSize,
             repeatingSubitem: rowGroup,
-            count: Constants.UI.CollectionView.Theme.rowsCount
+            count: Constants.UI.CollectionView.Category.rowsCount
         )
 
         let section = NSCollectionLayoutSection(group: containerGroup)
@@ -115,22 +116,23 @@ extension HomeView {
         return section
     }
 
-    func createAreaQuickLinkSection() -> NSCollectionLayoutSection {
+    func createThemeSection() -> NSCollectionLayoutSection {
+        // Horizontal scroll layout for themes (using RoundCell)
         let itemSize = NSCollectionLayoutSize(
-            widthDimension: .absolute(Constants.UI.CollectionView.AreaQuickLink.itemWidth),
-            heightDimension: .absolute(Constants.UI.CollectionView.AreaQuickLink.itemHeight)
+            widthDimension: .absolute(Constants.UI.CollectionView.Theme.itemWidth),
+            heightDimension: .absolute(Constants.UI.CollectionView.Theme.itemHeight)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
         let groupSize = NSCollectionLayoutSize(
-            widthDimension: .absolute(Constants.UI.CollectionView.AreaQuickLink.itemWidth),
-            heightDimension: .absolute(Constants.UI.CollectionView.AreaQuickLink.itemHeight)
+            widthDimension: .absolute(Constants.UI.CollectionView.Theme.itemWidth),
+            heightDimension: .absolute(Constants.UI.CollectionView.Theme.itemHeight)
         )
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
 
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .continuous
-        section.interGroupSpacing = Constants.UI.CollectionView.AreaQuickLink.spacing
+        section.interGroupSpacing = Constants.UI.CollectionView.Theme.spacing
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 0,
             leading: Constants.UI.Spacing.xLarge,
