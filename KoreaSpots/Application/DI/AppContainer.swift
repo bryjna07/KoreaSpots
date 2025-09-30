@@ -65,6 +65,13 @@ final class AppContainer {
     }()
 
     // MARK: - Factory Methods
+
+    // MARK: TabBar
+    func makeTabBarController() -> TabBarController {
+        return TabBarController()
+    }
+
+    // MARK: Home
     func makeHomeReactor() -> HomeReactor {
         return HomeReactor(
             fetchFestivalUseCase: fetchFestivalUseCase,
@@ -80,6 +87,7 @@ final class AppContainer {
         return viewController
     }
 
+    // MARK: PlaceDetail
     func makePlaceDetailViewController(place: Place) -> PlaceDetailViewController {
         let reactor = PlaceDetailReactor(
             place: place,

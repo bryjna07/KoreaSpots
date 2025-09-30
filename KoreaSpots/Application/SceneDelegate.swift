@@ -20,13 +20,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Mock 데이터 사용 설정
         AppContainer.shared.setUseMockData(true)
 
-        // HomeViewController 생성
-        let homeVC = AppContainer.shared.makeHomeViewController()
-
-        // 네비게이션 컨트롤러에 embedded
-        let navigationController = UINavigationController(rootViewController: homeVC)
-
-        window?.rootViewController = navigationController
+        let tabBarVC = AppContainer.shared.makeTabBarController()
+        window?.rootViewController = tabBarVC
         window?.makeKeyAndVisible()
     }
 
