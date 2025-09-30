@@ -12,7 +12,7 @@ import RxCocoa
 import RxDataSources
 import SkeletonView
 
-final class HomeViewController: BaseViewController, View {
+final class HomeViewController: BaseViewController, View, ScreenNavigatable {
 
     // MARK: - Properties
     var disposeBag = DisposeBag()
@@ -43,8 +43,8 @@ final class HomeViewController: BaseViewController, View {
     // MARK: - Bind
     func bind(reactor: HomeReactor) {
         // Action
-        rx.sentMessage(#selector(viewDidLoad))
-            .map { _ in Reactor.Action.viewDidLoad }
+        Observable.just(())
+            .map { Reactor.Action.viewDidLoad }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
@@ -217,12 +217,10 @@ final class HomeViewController: BaseViewController, View {
 
         switch item {
         case .festival(let festival):
-            // TODO: Navigate to festival detail
-            print("Festival selected: \(festival.title)")
+            navigateToFestivalDetail(festival: festival)
 
         case .place(let place):
-            // TODO: Navigate to place detail
-            print("Place selected: \(place.title)")
+            navigateToPlaceDetail(place: place)
 
         case .theme(let theme):
             // TODO: Navigate to theme category
@@ -245,8 +243,7 @@ final class HomeViewController: BaseViewController, View {
             print("Navigate to festival list")
             break
         case .nearby:
-            // TODO: Open map view
-            print("Open map view")
+            navigateToMap()
             break
         case .theme:
             // TODO: Navigate to theme list
@@ -261,29 +258,5 @@ final class HomeViewController: BaseViewController, View {
             print("Handle placeholder action")
             break
         }
-    }
-
-    private func showErrorAlert(message: String) {
-        let alert = UIAlertController(title: LocalizedKeys.Error.title.localized, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: LocalizedKeys.Action.confirm.localized, style: .default))
-        present(alert, animated: true)
-    }
-
-    // MARK: - Navigation
-    private func navigateToSearch() {
-        // TODO: 검색 화면으로 네비게이션 구현
-        print("Navigate to search screen")
-
-        // 임시로 alert으로 구현
-        let alert = UIAlertController(
-            title: LocalizedKeys.Search.title.localized,
-            message: LocalizedKeys.Search.navigationMessage.localized,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(
-            title: LocalizedKeys.Action.confirm.localized,
-            style: .default
-        ))
-        present(alert, animated: true)
     }
 }

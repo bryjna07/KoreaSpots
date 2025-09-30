@@ -79,4 +79,15 @@ final class AppContainer {
         viewController.reactor = reactor
         return viewController
     }
+
+    func makePlaceDetailViewController(place: Place) -> PlaceDetailViewController {
+        let reactor = PlaceDetailReactor(
+            place: place,
+            tourRepository: tourRepository,
+            fetchLocationBasedPlacesUseCase: fetchLocationBasedPlacesUseCase
+        )
+        let viewController = PlaceDetailViewController()
+        viewController.reactor = reactor
+        return viewController
+    }
 }
