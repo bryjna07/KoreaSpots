@@ -261,20 +261,3 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
     }
 }
 
-// MARK: - Place Empty Extension
-private extension Place {
-    static var empty: Place {
-        return Place(
-            contentId: "",
-            title: "",
-            address: "",
-            imageURL: nil,
-            mapX: nil,
-            mapY: nil,
-            tel: nil,
-            overview: nil,
-            contentTypeId: 0,
-            distance: nil
-        )
-    }
-}

@@ -24,4 +24,19 @@ extension Place: Equatable {
     static func == (lhs: Place, rhs: Place) -> Bool {
         lhs.contentId == rhs.contentId
     }
+
+    static var empty: Place {
+        return Place(
+            contentId: "",
+            title: "",
+            address: "",
+            imageURL: nil,
+            mapX: nil,
+            mapY: nil,
+            tel: nil,
+            overview: nil,
+            contentTypeId: 0,
+            distance: nil
+        )
+    }
 }

@@ -21,12 +21,17 @@ enum LocalizedKeys {
         static let nearby = "section_nearby"
         static let theme = "section_theme"
         static let areaQuickLink = "section_area_quick_link"
+        static let operatingInfo = "section_operating_info"
+        static let location = "section_location"
+        static let nearbyPlaces = "section_nearby_places"
     }
 
     // MARK: - Actions
     enum Action {
         static let openMap = "action_open_map"
         static let confirm = "action_confirm"
+        static let cancel = "action_cancel"
+        static let delete = "action_delete"
     }
 
     // MARK: - Errors
@@ -34,6 +39,7 @@ enum LocalizedKeys {
         static let title = "error_title"
         static let fetchFestivalFailed = "error_fetch_festival_failed"
         static let fetchPlacesFailed = "error_fetch_places_failed"
+        static let fetchPlaceDetailFailed = "error_fetch_place_detail_failed"
     }
 
     // MARK: - Search

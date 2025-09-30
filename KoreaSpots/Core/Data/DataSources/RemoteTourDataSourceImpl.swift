@@ -11,6 +11,7 @@ import RxSwift
 import RxMoya
 
 final class RemoteTourDataSourceImpl: TourRemoteDataSource {
+    
     private let provider: MoyaProvider<TourAPI>
 
     init(provider: MoyaProvider<TourAPI>) {
@@ -83,21 +84,45 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
                 response.toPlaces()
             }
     }
+    
+    func fetchDetailImages(contentId: String, numOfRows: Int, pageNo: Int) -> Single<[PlaceImage]> {
+        return provider.rx.request(.detailImage(
+            contentId: contentId,
+            numOfRows: numOfRows,
+            pageNo: pageNo
+        ))
+        .map(TourAPIImageResponse.self)
+        .map { response in
+            response.toPlaceImages()
+        }
+    }
 
     func fetchDetailCommon(
         contentId: String,
         contentTypeId: Int?
     ) -> Single<Place> {
-        // TourAPI에 detailCommon 케이스 추가 필요
-        return Single.error(DataSourceError.notImplemented)
+        return provider.rx.request(.detailCommon(
+            contentId: contentId,
+            contentTypeId: contentTypeId
+        ))
+        .map(TourAPIResponse.self)
+        .map { response in
+            response.toPlaces().first ?? Place.empty
+        }
     }
 
     func fetchDetailIntro(
         contentId: String,
         contentTypeId: Int
     ) -> Single<Place> {
-        // TourAPI에 detailIntro 케이스 추가 필요
-        return Single.error(DataSourceError.notImplemented)
+        return provider.rx.request(.detailIntro(
+            contentId: contentId,
+            contentTypeId: contentTypeId
+        ))
+        .map(TourAPIResponse.self)
+        .map { response in
+            response.toPlaces().first ?? Place.empty
+        }
     }
 }
 

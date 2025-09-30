@@ -31,6 +31,12 @@ struct MockDataProvider {
             return "searchFestival2_2025-09-27_2025-10-27"
         case .locationBasedList:
             return "locationBasedList2_sample"
+        case .detailCommon:
+            return "detailCommon2_sample"
+        case .detailIntro:
+            return "detailIntro2_sample"
+        case .detailImage:
+            return "detailImage2_sample"
         }
     }
 }

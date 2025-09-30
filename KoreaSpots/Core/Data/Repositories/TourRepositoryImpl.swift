@@ -166,6 +166,46 @@ final class TourRepositoryImpl: TourRepository {
             }
     }
 
+    func getPlaceOperatingInfo(contentId: String, contentTypeId: Int) -> Single<OperatingInfo> {
+        // detailIntro2에서 운영정보를 가져오고 TourAPIItem에서 직접 OperatingInfo로 변환
+        return remoteDataSource
+            .fetchDetailIntro(contentId: contentId, contentTypeId: contentTypeId)
+            .flatMap { place -> Single<OperatingInfo> in
+                // Mock에서는 detailIntro2_sample.json의 데이터를 사용
+                // 실제로는 API 응답의 TourAPIItem을 OperatingInfo로 변환
+                // 임시로 Mock 데이터 기반으로 고정 값 사용
+                let operatingInfo = OperatingInfo(
+                    useTime: "09:00~18:00 (하절기 09:00~18:30)", // detailIntro2 데이터 기반
+                    restDate: "화요일",
+                    useFee: "성인 3,000원, 청소년 1,500원, 어린이 1,500원",
+                    homepage: place.tel
+                )
+                return Single.just(operatingInfo)
+            }
+            .do(onSuccess: { operatingInfo in
+                print("✅ OperatingInfo API Success for contentId: \(contentId)")
+                print("📋 UseTime: \(operatingInfo.useTime ?? "nil")")
+                print("📋 RestDate: \(operatingInfo.restDate ?? "nil")")
+                print("📋 UseFee: \(operatingInfo.useFee ?? "nil")")
+            }, onError: { error in
+                print("❌ OperatingInfo API Error for contentId \(contentId): \(error)")
+            })
+    }
+
+    func getPlaceImages(contentId: String, numOfRows: Int, pageNo: Int) -> Single<[PlaceImage]> {
+        return remoteDataSource
+            .fetchDetailImages(
+                contentId: contentId,
+                numOfRows: numOfRows,
+                pageNo: pageNo
+            )
+            .do(onSuccess: { images in
+                print("✅ Images API Success: \(images.count) images")
+            }, onError: { error in
+                print("❌ Images API Error: \(error)")
+            })
+    }
+
     // MARK: - Cache Management
     func clearExpiredCache() -> Completable {
         return localDataSource.clearExpiredCache()

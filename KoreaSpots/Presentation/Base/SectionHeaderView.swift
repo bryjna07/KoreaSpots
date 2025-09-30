@@ -8,14 +8,17 @@
 import UIKit
 import SnapKit
 import Then
+import SkeletonView
 
 struct SectionHeaderModel {
     let title: String
     let actionTitle: String?
+    let titleFont: UIFont?
 
-    init(title: String, actionTitle: String? = nil) {
+    init(title: String, actionTitle: String? = nil, titleFont: UIFont? = nil) {
         self.title = title
         self.actionTitle = actionTitle
+        self.titleFont = titleFont
     }
 }
 
@@ -38,6 +41,13 @@ final class SectionHeaderView: BaseReusableView, HeaderViewConfigurable {
     func configure(with model: SectionHeaderModel) {
         titleLabel.text = model.title
 
+        // 폰트 커스터마이징 (지정되지 않으면 기본값 사용)
+        if let customFont = model.titleFont {
+            titleLabel.font = customFont
+        } else {
+            titleLabel.font = FontManager.Header.sectionTitle
+        }
+
         if let actionTitle = model.actionTitle {
             actionButton.setTitle(actionTitle, for: .normal)
             actionButton.isHidden = false
@@ -49,6 +59,29 @@ final class SectionHeaderView: BaseReusableView, HeaderViewConfigurable {
     // Legacy method for backwards compatibility
     func configure(title: String, actionTitle: String? = nil) {
         configure(with: SectionHeaderModel(title: title, actionTitle: actionTitle))
+    }
+
+    // PlaceDetail용 간단한 설정 메서드 (폰트 커스터마이징 가능)
+    func configure(with title: String?, font: UIFont? = nil) {
+        titleLabel.text = title
+
+        if let customFont = font {
+            titleLabel.font = customFont
+        } else {
+            titleLabel.font = FontManager.title3
+        }
+
+        actionButton.isHidden = true
+        isHidden = (title == nil)
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        titleLabel.text = nil
+        titleLabel.font = FontManager.Header.sectionTitle // 기본 폰트로 초기화
+        actionButton.isHidden = true
+        actionHandler = nil
+        isHidden = false
     }
 
     override func configureHierarchy() {
@@ -68,7 +101,8 @@ final class SectionHeaderView: BaseReusableView, HeaderViewConfigurable {
     
     override func configureView() {
         super.configureView()
-        backgroundColor = .white
+        backgroundColor = .systemBackground
+        isSkeletonable = true
 
         stackView.do {
             $0.axis = .horizontal
@@ -79,6 +113,7 @@ final class SectionHeaderView: BaseReusableView, HeaderViewConfigurable {
         titleLabel.do {
             $0.font = FontManager.Header.sectionTitle
             $0.textColor = .label
+            $0.isSkeletonable = true
         }
 
         actionButton.do {

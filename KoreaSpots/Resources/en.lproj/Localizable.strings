@@ -4,7 +4,7 @@
 */
 
 // Home
-"home_title" = "Home";
+"home_title" = "KoreaSpots";
 
 // Section Headers
 "section_festival" = "Current Festivals";
@@ -12,15 +12,21 @@
 "section_theme" = "Themes";
 "section_area_quick_link" = "Area Quick Link";
 "section_placeholder" = "Coming Soon";
+"section_operating_info" = "Operating Information";
+"section_location" = "Location";
+"section_nearby_places" = "Nearby Places";
 
 // Actions
 "action_open_map" = "Open Map";
 "action_confirm" = "OK";
+"action_cancel" = "Cancel";
+"action_delete" = "Delete";
 
 // Errors
 "error_title" = "Error";
 "error_fetch_festival_failed" = "Unable to load festival information.";
 "error_fetch_places_failed" = "Unable to load nearby places information.";
+"error_fetch_place_detail_failed" = "Failed to load detailed information.";
 
 // Search
 "search_placeholder" = "Where would you like to go?";

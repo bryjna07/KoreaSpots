@@ -93,6 +93,51 @@ enum Constants {
             enum AutoScroll {
                 static let timeInterval: TimeInterval = 3.0
             }
+
+            // MARK: - PlaceDetail
+            enum PlaceDetail {
+                enum ImageCarousel {
+                    static let height: CGFloat = 250
+                    static let itemWidthFraction: CGFloat = 0.9
+                    static let itemSpacing: CGFloat = 12
+                }
+
+                enum BasicInfo {
+                    static let estimatedHeight: CGFloat = 120
+                }
+
+                enum Description {
+                    static let estimatedHeight: CGFloat = 100
+                }
+
+                enum OperatingInfo {
+                    static let estimatedHeight: CGFloat = 120
+                }
+
+                enum Location {
+                    static let height: CGFloat = 200
+                }
+
+                enum NearbyPlaces {
+                    static let itemWidth: CGFloat = 180
+                    static let itemHeight: CGFloat = 220
+                    static let itemSpacing: CGFloat = 12
+                }
+
+                enum Header {
+                    static let height: CGFloat = 44
+                }
+
+                enum ContentInsets {
+                    static let standard: CGFloat = 20
+                    static let imageCarousel: CGFloat = 20
+                }
+
+                enum Spacing {
+                    static let section: CGFloat = 20
+                    static let item: CGFloat = 12
+                }
+            }
         }
 
         // MARK: - Alpha
@@ -107,6 +152,13 @@ enum Constants {
             static let cornerRadius: CGFloat = 12
         }
 
+        // MARK: - Button Height
+        enum ButtonHeight {
+            static let small: CGFloat = 32
+            static let medium: CGFloat = 44
+            static let large: CGFloat = 56
+        }
+
         // MARK: - Label
         enum Label {
             static let pageIndicatorHeight: CGFloat = 24
@@ -114,6 +166,26 @@ enum Constants {
             static let pageIndicatorBottomOffset: CGFloat = 36
         }
     }
+
+    // MARK: - Layout Constants
+    enum Layout {
+        // MARK: - Padding
+        static let smallPadding: CGFloat = 8
+        static let mediumPadding: CGFloat = 12
+        static let standardPadding: CGFloat = 16
+        static let largePadding: CGFloat = 20
+        static let xLargePadding: CGFloat = 24
+
+        // MARK: - Spacing
+        static let itemSpacing: CGFloat = 10
+        static let sectionSpacing: CGFloat = 20
+        static let sectionInset: CGFloat = 20
+
+        // MARK: - Heights
+        static let imageCarouselHeight: CGFloat = 250
+        static let cellMinHeight: CGFloat = 44
+    }
+
 
     // MARK: - Icon Constants
     enum Icon {

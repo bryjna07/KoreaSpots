@@ -4,7 +4,7 @@
 */
 
 // Home
-"home_title" = "홈";
+"home_title" = "어디로";
 
 // Section Headers
 "section_festival" = "지금 열리는 축제";
@@ -12,15 +12,21 @@
 "section_theme" = "테마별 보기";
 "section_area_quick_link" = "지역별 보기";
 "section_placeholder" = "날씨 정보";
+"section_operating_info" = "운영 정보";
+"section_location" = "상세 위치";
+"section_nearby_places" = "주변 명소";
 
 // Actions
 "action_open_map" = "지도 보기";
 "action_confirm" = "확인";
+"action_cancel" = "취소";
+"action_delete" = "삭제";
 
 // Errors
 "error_title" = "오류";
 "error_fetch_festival_failed" = "축제 정보를 불러올 수 없습니다.";
 "error_fetch_places_failed" = "주변 관광지 정보를 불러올 수 없습니다.";
+"error_fetch_place_detail_failed" = "상세 정보를 불러오는데 실패했습니다.";
 
 // Search
 "search_placeholder" = "어디로 가시나요?";
