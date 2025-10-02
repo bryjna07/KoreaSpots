@@ -98,4 +98,16 @@ final class AppContainer {
         viewController.reactor = reactor
         return viewController
     }
+
+    // MARK: Category
+    func makeCategoryReactor() -> CategoryReactor {
+        return CategoryReactor()
+    }
+
+    func makeCategoryViewController() -> CategoryViewController {
+        let reactor = makeCategoryReactor()
+        let viewController = CategoryViewController()
+        viewController.reactor = reactor
+        return viewController
+    }
 }

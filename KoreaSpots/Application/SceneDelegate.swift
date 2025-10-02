@@ -21,6 +21,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         AppContainer.shared.setUseMockData(true)
 
         let tabBarVC = AppContainer.shared.makeTabBarController()
+        tabBarVC.selectedIndex = 1 // 시작 탭: 두 번째 탭
+        
         window?.rootViewController = tabBarVC
         window?.makeKeyAndVisible()
     }

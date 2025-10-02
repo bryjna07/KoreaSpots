@@ -80,9 +80,9 @@ extension HomeView {
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         item.contentInsets = NSDirectionalEdgeInsets(
             top: 0,
-            leading: Constants.UI.Spacing.tiny,
+            leading: Constants.UI.Spacing.xSmall,
             bottom: Constants.UI.Spacing.small,
-            trailing: Constants.UI.Spacing.tiny
+            trailing: Constants.UI.Spacing.xSmall
         )
 
         let rowSize = NSCollectionLayoutSize(

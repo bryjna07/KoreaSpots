@@ -15,6 +15,7 @@ enum Constants {
 
         // MARK: - Corner Radius
         enum CornerRadius {
+            static let xSmall: CGFloat = 4
             static let small: CGFloat = 8
             static let medium: CGFloat = 12
             static let large: CGFloat = 16
@@ -30,7 +31,7 @@ enum Constants {
 
         // MARK: - Spacing
         enum Spacing {
-            static let tiny: CGFloat = 4
+            static let xSmall: CGFloat = 4
             static let small: CGFloat = 8
             static let medium: CGFloat = 12
             static let large: CGFloat = 16

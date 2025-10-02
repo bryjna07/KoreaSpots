@@ -22,6 +22,12 @@ final class RectangleCell: BaseCollectionViewCell {
         titleLabel.text = category.title
         iconImageView.image = UIImage(systemName: category.iconName)
     }
+
+    func configure(with cat3: Cat3) {
+        titleLabel.text = cat3.labelKo
+        // Cat3에 대한 기본 아이콘 설정 (추후 개별 아이콘 매핑 가능)
+        iconImageView.image = UIImage(systemName: "mappin.circle.fill")
+    }
 }
 
     // MARK: - ConfigureUI

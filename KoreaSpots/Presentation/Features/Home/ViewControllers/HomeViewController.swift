@@ -55,9 +55,9 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
 
         // Search Button Action
         homeView.searchButton.rx.tap
-            .subscribe(with: self, onNext: { owner, _ in
+            .bind(with: self) { owner, _ in
                 owner.navigateToSearch()
-            })
+            }
             .disposed(by: disposeBag)
 
         // State
@@ -65,7 +65,7 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             .map(\.isLoading)
             .distinctUntilChanged()
             .asDriver(onErrorJustReturn: false)
-            .drive(with: self, onNext: { owner, isLoading in
+            .drive(with: self) { owner, isLoading in
                 if isLoading {
                     // 뷰가 화면에 표시된 경우에만 beginRefreshing 호출
                     if owner.isViewLoaded && owner.view.window != nil {
@@ -74,7 +74,7 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
                 } else {
                     owner.homeView.refreshControl.endRefreshing()
                 }
-            })
+            }
             .disposed(by: disposeBag)
 
         reactor.state
@@ -93,16 +93,16 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
         reactor.state
             .compactMap(\.error)
             .asDriver(onErrorJustReturn: "Unknown error occurred")
-            .drive(with: self, onNext: { owner, error in
+            .drive(with: self) { owner, error in
                 owner.showErrorAlert(message: error)
-            })
+            }
             .disposed(by: disposeBag)
 
         // Cell Selection
         homeView.collectionView.rx.itemSelected
-            .subscribe(with: self, onNext: { owner, indexPath in
+            .bind(with: self) { owner, indexPath in
                 owner.handleCellSelection(at: indexPath, reactor: reactor)
-            })
+            }
             .disposed(by: disposeBag)
 
         // Location Updates

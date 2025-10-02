@@ -339,6 +339,103 @@ public enum Cat3: String, CaseIterable {
     case A02081200 // 스포츠경기
     case A02081300 // 기타행사
     case A02081400 // 넌버벌
+
+    public var labelKo: String {
+        switch self {
+        // A0101 자연관광지
+        case .A01010100: return "국립공원"
+        case .A01010200: return "도립공원"
+        case .A01010300: return "군립공원"
+        case .A01010400: return "산"
+        case .A01010500: return "자연생태관광지"
+        case .A01010600: return "자연휴양림"
+        case .A01010700: return "수목원"
+        case .A01010800: return "폭포"
+        case .A01010900: return "계곡"
+        case .A01011000: return "약수터"
+        case .A01011100: return "해안절경"
+        case .A01011200: return "해수욕장"
+        case .A01011300: return "섬"
+        case .A01011400: return "항구/포구"
+        case .A01011600: return "등대"
+        case .A01011700: return "호수"
+        case .A01011800: return "강"
+        case .A01011900: return "동굴"
+        // A0102 관광자원
+        case .A01020100: return "희귀동·식물"
+        case .A01020200: return "기암괴석"
+        // A0201 역사관광지
+        case .A02010100: return "고궁"
+        case .A02010200: return "성"
+        case .A02010300: return "문"
+        case .A02010400: return "고택"
+        case .A02010500: return "생가"
+        case .A02010600: return "민속마을"
+        case .A02010700: return "유적지/사적지"
+        case .A02010800: return "사찰"
+        case .A02010900: return "종교성지"
+        case .A02011000: return "안보관광"
+        // A0202 휴양관광지
+        case .A02020200: return "관광단지"
+        case .A02020300: return "온천/욕장/스파"
+        case .A02020400: return "이색찜질방"
+        case .A02020500: return "헬스투어"
+        case .A02020600: return "테마공원"
+        case .A02020700: return "공원"
+        case .A02020800: return "유람선/잠수함관광"
+        // A0203 체험관광지
+        case .A02030100: return "농·산·어촌 체험"
+        case .A02030200: return "전통체험"
+        case .A02030300: return "산사체험"
+        case .A02030400: return "이색체험"
+        case .A02030500: return "이색거리"
+        // A0204 산업관광지
+        case .A02040400: return "발전소"
+        case .A02040600: return "식음료"
+        case .A02040800: return "기타"
+        case .A02040900: return "전자·반도체"
+        case .A02041000: return "자동차"
+        // A0205 건축/조형물
+        case .A02050100: return "다리/대교"
+        case .A02050200: return "기념탑/기념비/전망대"
+        case .A02050300: return "분수"
+        case .A02050400: return "동상"
+        case .A02050500: return "터널"
+        case .A02050600: return "유명건물"
+        // A0206 문화시설
+        case .A02060100: return "박물관"
+        case .A02060200: return "기념관"
+        case .A02060300: return "전시관"
+        case .A02060400: return "컨벤션센터"
+        case .A02060500: return "미술관/화랑"
+        case .A02060600: return "공연장"
+        case .A02060700: return "문화원"
+        case .A02060800: return "외국문화원"
+        case .A02060900: return "도서관"
+        case .A02061000: return "대형서점"
+        case .A02061100: return "문화전수시설"
+        case .A02061200: return "영화관"
+        case .A02061300: return "어학당"
+        case .A02061400: return "학교"
+        // A0207 축제
+        case .A02070100: return "문화관광축제"
+        case .A02070200: return "일반축제"
+        // A0208 공연/행사
+        case .A02080100: return "전통공연"
+        case .A02080200: return "연극"
+        case .A02080300: return "뮤지컬"
+        case .A02080400: return "오페라"
+        case .A02080500: return "전시회"
+        case .A02080600: return "박람회"
+        case .A02080800: return "무용"
+        case .A02080900: return "클래식음악회"
+        case .A02081000: return "대중콘서트"
+        case .A02081100: return "영화"
+        case .A02081200: return "스포츠경기"
+        case .A02081300: return "기타행사"
+        case .A02081400: return "넌버벌"
+        }
+    }
 }
 
 // MARK: - 12개 사용자 테마 (앱 노출용)

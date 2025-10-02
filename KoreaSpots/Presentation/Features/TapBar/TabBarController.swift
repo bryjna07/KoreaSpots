@@ -61,9 +61,8 @@ final class TabBarController: UITabBarController {
 private extension TabBarController {
    
     func createSearchTab() -> UINavigationController {
-        // TODO: Category 화면 구현 후 교체
-        let placeholderVC = PlaceholderViewController(title: "카테고리", message: "카테고리 화면 준비중입니다")
-        let navController = UINavigationController(rootViewController: placeholderVC)
+        let categoryVC = AppContainer.shared.makeCategoryViewController()
+        let navController = UINavigationController(rootViewController: categoryVC)
 
         navController.tabBarItem = UITabBarItem(
             title: "검색",
