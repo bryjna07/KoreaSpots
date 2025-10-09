@@ -26,9 +26,9 @@ class BaseViewController: UIViewController {
         
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .white
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.black]
-        navigationController?.navigationBar.tintColor = .black
+        appearance.backgroundColor = .backGround
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.textPrimary]
+        navigationController?.navigationBar.tintColor = .textPrimary
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.compactAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance

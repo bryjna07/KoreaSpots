@@ -61,20 +61,24 @@ extension RectangleCell {
         super.configureView()
 
         containerView.do {
-            $0.backgroundColor = .systemGray6
+            $0.backgroundColor = .white
             $0.layer.cornerRadius = Constants.UI.CornerRadius.medium
+            $0.layer.shadowColor = UIColor.black.cgColor
+            $0.layer.shadowOpacity = Constants.UI.Shadow.opacity
+            $0.layer.shadowOffset = Constants.UI.Shadow.offset
+            $0.layer.shadowRadius = Constants.UI.Shadow.radius
             $0.isSkeletonable = true
         }
 
         iconImageView.do {
             $0.contentMode = .scaleAspectFit
-            $0.tintColor = .systemBlue
+            $0.tintColor = .gray
             $0.isSkeletonable = true
         }
 
         titleLabel.do {
             $0.font = FontManager.Card.subtitle
-            $0.textColor = .label
+            $0.textColor = .black
             $0.textAlignment = .center
             $0.isSkeletonable = true
         }

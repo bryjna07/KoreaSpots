@@ -64,7 +64,7 @@ final class CategoryView: BaseView {
         super.configureView()
 
         searchBar.do {
-            $0.backgroundColor = .systemGray6
+            $0.backgroundColor = .secondBackGround
             $0.layer.cornerRadius = Constants.UI.CornerRadius.medium
             $0.isUserInteractionEnabled = true
         }
@@ -88,11 +88,11 @@ final class CategoryView: BaseView {
         }
 
         sidebarCollectionView.do {
-            $0.backgroundColor = .systemBackground
+            $0.backgroundColor = .backGround
         }
 
         gridCollectionView.do {
-            $0.backgroundColor = .systemBackground
+            $0.backgroundColor = .backGround
             $0.showsVerticalScrollIndicator = true
         }
     }
@@ -101,7 +101,7 @@ final class CategoryView: BaseView {
     private func createSidebarLayout() -> UICollectionViewLayout {
         var config = UICollectionLayoutListConfiguration(appearance: .sidebar)
         config.showsSeparators = false
-        config.backgroundColor = .systemBackground
+        config.backgroundColor = .backGround
         return UICollectionViewCompositionalLayout.list(using: config)
     }
 

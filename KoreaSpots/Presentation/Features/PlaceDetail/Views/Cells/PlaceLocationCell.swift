@@ -79,7 +79,7 @@ extension PlaceLocationCell {
         super.configureView()
 
         containerView.do {
-            $0.backgroundColor = .systemBackground
+            $0.backgroundColor = .backGround
             $0.layer.cornerRadius = Constants.UI.CornerRadius.medium
             $0.layer.shadowColor = UIColor.black.cgColor
             $0.layer.shadowOpacity = Constants.UI.Shadow.opacity

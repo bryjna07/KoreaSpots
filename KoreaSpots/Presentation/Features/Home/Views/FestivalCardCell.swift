@@ -84,7 +84,7 @@ extension FestivalCardCell {
         super.configureView()
         
         containerView.do {
-            $0.backgroundColor = .systemGray6
+            $0.backgroundColor = .secondBackGround
 //            $0.layer.cornerRadius = Constants.UI.CornerRadius.medium
             $0.layer.masksToBounds = true
             $0.isSkeletonable = true
@@ -92,7 +92,7 @@ extension FestivalCardCell {
 
         imageView.do {
             $0.contentMode = .scaleAspectFill
-            $0.backgroundColor = .systemGray5
+            $0.backgroundColor = .secondBackGround
             $0.isSkeletonable = true
         }
         

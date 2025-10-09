@@ -53,7 +53,7 @@ extension PlaceDetailView {
         super.configureView()
 
         collectionView.do {
-            $0.backgroundColor = .systemBackground
+            $0.backgroundColor = .backGround
             $0.showsVerticalScrollIndicator = false
             $0.contentInsetAdjustmentBehavior = .automatic
             $0.isSkeletonable = true

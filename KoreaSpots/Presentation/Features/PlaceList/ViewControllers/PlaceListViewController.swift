@@ -43,7 +43,7 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
 
     private lazy var emptyStateView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .backGround
         view.isHidden = true
         return view
     }()
@@ -332,8 +332,8 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
 
             let isSelected = (index == 0 && selectedSigungu == nil) || (index > 0 && selectedSigungu != nil)
             config.baseForegroundColor = isSelected ? .white : .label
-            config.baseBackgroundColor = isSelected ? .systemBlue : .clear
-            config.background.strokeColor = isSelected ? .systemBlue : .separator
+            config.baseBackgroundColor = isSelected ? .textPrimary : .clear
+            config.background.strokeColor = isSelected ? .textPrimary : .separator
 
             button.configuration = config
         }

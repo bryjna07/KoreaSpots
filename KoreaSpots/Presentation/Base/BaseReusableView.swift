@@ -28,7 +28,6 @@ class BaseReusableView: UICollectionReusableView {
     }
 
     func configureView() {
-        // iOS 16+ 개선된 시스템 색상 사용
-        backgroundColor = .systemBackground
+        backgroundColor = .backGround
     }
 }

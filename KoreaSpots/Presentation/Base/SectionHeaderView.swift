@@ -101,7 +101,6 @@ final class SectionHeaderView: BaseReusableView, HeaderViewConfigurable {
     
     override func configureView() {
         super.configureView()
-        backgroundColor = .systemBackground
         isSkeletonable = true
 
         stackView.do {
@@ -118,7 +117,7 @@ final class SectionHeaderView: BaseReusableView, HeaderViewConfigurable {
 
         actionButton.do {
             $0.titleLabel?.font = FontManager.Header.actionButton
-            $0.setTitleColor(.systemBlue, for: .normal)
+            $0.setTitleColor(.textSecondary, for: .normal)
             $0.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
         }
     }

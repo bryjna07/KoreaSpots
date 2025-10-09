@@ -53,7 +53,7 @@ extension PlaceholderCardCell {
         super.configureView()
 
         containerView.do {
-            $0.backgroundColor = .systemGray6
+            $0.backgroundColor = .secondBackGround
             $0.layer.cornerRadius = Constants.UI.CornerRadius.medium
             $0.isSkeletonable = true
         }
@@ -61,13 +61,13 @@ extension PlaceholderCardCell {
         iconImageView.do {
             $0.image = UIImage(systemName: Constants.Icon.Theme.placeholder)
             $0.contentMode = .scaleAspectFit
-            $0.tintColor = .systemGray3
+            $0.tintColor = .secondBackGround
             $0.isSkeletonable = true
         }
 
         titleLabel.do {
             $0.font = FontManager.bodyMedium
-            $0.textColor = .systemGray2
+            $0.textColor = .textPrimary
             $0.textAlignment = .center
             $0.isSkeletonable = true
         }

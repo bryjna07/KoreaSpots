@@ -85,7 +85,7 @@ extension PlaceBasicInfoCell {
     override func configureView() {
         super.configureView()
 
-        backgroundColor = .systemBackground
+        backgroundColor = .backGround
         isSkeletonable = true
 
         titleLabel.do {

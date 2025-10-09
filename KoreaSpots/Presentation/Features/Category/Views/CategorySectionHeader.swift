@@ -40,12 +40,12 @@ final class CategorySectionHeader: BaseReusableView {
 
         titleLabel.do {
             $0.font = FontManager.Header.sectionTitle
-            $0.textColor = .label
+            $0.textColor = .textPrimary
         }
 
         moreButton.do {
             $0.titleLabel?.font = FontManager.Header.actionButton
-            $0.setTitleColor(.systemBlue, for: .normal)
+            $0.setTitleColor(.textSecondary, for: .normal)
             $0.addTarget(self, action: #selector(moreButtonTapped), for: .touchUpInside)
         }
     }
@@ -56,6 +56,7 @@ final class CategorySectionHeader: BaseReusableView {
     }
 
     // MARK: - Configuration
+    /// TODO: - 컬러 변경 필요
     func configure(cat2: Cat2, isExpanded: Bool, showMoreButton: Bool) {
         titleLabel.text = cat2.labelKo
 

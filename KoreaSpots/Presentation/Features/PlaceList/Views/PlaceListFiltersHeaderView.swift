@@ -82,9 +82,7 @@ final class PlaceListFiltersHeaderView: BaseReusableView {
 
     override func configureView() {
         super.configureView()
-
-        backgroundColor = .systemBackground
-
+        
         regionScrollView.do {
             $0.showsHorizontalScrollIndicator = false
             $0.showsVerticalScrollIndicator = false
@@ -220,12 +218,12 @@ final class PlaceListFiltersHeaderView: BaseReusableView {
         config.attributedTitle = titleAttr
 
         // 선택 상태: 연한 파란 배경 + 파란 글씨 / 미선택: 투명 배경 + 기본 글씨
-        config.baseForegroundColor = isSelected ? .systemBlue : .label
-        config.baseBackgroundColor = isSelected ? .systemBlue.withAlphaComponent(0.1) : .clear
+        config.baseForegroundColor = isSelected ? .textPrimary : .label
+        config.baseBackgroundColor = isSelected ? .textPrimary.withAlphaComponent(0.1) : .clear
         config.cornerStyle = .fixed
         config.background.cornerRadius = isSmall ? 12 : 16
         config.background.strokeWidth = 1
-        config.background.strokeColor = isSelected ? .systemBlue : .separator
+        config.background.strokeColor = isSelected ? .textPrimary : .separator
         config.contentInsets = NSDirectionalEdgeInsets(
             top: isSmall ? 4 : 6,
             leading: isSmall ? 12 : 16,
@@ -240,9 +238,9 @@ final class PlaceListFiltersHeaderView: BaseReusableView {
     private func updateButtonAppearance(_ button: UIButton, isSelected: Bool) {
         guard var config = button.configuration else { return }
 
-        config.baseForegroundColor = isSelected ? .systemBlue : .label
-        config.baseBackgroundColor = isSelected ? .systemBlue.withAlphaComponent(0.1) : .clear
-        config.background.strokeColor = isSelected ? .systemBlue : .separator
+        config.baseForegroundColor = isSelected ? .textPrimary : .label
+        config.baseBackgroundColor = isSelected ? .textPrimary.withAlphaComponent(0.1) : .clear
+        config.background.strokeColor = isSelected ? .textPrimary : .separator
 
         button.configuration = config
     }

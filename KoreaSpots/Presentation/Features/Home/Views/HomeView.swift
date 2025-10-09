@@ -59,7 +59,7 @@ extension HomeView {
         
         searchButton.do {
             var config = UIButton.Configuration.filled()
-            config.baseBackgroundColor = .secondarySystemBackground
+            config.baseBackgroundColor = .secondBackGround
             config.baseForegroundColor = .secondaryLabel
             config.cornerStyle = .fixed
             config.background.cornerRadius = Constants.UI.Button.cornerRadius

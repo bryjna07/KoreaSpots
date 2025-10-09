@@ -28,6 +28,6 @@ extension BaseView: ConfigureUI {
     func configureLayout() { }
     
     func configureView() {
-        backgroundColor = .white
+        backgroundColor = .backGround
     }
 }

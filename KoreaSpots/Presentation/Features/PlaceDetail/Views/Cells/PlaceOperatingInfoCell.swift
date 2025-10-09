@@ -49,7 +49,7 @@ extension PlaceOperatingInfoCell {
         super.configureView()
 
         containerView.do {
-            $0.backgroundColor = .systemBackground
+            $0.backgroundColor = .backGround
             $0.layer.cornerRadius = Constants.UI.CornerRadius.medium
             $0.layer.borderWidth = 1
             $0.layer.borderColor = UIColor.systemGray4.cgColor

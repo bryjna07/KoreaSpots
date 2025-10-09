@@ -87,7 +87,7 @@ extension PlaceCardCell {
         super.configureView()
         
         containerView.do {
-            $0.backgroundColor = .systemBackground
+            $0.backgroundColor = .white
             $0.layer.cornerRadius = Constants.UI.CornerRadius.medium
             $0.layer.shadowColor = UIColor.black.cgColor
             $0.layer.shadowOpacity = Constants.UI.Shadow.opacity
@@ -98,7 +98,7 @@ extension PlaceCardCell {
 
         imageView.do {
             $0.contentMode = .scaleAspectFill
-            $0.backgroundColor = .systemGray5
+            $0.backgroundColor = .secondBackGround
             $0.layer.cornerRadius = Constants.UI.CornerRadius.small
             $0.layer.masksToBounds = true
             $0.isSkeletonable = true
@@ -106,21 +106,21 @@ extension PlaceCardCell {
 
         titleLabel.do {
             $0.font = FontManager.Card.title
-            $0.textColor = .label
+            $0.textColor = .textPrimary
             $0.numberOfLines = 2
             $0.isSkeletonable = true
         }
 
         addressLabel.do {
             $0.font = FontManager.Card.description
-            $0.textColor = .secondaryLabel
+            $0.textColor = .textTertiary
             $0.numberOfLines = 1
             $0.isSkeletonable = true
         }
 
         distanceLabel.do {
             $0.font = FontManager.caption3
-            $0.textColor = .systemBlue
+            $0.textColor = .textSecondary
         }
     }
 }

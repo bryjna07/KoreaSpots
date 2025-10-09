@@ -38,11 +38,11 @@ final class TabBarController: UITabBarController {
     private func setupTabBar() {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .systemBackground
+        appearance.backgroundColor = .backGround
 
-        appearance.stackedLayoutAppearance.selected.iconColor = .systemBlue
+        appearance.stackedLayoutAppearance.selected.iconColor = .textPrimary
         appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-            .foregroundColor: UIColor.systemBlue,
+            .foregroundColor: UIColor.textPrimary,
             .font: FontManager.caption2
         ]
 
@@ -145,7 +145,7 @@ private final class PlaceholderViewController: BaseViewController {
 
     private func setupUI() {
         title = displayTitle
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .backGround
 
         view.addSubview(iconImageView)
         view.addSubview(messageLabel)

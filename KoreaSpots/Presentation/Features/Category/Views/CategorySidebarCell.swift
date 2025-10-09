@@ -60,7 +60,7 @@ final class CategorySidebarCell: UICollectionViewListCell {
         }
 
         highlightBar.do {
-            $0.backgroundColor = .systemBlue
+            $0.backgroundColor = .textSecondary
             $0.layer.cornerRadius = Constants.UI.CornerRadius.xSmall
             $0.isHidden = true
         }
@@ -70,9 +70,9 @@ final class CategorySidebarCell: UICollectionViewListCell {
     func configure(cat2: Cat2, isHighlighted: Bool) {
         titleLabel.text = cat2.labelKo
         titleLabel.font = isHighlighted ? FontManager.caption2Bold : FontManager.caption2
-        titleLabel.textColor = isHighlighted ? .systemBlue : .label
+        titleLabel.textColor = isHighlighted ? .textSecondary : .textPrimary
         highlightBar.isHidden = !isHighlighted
-        backgroundColor = isHighlighted ? UIColor.systemBlue.withAlphaComponent(0.08) : .clear
+        backgroundColor = isHighlighted ? UIColor.textPrimary.withAlphaComponent(0.08) : .clear
     }
 
     // MARK: - Prepare for Reuse

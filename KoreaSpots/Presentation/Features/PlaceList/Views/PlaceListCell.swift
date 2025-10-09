@@ -20,13 +20,13 @@ final class PlaceListCell: BaseCollectionViewCell {
 
     private let titleLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.textColor = .label
+        $0.textColor = .textPrimary
         $0.numberOfLines = 2
     }
 
     private let subtitleLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 13, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = .textSecondary
         $0.numberOfLines = 1
     }
 
@@ -73,7 +73,16 @@ final class PlaceListCell: BaseCollectionViewCell {
 
     override func configureView() {
         super.configureView()
-        backgroundColor = .systemBackground
+        
+        containerStack.do {
+            $0.backgroundColor = .white
+            $0.layer.cornerRadius = Constants.UI.CornerRadius.medium
+            $0.layer.shadowColor = UIColor.black.cgColor
+            $0.layer.shadowOpacity = Constants.UI.Shadow.opacity
+            $0.layer.shadowOffset = Constants.UI.Shadow.offset
+            $0.layer.shadowRadius = Constants.UI.Shadow.radius
+        }
+        
     }
     
     // MARK: - Configure

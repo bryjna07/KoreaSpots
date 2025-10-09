@@ -66,17 +66,17 @@ extension RoundCell {
 
         iconImageView.do {
             $0.contentMode = .center
-            $0.tintColor = .systemBlue
-            $0.backgroundColor = .systemGray6
+            $0.tintColor = .secondBackGround
+            $0.backgroundColor = .onPrimary
             $0.layer.cornerRadius = Constants.UI.CollectionView.Theme.imageSize / 2
             $0.clipsToBounds = true
             $0.layer.borderWidth = 1.5
-            $0.layer.borderColor = UIColor.systemGray5.cgColor
+            $0.layer.borderColor = UIColor.secondBackGround.cgColor
         }
 
         titleLabel.do {
             $0.font = .systemFont(ofSize: 12, weight: .medium)
-            $0.textColor = .label
+            $0.textColor = .textPrimary
             $0.textAlignment = .center
             $0.numberOfLines = 1
             $0.adjustsFontSizeToFitWidth = true

@@ -72,7 +72,6 @@ final class PlaceListView: BaseView {
 
     override func configureView() {
         super.configureView()
-        backgroundColor = .systemBackground
 
         regionChipScrollView.do {
             $0.showsHorizontalScrollIndicator = false
@@ -99,7 +98,7 @@ final class PlaceListView: BaseView {
         }
 
         collectionView.do {
-            $0.backgroundColor = .systemBackground
+            $0.backgroundColor = .backGround
             $0.showsVerticalScrollIndicator = true
             $0.alwaysBounceVertical = true
         }
@@ -140,12 +139,12 @@ final class PlaceListView: BaseView {
         config.attributedTitle = titleAttr
 
         // 선택 상태: 연한 파란 배경 + 파란 글씨 / 미선택: 투명 배경 + 기본 글씨
-        config.baseForegroundColor = isSelected ? .systemBlue : .label
-        config.baseBackgroundColor = isSelected ? .systemBlue.withAlphaComponent(0.1) : .clear
+        config.baseForegroundColor = isSelected ? .textPrimary : .label
+        config.baseBackgroundColor = isSelected ? .textPrimary.withAlphaComponent(0.1) : .clear
         config.cornerStyle = .fixed
         config.background.cornerRadius = isSmall ? 16 : 18
         config.background.strokeWidth = 1
-        config.background.strokeColor = isSelected ? .systemBlue : .separator
+        config.background.strokeColor = isSelected ? .textPrimary : .separator
         config.contentInsets = NSDirectionalEdgeInsets(
             top: Constants.UI.Spacing.xSmall,
             leading: Constants.UI.Spacing.medium,
@@ -168,9 +167,9 @@ final class PlaceListView: BaseView {
                 isSelected = (index == 0) // 전체
             }
 
-            config.baseForegroundColor = isSelected ? .systemBlue : .label
-            config.baseBackgroundColor = isSelected ? .systemBlue.withAlphaComponent(0.1) : .clear
-            config.background.strokeColor = isSelected ? .systemBlue : .separator
+            config.baseForegroundColor = isSelected ? .textPrimary : .label
+            config.baseBackgroundColor = isSelected ? .textPrimary.withAlphaComponent(0.1) : .clear
+            config.background.strokeColor = isSelected ? .textPrimary : .separator
 
             button.configuration = config
         }

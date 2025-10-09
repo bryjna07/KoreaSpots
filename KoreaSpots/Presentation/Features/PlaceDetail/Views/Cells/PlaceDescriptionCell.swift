@@ -91,7 +91,7 @@ extension PlaceDescriptionCell {
         }
 
         moreButton.do {
-            $0.setTitleColor(.systemBlue, for: .normal)
+            $0.setTitleColor(.textSecondary, for: .normal)
             $0.titleLabel?.font = FontManager.caption1
             $0.contentHorizontalAlignment = .left
             $0.addTarget(self, action: #selector(moreButtonTapped), for: .touchUpInside)
