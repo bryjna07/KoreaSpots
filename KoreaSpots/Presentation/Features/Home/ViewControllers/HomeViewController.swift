@@ -48,10 +48,10 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
-        homeView.refreshControl.rx.controlEvent(.valueChanged)
-            .map { Reactor.Action.refresh }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
+//        homeView.refreshControl.rx.controlEvent(.valueChanged)
+//            .map { Reactor.Action.refresh }
+//            .bind(to: reactor.action)
+//            .disposed(by: disposeBag)
 
         // Search Button Action
         homeView.searchButton.rx.tap
@@ -61,21 +61,21 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             .disposed(by: disposeBag)
 
         // State
-        reactor.state
-            .map(\.isLoading)
-            .distinctUntilChanged()
-            .asDriver(onErrorJustReturn: false)
-            .drive(with: self) { owner, isLoading in
-                if isLoading {
-                    // 뷰가 화면에 표시된 경우에만 beginRefreshing 호출
-                    if owner.isViewLoaded && owner.view.window != nil {
-                        owner.homeView.refreshControl.beginRefreshing()
-                    }
-                } else {
-                    owner.homeView.refreshControl.endRefreshing()
-                }
-            }
-            .disposed(by: disposeBag)
+//        reactor.state
+//            .map(\.isLoading)
+//            .distinctUntilChanged()
+//            .asDriver(onErrorJustReturn: false)
+//            .drive(with: self) { owner, isLoading in
+//                if isLoading {
+//                    // 뷰가 화면에 표시된 경우에만 beginRefreshing 호출
+//                    if owner.isViewLoaded && owner.view.window != nil {
+//                        owner.homeView.refreshControl.beginRefreshing()
+//                    }
+//                } else {
+//                    owner.homeView.refreshControl.endRefreshing()
+//                }
+//            }
+//            .disposed(by: disposeBag)
 
         reactor.state
             .map(\.sections)
@@ -222,13 +222,11 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
         case .place(let place):
             navigateToPlaceDetail(place: place)
 
-        case .theme(let theme):
-            // TODO: Navigate to theme category
-            print("Theme selected: \(theme.title)")
-
         case .category(let category):
-            // TODO: Navigate to category list
-            print("Category selected: \(category.title) (contentTypeId: \(category.contentType.contentTypeId?.rawValue ?? 0))")
+            navigateToCategoryPlaceList(category: category)
+            
+        case .theme(let theme):
+            navigateToThemePlaceList(theme: theme)
 
         case .placeholder(_, _):
             // TODO: Handle placeholder action
@@ -243,20 +241,96 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             print("Navigate to festival list")
             break
         case .nearby:
-            navigateToMap()
-            break
-        case .theme:
-            // TODO: Navigate to theme list
-            print("Navigate to theme list")
+            navigateToNearbyPlaceList()
             break
         case .category:
             // TODO: Navigate to category list
             print("Navigate to category list")
             break
-        case .placeholder:
-            // TODO: Handle placeholder action
-            print("Handle placeholder action")
+        case .theme:
+            // TODO: Navigate to theme list
+            print("Navigate to theme list")
             break
+//        case .placeholder:
+//            // TODO: Handle placeholder action
+//            print("Handle placeholder action")
+//            break
         }
+    }
+
+    // MARK: - Navigation Methods
+    private func navigateToCategoryPlaceList(category: Category) {
+        guard let contentTypeId = category.contentType.contentTypeId?.rawValue else { return }
+
+        let viewController = AppContainer.shared.makePlaceListViewController(
+            initialArea: nil,
+            contentTypeId: contentTypeId
+        )
+        viewController.title = category.title
+        navigationController?.pushViewController(viewController, animated: true)
+    }
+
+    private func navigateToNearbyPlaceList() {
+        guard let reactor = reactor,
+              let location = reactor.currentState.userLocation else {
+            showLocationAlert()
+            return
+        }
+
+        // Get AreaCode from location using LocationService
+        reactor.locationService.getCurrentAreaCode()
+            .subscribe(onSuccess: { [weak self] areaCode in
+                let viewController = AppContainer.shared.makePlaceListViewController(
+                    initialArea: areaCode,
+                    contentTypeId: nil
+                )
+                viewController.title = LocalizedKeys.Home.nearby.localized
+                self?.navigationController?.pushViewController(viewController, animated: true)
+            }, onFailure: { [weak self] error in
+                print("⚠️ Failed to get area code: \(error.localizedDescription)")
+                // Fallback: Navigate with Seoul as default
+                let viewController = AppContainer.shared.makePlaceListViewController(
+                    initialArea: .seoul,
+                    contentTypeId: nil
+                )
+                viewController.title = LocalizedKeys.Home.nearby.localized
+                self?.navigationController?.pushViewController(viewController, animated: true)
+            })
+            .disposed(by: disposeBag)
+    }
+
+    private func navigateToThemePlaceList(theme: Theme) {
+        guard let contentTypeId = theme.contentTypeId else {
+            print("⚠️ Theme \(theme.title) has no contentTypeId")
+            return
+        }
+
+        // Cat3 필터링을 위한 쿼리 문자열 생성
+        let cat3Query = theme.theme12.query.cat3Filters
+            .map { $0.rawValue }
+            .joined(separator: ",")
+
+        let viewController = AppContainer.shared.makePlaceListViewController(
+            initialArea: nil,
+            contentTypeId: contentTypeId,
+            cat1: theme.cat1,
+            cat2: theme.cat2,
+            cat3: cat3Query
+        )
+        viewController.title = theme.title
+        navigationController?.pushViewController(viewController, animated: true)
+    }
+
+    private func showLocationAlert() {
+        let alert = UIAlertController(
+            title: LocalizedKeys.Common.error.localized,
+            message: "위치 정보를 가져올 수 없습니다.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(
+            title: LocalizedKeys.Common.confirm.localized,
+            style: .default
+        ))
+        present(alert, animated: true)
     }
 }

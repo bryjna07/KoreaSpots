@@ -50,8 +50,6 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
         super.viewDidLoad()
         title = "카테고리"
         setupDataSources()
-        setupRegionChips()
-        setupSigunguChips()
         setupSearchBarGesture()
     }
 
@@ -147,65 +145,28 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
             }
             .disposed(by: disposeBag)
 
-        // Grid Selection
+        // Grid Selection - Navigate to PlaceList
         categoryView.gridCollectionView.rx.itemSelected
-            .compactMap { [weak self] indexPath -> Cat3? in
-                return self?.gridDataSource.itemIdentifier(for: indexPath)?.cat3
+            .compactMap { [weak self] indexPath -> (Cat2, Cat3)? in
+                guard let self = self,
+                      let item = self.gridDataSource.itemIdentifier(for: indexPath) else {
+                    return nil
+                }
+
+                // 현재 섹션의 Cat2 가져오기
+                let snapshot = self.gridDataSource.snapshot()
+                let section = snapshot.sectionIdentifiers[indexPath.section]
+
+                if case .category(let cat2) = section {
+                    return (cat2, item.cat3)
+                }
+                return nil
             }
-            .bind(with: self) { owner, cat3 in
-                owner.reactor?.action.onNext(.selectCat3(cat3))
+            .bind(with: self) { owner, data in
+                let (cat2, cat3) = data
+                owner.navigateToPlaceList(cat2: cat2, cat3: cat3)
             }
             .disposed(by: disposeBag)
-    }
-
-    // MARK: - Chip Setup
-    private func setupRegionChips() {
-        let allRegion = categoryView.createChipButton(title: "전체", isSelected: true)
-        allRegion.rx.tap
-            .bind(with: self) { owner, _ in
-                owner.reactor?.action.onNext(.selectArea(nil))
-                owner.categoryView.updateChipSelection(in: owner.categoryView.regionChipStackView, selectedIndex: nil)
-            }
-            .disposed(by: disposeBag)
-
-        categoryView.regionChipStackView.addArrangedSubview(allRegion)
-
-        let regions: [(String, AreaCode)] = [
-            ("서울", .seoul),
-            ("인천", .incheon),
-            ("대구", .daegu),
-            ("부산", .busan),
-            ("제주", .jeju)
-        ]
-
-        regions.enumerated().forEach { index, item in
-            let (title, areaCode) = item
-            let chip = categoryView.createChipButton(title: title, isSelected: false)
-            let chipIndex = index + 1
-            chip.rx.tap
-                .bind(with: self) { owner, _ in
-                    owner.reactor?.action.onNext(.selectArea(areaCode))
-                    owner.categoryView.updateChipSelection(in: owner.categoryView.regionChipStackView, selectedIndex: chipIndex)
-                }
-                .disposed(by: disposeBag)
-            categoryView.regionChipStackView.addArrangedSubview(chip)
-        }
-    }
-
-    private func setupSigunguChips() {
-        // 예시 시군구 3개
-        let sigunguChips = ["전체", "강남구", "종로구", "중구"]
-        sigunguChips.enumerated().forEach { index, title in
-            let chip = categoryView.createChipButton(title: title, isSelected: index == 0, isSmall: true)
-            let sigunguValue: Int? = index == 0 ? nil : index
-            chip.rx.tap
-                .bind(with: self) { owner, _ in
-                    owner.reactor?.action.onNext(.selectSigungu(sigunguValue))
-                    owner.categoryView.updateChipSelection(in: owner.categoryView.sigunguChipStackView, selectedIndex: index)
-                }
-                .disposed(by: disposeBag)
-            categoryView.sigunguChipStackView.addArrangedSubview(chip)
-        }
     }
 
     // MARK: - Bind Reactor
@@ -362,5 +323,21 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
         if case .category(let cat2) = section, cat2 != reactor.currentState.highlightedCat2 {
             reactor.action.onNext(.scrollToCat2(cat2))
         }
+    }
+
+    // MARK: - Navigation
+    private func navigateToPlaceList(cat2: Cat2, cat3: Cat3) {
+        let viewController = AppContainer.shared.makePlaceListViewController(
+            initialArea: nil,
+            contentTypeId: 12, // 관광지
+            cat1: cat2.cat1,    // Cat2에서 Cat1 추출 (예: A0101 -> A01)
+            cat2: cat2.rawValue,
+            cat3: cat3.rawValue
+        )
+
+        // 타이틀 설정: cat3의 displayName 사용
+        viewController.title = cat3.labelKo
+
+        navigationController?.pushViewController(viewController, animated: true)
     }
 }

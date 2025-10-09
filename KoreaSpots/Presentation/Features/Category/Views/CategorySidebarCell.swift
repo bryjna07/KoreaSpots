@@ -69,7 +69,7 @@ final class CategorySidebarCell: UICollectionViewListCell {
     // MARK: - Configuration
     func configure(cat2: Cat2, isHighlighted: Bool) {
         titleLabel.text = cat2.labelKo
-        titleLabel.font = isHighlighted ? FontManager.bodyBold : FontManager.body
+        titleLabel.font = isHighlighted ? FontManager.caption2Bold : FontManager.caption2
         titleLabel.textColor = isHighlighted ? .systemBlue : .label
         highlightBar.isHidden = !isHighlighted
         backgroundColor = isHighlighted ? UIColor.systemBlue.withAlphaComponent(0.08) : .clear

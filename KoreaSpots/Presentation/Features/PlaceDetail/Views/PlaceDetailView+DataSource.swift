@@ -64,22 +64,8 @@ extension PlaceDetailView {
         indexPath: IndexPath,
         placeImage: PlaceImage
     ) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageCarouselCell", for: indexPath) as! FestivalCardCell
-
-        // PlaceImage를 Festival로 변환하여 configure
-        let mockFestival = Festival(
-            contentId: placeImage.contentId,
-            title: placeImage.imageName ?? "",
-            address: "",
-            imageURL: placeImage.originImageURL,
-            eventStartDate: "",
-            eventEndDate: "",
-            tel: nil,
-            mapX: nil,
-            mapY: nil,
-            overview: nil
-        )
-        cell.configure(with: mockFestival)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageCarouselCell", for: indexPath) as! PlaceImageCell
+        cell.configure(with: placeImage.originImageURL)
         return cell
     }
 

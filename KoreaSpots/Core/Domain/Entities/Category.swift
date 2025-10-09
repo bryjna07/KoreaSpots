@@ -5,13 +5,13 @@
 //  Created by YoungJin on 9/30/25.
 //
 
-import Foundation
+import UIKit
 
 /// 홈 화면 카테고리 (ContentTypeID 기반)
 struct Category {
     let id: String
     let title: String
-    let iconName: String
+    let icon: UIImage
     let contentType: ContentType
 }
 
@@ -22,49 +22,49 @@ extension Category {
         Category(
             id: "festival",
             title: LocalizedKeys.Category.festival.localized,
-            iconName: "party.popper.fill",
+            icon: .festival,
             contentType: .festival
         ),
         Category(
             id: "performance",
             title: LocalizedKeys.Category.performance.localized,
-            iconName: "theatermasks.fill",
+            icon: .performance,
             contentType: .performance
         ),
         Category(
             id: "culture",
             title: LocalizedKeys.Category.culture.localized,
-            iconName: "building.columns.fill",
+            icon: .culture,
             contentType: .culture
         ),
         Category(
             id: "course",
             title: LocalizedKeys.Category.course.localized,
-            iconName: "map.fill",
+            icon: .course,
             contentType: .course
         ),
         Category(
             id: "leisure",
             title: LocalizedKeys.Category.leisure.localized,
-            iconName: "figure.surfing",
+            icon: .leports,
             contentType: .leisure
         ),
         Category(
             id: "lodging",
             title: LocalizedKeys.Category.lodging.localized,
-            iconName: "bed.double.fill",
+            icon: .accommodation,
             contentType: .lodging
         ),
         Category(
             id: "shopping",
             title: LocalizedKeys.Category.shopping.localized,
-            iconName: "bag.fill",
+            icon: .shopping,
             contentType: .shopping
         ),
         Category(
             id: "food",
             title: LocalizedKeys.Category.food.localized,
-            iconName: "fork.knife",
+            icon: .food,
             contentType: .food
         )
     ]

@@ -176,7 +176,7 @@ extension UIImageView: ImageLoadable {
     func loadPlaceThumbnail(from urlString: String?) {
         loadImage(
             from: urlString,
-            placeholder: UIImage(systemName: "mappin.and.ellipse"),
+            placeholder: UIImage(systemName: "photo.artframe"),
             size: .thumbnail,
             cachePolicy: .memoryOnly
         )

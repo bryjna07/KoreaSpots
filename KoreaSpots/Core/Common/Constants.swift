@@ -49,8 +49,8 @@ enum Constants {
         // MARK: - Collection View
         enum CollectionView {
             enum Festival {
-                static let itemWidth: CGFloat = 280
-                static let itemHeight: CGFloat = 280
+//                static let itemWidth: CGFloat = 280
+//                static let itemHeight: CGFloat = 280
                 static let defaultPlaceholderHeight: CGFloat = 100
             }
 

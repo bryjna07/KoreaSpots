@@ -20,7 +20,7 @@ final class RectangleCell: BaseCollectionViewCell {
     // MARK: - Configuration
     func configure(with category: Category) {
         titleLabel.text = category.title
-        iconImageView.image = UIImage(systemName: category.iconName)
+        iconImageView.image = category.icon
     }
 
     func configure(with cat3: Cat3) {

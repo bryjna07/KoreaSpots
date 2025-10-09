@@ -14,12 +14,12 @@ extension HomeView {
             switch sectionIndex {
             case 0: // Festival Section
                 return self.createFestivalSection(environment: environment)
-            case 1: // Nearby Places Section
-                return self.createNearbySection()
-            case 2: // Category Section (4x2 grid)
+            case 1: // Category Section (4x2 grid)
                 return self.createCategorySection()
-            case 3: // Theme Section (horizontal scroll)
+            case 2: // Theme Section (horizontal scroll)
                 return self.createThemeSection()
+            case 3:  // Nearby Places Section
+                return self.createNearbySection()
             default: // Placeholder Section
                 return self.createPlaceholderSection()
             }
@@ -35,7 +35,7 @@ extension HomeView {
 
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(Constants.UI.CollectionView.Festival.itemHeight)
+            heightDimension: .fractionalHeight(0.3)
         )
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
 

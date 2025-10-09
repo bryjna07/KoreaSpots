@@ -23,6 +23,7 @@ struct FontManager {
     // MARK: - Caption Fonts
     static let caption1 = UIFont.systemFont(ofSize: 14, weight: .medium)
     static let caption2 = UIFont.systemFont(ofSize: 12, weight: .regular)
+    static let caption2Bold = UIFont.systemFont(ofSize: 12, weight: .bold)
     static let caption3 = UIFont.systemFont(ofSize: 10, weight: .regular)
 
     // MARK: - Card Specific Fonts

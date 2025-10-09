@@ -41,10 +41,10 @@ final class HomeReactor: Reactor {
 
         let initialSections = [
             HomeSectionModel(section: .festival, items: festivalItems),
-            HomeSectionModel(section: .nearby, items: nearbyItems),
             HomeSectionModel(section: .category, items: categoryItems),
             HomeSectionModel(section: .theme, items: Theme.staticThemes.map { HomeSectionItem.theme($0) }),
-            HomeSectionModel(section: .placeholder, items: [HomeSectionItem.placeholder("추가 기능이 여기에 표시됩니다", index: 0)])
+            HomeSectionModel(section: .nearby, items: nearbyItems),
+//            HomeSectionModel(section: .placeholder, items: [HomeSectionItem.placeholder("추가 기능이 여기에 표시됩니다", index: 0)])
         ]
         return State(sections: initialSections)
     }()
@@ -52,7 +52,7 @@ final class HomeReactor: Reactor {
     // MARK: - Dependencies
     private let fetchFestivalUseCase: FetchFestivalUseCase
     private let fetchLocationBasedPlacesUseCase: FetchLocationBasedPlacesUseCase
-    private let locationService: LocationService
+    let locationService: LocationService
 
     init(fetchFestivalUseCase: FetchFestivalUseCase,
          fetchLocationBasedPlacesUseCase: FetchLocationBasedPlacesUseCase,
@@ -179,12 +179,6 @@ private extension HomeReactor {
             : festivals.map { HomeSectionItem.festival($0) }
         sections.append(HomeSectionModel(section: .festival, items: festivalItems))
 
-        // Nearby Places Section (Show placeholder when empty)
-        let placeItems: [HomeSectionItem] = nearbyPlaces.isEmpty
-            ? (0..<4).map { HomeSectionItem.placeholder("주변 관광지를 불러오는 중...", index: $0) }
-            : nearbyPlaces.map { HomeSectionItem.place($0) }
-        sections.append(HomeSectionModel(section: .nearby, items: placeItems))
-
         // Category Section (Always show)
         let categoryItems = Category.homeCategories.map { HomeSectionItem.category($0) }
         sections.append(HomeSectionModel(section: .category, items: categoryItems))
@@ -193,8 +187,15 @@ private extension HomeReactor {
         let themeItems = Theme.staticThemes.map { HomeSectionItem.theme($0) }
         sections.append(HomeSectionModel(section: .theme, items: themeItems))
 
-        // Placeholder Section
-        sections.append(HomeSectionModel(section: .placeholder, items: [.placeholder("추가 기능이 여기에 표시됩니다", index: 0)]))
+        // Nearby Places Section (Show placeholder when empty)
+        let placeItems: [HomeSectionItem] = nearbyPlaces.isEmpty
+            ? (0..<4).map { HomeSectionItem.placeholder("주변 관광지를 불러오는 중...", index: $0) }
+            : nearbyPlaces.map { HomeSectionItem.place($0) }
+        sections.append(HomeSectionModel(section: .nearby, items: placeItems))
+
+        
+//        // Placeholder Section
+//        sections.append(HomeSectionModel(section: .placeholder, items: [.placeholder("추가 기능이 여기에 표시됩니다", index: 0)]))
 
         return sections
     }

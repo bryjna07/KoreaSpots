@@ -15,27 +15,17 @@ final class CategoryView: BaseView {
     let searchBar = UIView()
     private let searchLabel = UILabel()
     private let searchIcon = UIImageView()
-    let regionChipScrollView = UIScrollView()
-    let regionChipStackView = UIStackView()
-    let sigunguChipScrollView = UIScrollView()
-    let sigunguChipStackView = UIStackView()
     lazy var sidebarCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createSidebarLayout())
     lazy var gridCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createGridLayout())
     private let contentStackView = UIStackView()
 
     // MARK: - Properties
-    private let sidebarWidth: CGFloat = 80
+    private let sidebarWidth: CGFloat = 110
 
     // MARK: - ConfigureUI
     override func configureHierarchy() {
         addSubview(searchBar)
         searchBar.addSubviews(searchIcon, searchLabel)
-
-        addSubview(regionChipScrollView)
-        regionChipScrollView.addSubview(regionChipStackView)
-
-        addSubview(sigunguChipScrollView)
-        sigunguChipScrollView.addSubview(sigunguChipStackView)
 
         addSubview(contentStackView)
         contentStackView.addArrangedSubviews(sidebarCollectionView, gridCollectionView)
@@ -60,30 +50,8 @@ final class CategoryView: BaseView {
             $0.centerY.equalToSuperview()
         }
 
-        regionChipScrollView.snp.makeConstraints {
-            $0.top.equalTo(searchBar.snp.bottom).offset(Constants.UI.Spacing.medium)
-            $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(40)
-        }
-
-        regionChipStackView.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 0, left: Constants.UI.Spacing.xLarge, bottom: 0, right: Constants.UI.Spacing.xLarge))
-            $0.height.equalToSuperview()
-        }
-
-        sigunguChipScrollView.snp.makeConstraints {
-            $0.top.equalTo(regionChipScrollView.snp.bottom).offset(Constants.UI.Spacing.small)
-            $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(36)
-        }
-
-        sigunguChipStackView.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 0, left: Constants.UI.Spacing.xLarge, bottom: 0, right: Constants.UI.Spacing.xLarge))
-            $0.height.equalToSuperview()
-        }
-
         contentStackView.snp.makeConstraints {
-            $0.top.equalTo(sigunguChipScrollView.snp.bottom).offset(Constants.UI.Spacing.small)
+            $0.top.equalTo(searchBar.snp.bottom).offset(Constants.UI.Spacing.medium)
             $0.leading.trailing.bottom.equalTo(safeAreaLayoutGuide)
         }
 
@@ -111,26 +79,6 @@ final class CategoryView: BaseView {
             $0.image = UIImage(systemName: Constants.Icon.System.magnifyingGlass)
             $0.tintColor = .secondaryLabel
             $0.contentMode = .scaleAspectFit
-        }
-
-        regionChipScrollView.do {
-            $0.showsHorizontalScrollIndicator = false
-        }
-
-        regionChipStackView.do {
-            $0.axis = .horizontal
-            $0.spacing = Constants.UI.Spacing.small
-            $0.distribution = .equalSpacing
-        }
-
-        sigunguChipScrollView.do {
-            $0.showsHorizontalScrollIndicator = false
-        }
-
-        sigunguChipStackView.do {
-            $0.axis = .horizontal
-            $0.spacing = Constants.UI.Spacing.small
-            $0.distribution = .equalSpacing
         }
 
         contentStackView.do {
@@ -200,45 +148,4 @@ final class CategoryView: BaseView {
         return layout
     }
 
-    // MARK: - Chip Helper
-    func createChipButton(title: String, isSelected: Bool, isSmall: Bool = false) -> UIButton {
-        var config = UIButton.Configuration.plain()
-        config.title = title
-        config.baseForegroundColor = isSelected ? .white : .label
-        config.baseBackgroundColor = isSelected ? .systemBlue : .clear
-        config.cornerStyle = .fixed
-        config.background.cornerRadius = isSmall ? 16 : 18
-        config.background.strokeWidth = 1
-        config.background.strokeColor = isSelected ? .systemBlue : .separator
-        config.contentInsets = NSDirectionalEdgeInsets(
-            top: Constants.UI.Spacing.xSmall,
-            leading: Constants.UI.Spacing.medium,
-            bottom: Constants.UI.Spacing.xSmall,
-            trailing: Constants.UI.Spacing.medium
-        )
-
-        let button = UIButton(configuration: config)
-        button.titleLabel?.font = isSmall ? .systemFont(ofSize: 13, weight: .medium) : .systemFont(ofSize: 14, weight: .medium)
-
-        return button
-    }
-
-    func updateChipSelection(in stackView: UIStackView, selectedIndex: Int?) {
-        stackView.arrangedSubviews.enumerated().forEach { index, view in
-            guard let button = view as? UIButton, var config = button.configuration else { return }
-            let isSelected: Bool
-
-            if let selectedIndex = selectedIndex {
-                isSelected = (index == selectedIndex)
-            } else {
-                isSelected = (index == 0) // 전체
-            }
-
-            config.baseForegroundColor = isSelected ? .white : .label
-            config.baseBackgroundColor = isSelected ? .systemBlue : .clear
-            config.background.strokeColor = isSelected ? .systemBlue : .separator
-
-            button.configuration = config
-        }
-    }
 }

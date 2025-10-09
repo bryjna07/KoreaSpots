@@ -65,7 +65,7 @@ extension PlaceDetailView {
     }
 
     private func registerCells() {
-        collectionView.register(cell: FestivalCardCell.self, forCellWithReuseIdentifier: "ImageCarouselCell")
+        collectionView.register(cell: PlaceImageCell.self, forCellWithReuseIdentifier: "ImageCarouselCell")
         collectionView.register(cell: PlaceBasicInfoCell.self, forCellWithReuseIdentifier: "PlaceBasicInfoCell")
         collectionView.register(cell: PlaceDescriptionCell.self, forCellWithReuseIdentifier: "PlaceDescriptionCell")
         collectionView.register(cell: PlaceOperatingInfoCell.self, forCellWithReuseIdentifier: "PlaceOperatingInfoCell")

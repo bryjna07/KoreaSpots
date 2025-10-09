@@ -85,7 +85,7 @@ extension FestivalCardCell {
         
         containerView.do {
             $0.backgroundColor = .systemGray6
-            $0.layer.cornerRadius = Constants.UI.CornerRadius.medium
+//            $0.layer.cornerRadius = Constants.UI.CornerRadius.medium
             $0.layer.masksToBounds = true
             $0.isSkeletonable = true
         }

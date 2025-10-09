@@ -17,7 +17,7 @@ final class HomeView: BaseView {
     // MARK: - UI Components
     let searchButton = UIButton(type: .system)
     lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-    let refreshControl = UIRefreshControl()
+//    let refreshControl = UIRefreshControl()
 
     // MARK: - Auto Paging Properties
     private var autoScrollTimer: Timer?
@@ -82,7 +82,7 @@ extension HomeView {
         collectionView.do {
             $0.backgroundColor = .clear
             $0.contentInsetAdjustmentBehavior = .automatic
-            $0.refreshControl = refreshControl
+//            $0.refreshControl = refreshControl
             $0.register(cell: FestivalCardCell.self)
             $0.register(cell: PlaceCardCell.self)
             $0.register(cell: RectangleCell.self)
