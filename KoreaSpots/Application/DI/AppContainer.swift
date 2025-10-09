@@ -46,7 +46,8 @@ final class AppContainer {
     private lazy var tourRepository: TourRepository = {
         TourRepositoryImpl(
             remoteDataSource: tourRemoteDataSource,
-            localDataSource: tourLocalDataSource
+            localDataSource: tourLocalDataSource,
+            useMockData: useMockData
         )
     }()
 
@@ -57,6 +58,10 @@ final class AppContainer {
 
     private lazy var fetchLocationBasedPlacesUseCase: FetchLocationBasedPlacesUseCase = {
         FetchLocationBasedPlacesUseCaseImpl(tourRepository: tourRepository)
+    }()
+
+    private lazy var fetchAreaBasedPlacesUseCase: FetchAreaBasedPlacesUseCase = {
+        FetchAreaBasedPlacesUseCaseImpl(tourRepository: tourRepository)
     }()
 
     // MARK: - Services
@@ -107,6 +112,43 @@ final class AppContainer {
     func makeCategoryViewController() -> CategoryViewController {
         let reactor = makeCategoryReactor()
         let viewController = CategoryViewController()
+        viewController.reactor = reactor
+        return viewController
+    }
+
+    // MARK: PlaceList
+    func makePlaceListReactor(
+        initialArea: AreaCode? = nil,
+        contentTypeId: Int? = nil,
+        cat1: String? = nil,
+        cat2: String? = nil,
+        cat3: String? = nil
+    ) -> PlaceListReactor {
+        return PlaceListReactor(
+            initialArea: initialArea,
+            contentTypeId: contentTypeId,
+            cat1: cat1,
+            cat2: cat2,
+            cat3: cat3,
+            fetchAreaBasedPlacesUseCase: fetchAreaBasedPlacesUseCase
+        )
+    }
+
+    func makePlaceListViewController(
+        initialArea: AreaCode? = nil,
+        contentTypeId: Int? = nil,
+        cat1: String? = nil,
+        cat2: String? = nil,
+        cat3: String? = nil
+    ) -> PlaceListViewController {
+        let reactor = makePlaceListReactor(
+            initialArea: initialArea,
+            contentTypeId: contentTypeId,
+            cat1: cat1,
+            cat2: cat2,
+            cat3: cat3
+        )
+        let viewController = PlaceListViewController()
         viewController.reactor = reactor
         return viewController
     }

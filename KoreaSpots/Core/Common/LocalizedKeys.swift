@@ -13,6 +13,7 @@ enum LocalizedKeys {
     // MARK: - Home
     enum Home {
         static let title = "home_title"
+        static let nearby = "home_nearby"
     }
 
     // MARK: - Section Headers
@@ -41,6 +42,18 @@ enum LocalizedKeys {
         static let fetchFestivalFailed = "error_fetch_festival_failed"
         static let fetchPlacesFailed = "error_fetch_places_failed"
         static let fetchPlaceDetailFailed = "error_fetch_place_detail_failed"
+    }
+
+    // MARK: - Common
+    enum Common {
+        static let error = "common_error"
+        static let confirm = "common_confirm"
+        static let cancel = "common_cancel"
+    }
+
+    // MARK: - PlaceList
+    enum PlaceList {
+        static let title = "place_list_title"
     }
 
     // MARK: - Search
