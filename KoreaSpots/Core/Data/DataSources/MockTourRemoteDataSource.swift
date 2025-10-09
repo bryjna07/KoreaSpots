@@ -15,24 +15,64 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
         areaCode: Int,
         sigunguCode: Int?,
         contentTypeId: Int?,
+        cat1: String?,
+        cat2: String?,
+        cat3: String?,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
     ) -> Single<[Place]> {
-        let filename: String
-        switch areaCode {
-        case 1: filename = "areaBasedList2_seoul"
-        case 6: filename = "areaBasedList2_busan"
-        case 39: filename = "areaBasedList2_jeju"
-        default: filename = "areaBasedList2_seoul" // 기본값으로 서울 사용
-        }
+        // 통합 Mock 파일 사용
+        let filename = "areaBasedList2"
 
-        print("🏛️ Area-based search - areaCode: \(areaCode), sigunguCode: \(sigunguCode ?? 0), contentTypeId: \(contentTypeId ?? 0)")
+        print("🏛️ Area-based search - areaCode: \(areaCode), sigunguCode: \(sigunguCode ?? 0), contentTypeId: \(contentTypeId ?? 0), cat1: \(cat1 ?? "nil"), cat2: \(cat2 ?? "nil"), cat3: \(cat3 ?? "nil")")
         print("📂 Using mock file: \(filename)")
 
         return loadMockData(filename: filename)
             .map { response in
-                response.toPlaces()
+                var places = response.toPlaces()
+
+                // 지역 필터링 (areaCode가 0이면 전국 검색)
+                if areaCode > 0 {
+                    places = places.filter { $0.areaCode == areaCode }
+                }
+
+                // 시군구 필터링
+                if let sigunguCode = sigunguCode {
+                    places = places.filter { $0.sigunguCode == sigunguCode }
+                }
+
+                // 콘텐츠 타입 필터링
+                if let contentTypeId = contentTypeId {
+                    places = places.filter { $0.contentTypeId == contentTypeId }
+                }
+
+                // cat1 필터링 (대분류)
+                if let cat1 = cat1, !cat1.isEmpty {
+                    places = places.filter { $0.cat1 == cat1 }
+                    print("🔍 cat1 filter applied: \(cat1), results: \(places.count)")
+                }
+
+                // cat2 필터링 (중분류)
+                if let cat2 = cat2, !cat2.isEmpty {
+                    places = places.filter { $0.cat2 == cat2 }
+                    print("🔍 cat2 filter applied: \(cat2), results: \(places.count)")
+                }
+
+                // cat3 필터링 (쉼표 구분 복수 값 지원, 소분류)
+                if let cat3 = cat3, !cat3.isEmpty {
+                    let cat3List = cat3.split(separator: ",").map { String($0.trimmingCharacters(in: .whitespaces)) }
+                    if !cat3List.isEmpty {
+                        places = places.filter { place in
+                            guard let placeCat3 = place.cat3 else { return false }
+                            return cat3List.contains(placeCat3)
+                        }
+                        print("🔍 cat3 filter applied: \(cat3List), results: \(places.count)")
+                    }
+                }
+
+                print("📊 Filtered results: \(places.count) places")
+                return places
             }
             .asSingle()
     }
@@ -86,16 +126,20 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
 
     private func determineLocationMockFile(mapX: Double, mapY: Double) -> String {
         // 유저 지역에 따라. api 제공
-        return "locationBasedList2_sample"
+        return "locationBasedList2"
     }
 
     func fetchDetailCommon(
         contentId: String,
         contentTypeId: Int?
     ) -> Single<Place> {
-        return loadMockData(filename: "detailCommon2_sample")
+        print("📋 Detail common - contentId: \(contentId)")
+        return loadMockData(filename: "detailCommon2")
             .map { response in
-                response.toPlaces().first ?? Place.empty
+                let places = response.toPlaces()
+                let matchedPlace = places.first { $0.contentId == contentId }
+                print("✅ Found detailCommon for contentId \(contentId): \(matchedPlace != nil)")
+                return matchedPlace ?? Place.empty
             }
             .asSingle()
     }
@@ -104,9 +148,13 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
         contentId: String,
         contentTypeId: Int
     ) -> Single<Place> {
-        return loadMockData(filename: "detailIntro2_sample")
+        print("🏢 Detail intro - contentId: \(contentId), contentTypeId: \(contentTypeId)")
+        return loadMockData(filename: "detailIntro2")
             .map { response in
-                response.toPlaces().first ?? Place.empty
+                let places = response.toPlaces()
+                let matchedPlace = places.first { $0.contentId == contentId }
+                print("✅ Found detailIntro for contentId \(contentId): \(matchedPlace != nil)")
+                return matchedPlace ?? Place.empty
             }
             .asSingle()
     }
@@ -117,13 +165,100 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
         pageNo: Int
     ) -> Single<[PlaceImage]> {
         print("🖼️ Detail images - contentId: \(contentId)")
-        print("📂 Using mock file: detailImage2_sample")
 
-        return loadMockImageData(filename: "detailImage2_sample")
-            .map { response in
-                response.toPlaceImages()
+        // 1. detailImage2_<contentId>.json 파일이 있는지 확인
+        let specificFilename = "detailImage2_\(contentId)"
+        if fileExists(filename: specificFilename) {
+            print("✅ Found specific image file: \(specificFilename).json")
+            return loadMockImageData(filename: specificFilename)
+                .map { response in
+                    response.toPlaceImages()
+                }
+                .asSingle()
+        }
+
+        // 2. 파일이 없으면 여러 소스에서 firstimage 검색
+        print("⚠️ No specific image file for contentId \(contentId), searching in mock data files")
+        let fallbackImages = loadFallbackImageFromMultipleSources(contentId: contentId)
+        return Single.just(fallbackImages)
+    }
+
+    private func fileExists(filename: String) -> Bool {
+        // Bundle Mock 폴더에서 확인
+        if Bundle.main.url(forResource: filename, withExtension: "json", subdirectory: "Mock") != nil {
+            return true
+        }
+
+        // Resources/Mock 폴더에서 확인
+        if Bundle.main.url(forResource: filename, withExtension: "json", subdirectory: "Resources/Mock") != nil {
+            return true
+        }
+
+        // 파일 시스템에서 직접 확인 (개발 중)
+        let mockPath = "/Users/youngjin/Desktop/SaeSsac/KoreaSpots/KoreaSpots/Resources/Mock/\(filename).json"
+        return FileManager.default.fileExists(atPath: mockPath)
+    }
+
+    private func loadFallbackImageFromMultipleSources(contentId: String) -> [PlaceImage] {
+        print("🔍 Searching fallback image for contentId: \(contentId)")
+
+        // 1. locationBasedList2에서 먼저 검색
+        if let image = loadFallbackImageFromFile(contentId: contentId, filename: "locationBasedList2") {
+            return [image]
+        }
+
+        // 2. areaBasedList2에서 검색
+        if let image = loadFallbackImageFromFile(contentId: contentId, filename: "areaBasedList2") {
+            return [image]
+        }
+
+        print("❌ No fallback image found for contentId \(contentId)")
+        return []
+    }
+
+    private func loadFallbackImageFromFile(contentId: String, filename: String) -> PlaceImage? {
+        var url: URL?
+
+        // 1. Bundle Mock 폴더에서 찾기
+        url = Bundle.main.url(forResource: filename, withExtension: "json", subdirectory: "Mock")
+
+        // 2. Bundle Resources/Mock 폴더에서 찾기
+        if url == nil {
+            url = Bundle.main.url(forResource: filename, withExtension: "json", subdirectory: "Resources/Mock")
+        }
+
+        // 3. Bundle 루트에서 찾기
+        if url == nil {
+            url = Bundle.main.url(forResource: filename, withExtension: "json")
+        }
+
+        // 4. 파일 시스템에서 직접 찾기 (개발 중)
+        if url == nil {
+            let mockPath = "/Users/youngjin/Desktop/SaeSsac/KoreaSpots/KoreaSpots/Resources/Mock/\(filename).json"
+            if FileManager.default.fileExists(atPath: mockPath) {
+                url = URL(fileURLWithPath: mockPath)
             }
-            .asSingle()
+        }
+
+        guard let fileURL = url,
+              let data = try? Data(contentsOf: fileURL),
+              let response = try? jsonDecoder.decode(TourAPIResponse.self, from: data) else {
+            return nil
+        }
+
+        let places = response.toPlaces()
+        guard let place = places.first(where: { $0.contentId == contentId }),
+              let imageURL = place.imageURL else {
+            return nil
+        }
+
+        print("✅ Using fallback firstimage from \(filename): \(imageURL)")
+        return PlaceImage(
+            contentId: contentId,
+            originImageURL: imageURL,
+            imageName: place.title,
+            smallImageURL: imageURL
+        )
     }
 
     private func loadMockData(filename: String) -> Observable<TourAPIResponse> {

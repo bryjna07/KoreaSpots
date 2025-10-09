@@ -11,7 +11,7 @@ import Moya
 //MARK: - Moya TargetType
 enum TourAPI {
     /// 지역기반 목록: areaCode=1(서울), sigunguCode/ contentTypeId는 옵셔널
-    case areaBasedList(areaCode: Int, sigunguCode: Int?, contentTypeId: Int?, numOfRows: Int, pageNo: Int, arrange: String)
+    case areaBasedList(areaCode: Int, sigunguCode: Int?, contentTypeId: Int?, cat1: String?, cat2: String?, cat3: String?, numOfRows: Int, pageNo: Int, arrange: String)
     /// 축제 검색: eventStartDate/eventEndDate로 현재 진행중인 축제 조회
     case searchFestival(eventStartDate: String, eventEndDate: String, numOfRows: Int, pageNo: Int, arrange: String)
     /// 위치기반 관광지: mapX/mapY 좌표 기준 반경 내 관광지
@@ -65,7 +65,7 @@ extension TourAPI: TargetType {
     /// 케이스별 파라미터
     private var caseParameters: [String: Any] {
         switch self {
-        case let .areaBasedList(areaCode, sigunguCode, contentTypeId, numOfRows, pageNo, arrange):
+        case let .areaBasedList(areaCode, sigunguCode, contentTypeId, cat1, cat2, cat3, numOfRows, pageNo, arrange):
             var p: [String: Any] = [
                 "areaCode": areaCode,
                 "numOfRows": numOfRows,
@@ -77,6 +77,15 @@ extension TourAPI: TargetType {
             }
             if let c = contentTypeId {
                 p["contentTypeId"] = c
+            }
+            if let c1 = cat1, !c1.isEmpty {
+                p["cat1"] = c1
+            }
+            if let c2 = cat2, !c2.isEmpty {
+                p["cat2"] = c2
+            }
+            if let c3 = cat3, !c3.isEmpty {
+                p["cat3"] = c3
             }
             return p
 

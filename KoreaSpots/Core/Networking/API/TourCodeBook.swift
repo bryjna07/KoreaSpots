@@ -235,6 +235,11 @@ public enum Cat2: String, CaseIterable {
         case .A0208: return "공연/행사"
         }
     }
+
+    /// Cat2에서 Cat1 추출 (앞 3자리)
+    public var cat1: String {
+        return String(rawValue.prefix(3))
+    }
 }
 
 public enum Cat3: String, CaseIterable {

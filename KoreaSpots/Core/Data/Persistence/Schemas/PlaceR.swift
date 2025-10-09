@@ -18,6 +18,9 @@ class PlaceR: Object {
     @Persisted var tel: String?
     @Persisted var overview: String?
     @Persisted var contentTypeId: Int = 12
+    @Persisted var cat1: String?
+    @Persisted var cat2: String?
+    @Persisted var cat3: String?
     @Persisted var distance: Int?
 
     // 캐싱 관련 필드
@@ -31,7 +34,7 @@ class PlaceR: Object {
     }
 
     override static func indexedProperties() -> [String] {
-        return ["contentTypeId", "areaCode", "sigunguCode", "cachedAt"]
+        return ["contentTypeId", "areaCode", "sigunguCode", "cat1", "cat2", "cat3", "cachedAt"]
     }
 }
 
@@ -48,6 +51,9 @@ extension PlaceR {
         self.tel = place.tel
         self.overview = place.overview
         self.contentTypeId = place.contentTypeId
+        self.cat1 = place.cat1
+        self.cat2 = place.cat2
+        self.cat3 = place.cat3
         self.distance = place.distance
         self.areaCode = areaCode
         self.sigunguCode = sigunguCode
@@ -65,6 +71,11 @@ extension PlaceR {
             tel: tel,
             overview: overview,
             contentTypeId: contentTypeId,
+            areaCode: areaCode,
+            sigunguCode: sigunguCode,
+            cat1: cat1,
+            cat2: cat2,
+            cat3: cat3,
             distance: distance
         )
     }

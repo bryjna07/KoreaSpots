@@ -65,6 +65,11 @@ extension TourAPIItem {
             tel: processPhone(tel),
             overview: processOverview(overview),
             contentTypeId: parseInt(contenttypeid) ?? 12,
+            areaCode: parseInt(areacode) ?? 0,
+            sigunguCode: parseInt(sigungucode),
+            cat1: cat1?.isEmpty == true ? nil : cat1,
+            cat2: cat2?.isEmpty == true ? nil : cat2,
+            cat3: cat3?.isEmpty == true ? nil : cat3,
             distance: parsedDistance
         )
     }

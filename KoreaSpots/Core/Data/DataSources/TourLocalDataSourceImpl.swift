@@ -371,6 +371,9 @@ class PlaceRealmObject: Object {
     @Persisted var distance: Int = 0
     @Persisted var areaCode: Int = 0
     @Persisted var sigunguCode: Int = 0
+    @Persisted var cat1: String? = nil
+    @Persisted var cat2: String? = nil
+    @Persisted var cat3: String? = nil
     @Persisted var cachedAt: Date = Date()
 
     override static func primaryKey() -> String? {
@@ -401,6 +404,11 @@ class PlaceRealmObject: Object {
             tel: self.tel,
             overview: self.overview,
             contentTypeId: self.contentTypeId,
+            areaCode: self.areaCode,
+            sigunguCode: self.sigunguCode,
+            cat1: self.cat1,
+            cat2: self.cat2,
+            cat3: self.cat3,
             distance: self.distance == 0 ? nil : self.distance
         )
     }

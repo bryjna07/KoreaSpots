@@ -17,6 +17,11 @@ struct Place {
     let tel: String?
     let overview: String?
     let contentTypeId: Int
+    let areaCode: Int
+    let sigunguCode: Int?
+    let cat1: String?
+    let cat2: String?
+    let cat3: String?
     let distance: Int? // 미터 단위
 }
 
@@ -36,6 +41,11 @@ extension Place: Equatable {
             tel: nil,
             overview: nil,
             contentTypeId: 0,
+            areaCode: 0,
+            sigunguCode: nil,
+            cat1: nil,
+            cat2: nil,
+            cat3: nil,
             distance: nil
         )
     }

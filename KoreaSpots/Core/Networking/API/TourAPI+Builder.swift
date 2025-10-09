@@ -14,6 +14,9 @@ extension TourAPI {
         areaCode: AreaCode,
         sigunguCode: Int? = nil,
         contentTypeId: Int? = nil,
+        cat1: String? = nil,
+        cat2: String? = nil,
+        cat3: String? = nil,
         numOfRows: Int = 20,
         pageNo: Int = 1,
         arrange: String = "A"
@@ -22,6 +25,9 @@ extension TourAPI {
             areaCode: areaCode.rawValue,
             sigunguCode: sigunguCode,
             contentTypeId: contentTypeId,
+            cat1: cat1,
+            cat2: cat2,
+            cat3: cat3,
             numOfRows: numOfRows,
             pageNo: pageNo,
             arrange: arrange

@@ -21,12 +21,8 @@ struct MockDataProvider {
 
     private static func mockFilename(for endpoint: TourAPI) -> String {
         switch endpoint {
-        case .areaBasedList(let areaCode, _, _, _, _, _):
-            if areaCode == 1 {
-                return "areaBasedList2_seoul"
-            } else {
-                return "areaBasedList2_seoul" // 기본값으로 서울 사용
-            }
+        case .areaBasedList:
+            return "areaBasedList2"
         case .searchFestival:
             return "searchFestival2_2025-09-27_2025-10-27"
         case .locationBasedList:
@@ -35,8 +31,8 @@ struct MockDataProvider {
             return "detailCommon2_sample"
         case .detailIntro:
             return "detailIntro2_sample"
-        case .detailImage:
-            return "detailImage2_sample"
+        case .detailImage(let contentId, _, _):
+            return "detailImage2_\(contentId)"
         }
     }
 }

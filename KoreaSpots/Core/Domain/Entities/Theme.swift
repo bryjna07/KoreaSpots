@@ -14,6 +14,8 @@ struct Theme {
     let description: String?
     let contentTypeId: Int?
     let theme12: Theme12
+    let cat1: String
+    let cat2: String
 }
 
 extension Theme {
@@ -24,7 +26,9 @@ extension Theme {
             imageName: "theme_\(theme12.rawValue)",
             description: theme12.description,
             contentTypeId: theme12.contentTypeId,
-            theme12: theme12
+            theme12: theme12,
+            cat1: theme12.query.cat1.rawValue,
+            cat2: theme12.query.cat2.rawValue
         )
     }
 }

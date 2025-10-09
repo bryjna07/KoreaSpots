@@ -22,6 +22,9 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
         areaCode: Int,
         sigunguCode: Int?,
         contentTypeId: Int?,
+        cat1: String?,
+        cat2: String?,
+        cat3: String?,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
@@ -31,6 +34,9 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
                 areaCode: areaCode,
                 sigunguCode: sigunguCode,
                 contentTypeId: contentTypeId,
+                cat1: cat1,
+                cat2: cat2,
+                cat3: cat3,
                 numOfRows: numOfRows,
                 pageNo: pageNo,
                 arrange: arrange
