@@ -8,8 +8,12 @@
 import UIKit
 import SnapKit
 import Then
+import RxSwift
+import RxCocoa
 
 final class PlaceListCell: BaseCollectionViewCell {
+
+    var disposeBag = DisposeBag()
 
     private let thumbnail = UIImageView().then {
         $0.contentMode = .scaleAspectFill
@@ -44,12 +48,31 @@ final class PlaceListCell: BaseCollectionViewCell {
         $0.distribution = .fill
     }
 
+    let favoriteButton = UIButton().then {
+        $0.setImage(UIImage(systemName: "heart"), for: .normal)
+        $0.setImage(UIImage(systemName: "heart.fill"), for: .selected)
+        $0.tintColor = .systemRed
+        $0.backgroundColor = .clear
+    }
+
+    private let tagLabel = UILabel().then {
+        $0.font = .systemFont(ofSize: 11, weight: .medium)
+        $0.textColor = .white
+        $0.backgroundColor = .systemBlue.withAlphaComponent(0.8)
+        $0.textAlignment = .center
+        $0.layer.cornerRadius = 8
+        $0.layer.masksToBounds = true
+        $0.isHidden = true
+    }
+
     // MARK: - ConfigureUI
     override func configureHierarchy() {
         super.configureHierarchy()
 
         contentView.addSubview(containerStack)
+        contentView.addSubview(favoriteButton)
 
+        labelsStack.addArrangedSubview(tagLabel)
         labelsStack.addArrangedSubview(titleLabel)
         labelsStack.addArrangedSubview(subtitleLabel)
 
@@ -62,12 +85,23 @@ final class PlaceListCell: BaseCollectionViewCell {
 
         containerStack.snp.makeConstraints {
             $0.top.bottom.equalToSuperview().inset(12).priority(.high)
-            $0.leading.trailing.equalToSuperview().inset(12)
+            $0.leading.equalToSuperview().inset(12)
+            $0.trailing.equalToSuperview().inset(52) // favoriteButton 공간 확보
         }
 
         thumbnail.snp.makeConstraints {
             $0.width.equalTo(80)
             $0.height.equalTo(80).priority(.high)
+        }
+
+        favoriteButton.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(12)
+            $0.trailing.equalToSuperview().offset(-12)
+            $0.width.height.equalTo(32)
+        }
+
+        tagLabel.snp.makeConstraints {
+            $0.height.equalTo(20)
         }
     }
 
@@ -86,12 +120,52 @@ final class PlaceListCell: BaseCollectionViewCell {
     }
     
     // MARK: - Configure
-    func configure(with place: Place) {
+    func configure(with place: Place, showTag: Bool = false, isFavorite: Bool = false) {
         titleLabel.text = place.title
         subtitleLabel.text = place.address
+        favoriteButton.isSelected = isFavorite
 
         // Load thumbnail image
         thumbnail.loadPlaceThumbnail(from: place.imageURL)
+
+        // Configure tag
+        if showTag {
+            configureTag(for: place)
+        } else {
+            tagLabel.isHidden = true
+        }
+    }
+
+    private func configureTag(for place: Place) {
+        var tagText: String?
+
+        // 1. Theme12 매핑 (cat3 기반)
+        if let cat3 = place.cat3,
+           let theme = Theme12.allCases.first(where: {
+               $0.query.cat3Filters.map { $0.rawValue }.contains(cat3)
+           }) {
+            tagText = theme.displayName
+        }
+        // 2. ContentType 기반 (Theme12에 없는 경우)
+        else {
+            switch place.contentTypeId {
+            case 14: tagText = "문화시설"
+            case 15: tagText = "축제/행사"
+            case 25: tagText = "여행코스"
+            case 28: tagText = "레포츠"
+            case 32: tagText = "숙박"
+            case 38: tagText = "쇼핑"
+            case 39: tagText = "음식점"
+            default: break
+            }
+        }
+
+        if let tag = tagText {
+            tagLabel.text = " \(tag) "
+            tagLabel.isHidden = false
+        } else {
+            tagLabel.isHidden = true
+        }
     }
 
     override func prepareForReuse() {
@@ -100,5 +174,8 @@ final class PlaceListCell: BaseCollectionViewCell {
         thumbnail.image = nil
         titleLabel.text = nil
         subtitleLabel.text = nil
+        tagLabel.isHidden = true
+        favoriteButton.isSelected = false
+        disposeBag = DisposeBag()
     }
 }

@@ -2,7 +2,7 @@
 //  CategoryViewController.swift
 //  KoreaSpots
 //
-//  Created by Claude on 9/30/25.
+//  Created by YoungJin on 9/30/25.
 //
 
 import UIKit
@@ -59,10 +59,7 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
 
         tapGesture.rx.event
             .bind(with: self) { owner, _ in
-                owner.showAlert(
-                    title: LocalizedKeys.Search.title.localized,
-                    message: LocalizedKeys.Search.navigationMessage.localized
-                )
+                owner.navigateToSearch()
             }
             .disposed(by: disposeBag)
     }

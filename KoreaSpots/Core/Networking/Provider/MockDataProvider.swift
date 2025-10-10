@@ -33,6 +33,8 @@ struct MockDataProvider {
             return "detailIntro2_sample"
         case .detailImage(let contentId, _, _):
             return "detailImage2_\(contentId)"
+        case .searchKeyword:
+            return "areaBasedList2"
         }
     }
 }

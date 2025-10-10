@@ -2,7 +2,7 @@
 //  CategorySidebarCell.swift
 //  KoreaSpots
 //
-//  Created by Claude on 9/30/25.
+//  Created by YoungJin on 9/30/25.
 //
 
 import UIKit

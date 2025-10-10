@@ -322,15 +322,9 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
     }
 
     private func showLocationAlert() {
-        let alert = UIAlertController(
-            title: LocalizedKeys.Common.error.localized,
+        showErrorAlert(
             message: "위치 정보를 가져올 수 없습니다.",
-            preferredStyle: .alert
+            title: LocalizedKeys.Common.error.localized
         )
-        alert.addAction(UIAlertAction(
-            title: LocalizedKeys.Common.confirm.localized,
-            style: .default
-        ))
-        present(alert, animated: true)
     }
 }

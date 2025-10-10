@@ -309,6 +309,124 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
         }
         .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
     }
+
+    // MARK: - Recent Search Keywords
+
+    func saveRecentKeyword(_ keyword: String) -> Completable {
+        return Completable.create { [weak self] observer in
+            guard let self = self else {
+                observer(.completed)
+                return Disposables.create()
+            }
+
+            do {
+                let realm = try self.createRealm()
+                try realm.write {
+                    // Check if keyword already exists
+                    if let existing = realm.object(ofType: RecentSearchKeywordR.self, forPrimaryKey: keyword) {
+                        // Update timestamp
+                        existing.searchedAt = Date()
+                    } else {
+                        // Insert new keyword
+                        let newKeyword = RecentSearchKeywordR(keyword: keyword)
+                        realm.add(newKeyword)
+
+                        // Keep only latest 10 keywords
+                        let allKeywords = realm.objects(RecentSearchKeywordR.self)
+                            .sorted(byKeyPath: "searchedAt", ascending: false)
+
+                        if allKeywords.count > 10 {
+                            let toDelete = Array(allKeywords.dropFirst(10))
+                            realm.delete(toDelete)
+                        }
+                    }
+                }
+                print("✅ Recent keyword saved: \(keyword)")
+                observer(.completed)
+            } catch {
+                print("❌ Failed to save recent keyword: \(error)")
+                observer(.error(DataSourceError.cacheError))
+            }
+
+            return Disposables.create()
+        }
+        .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
+    }
+
+    func getRecentKeywords(limit: Int) -> Single<[String]> {
+        return Single.create { [weak self] observer in
+            guard let self = self else {
+                observer(.success([]))
+                return Disposables.create()
+            }
+
+            do {
+                let realm = try self.createRealm()
+                let keywords = realm.objects(RecentSearchKeywordR.self)
+                    .sorted(byKeyPath: "searchedAt", ascending: false)
+                    .map { $0.keyword }
+
+                let result = Array(keywords.prefix(limit))
+                observer(.success(result))
+            } catch {
+                observer(.failure(DataSourceError.cacheError))
+            }
+
+            return Disposables.create()
+        }
+        .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
+    }
+
+    func deleteRecentKeyword(_ keyword: String) -> Completable {
+        return Completable.create { [weak self] observer in
+            guard let self = self else {
+                observer(.completed)
+                return Disposables.create()
+            }
+
+            do {
+                let realm = try self.createRealm()
+                try realm.write {
+                    if let object = realm.object(ofType: RecentSearchKeywordR.self, forPrimaryKey: keyword) {
+                        realm.delete(object)
+                        print("✅ Recent keyword deleted: \(keyword)")
+                    }
+                }
+                observer(.completed)
+            } catch {
+                print("❌ Failed to delete recent keyword: \(error)")
+                observer(.error(DataSourceError.cacheError))
+            }
+
+            return Disposables.create()
+        }
+        .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
+    }
+
+    func clearAllRecentKeywords() -> Completable {
+        return Completable.create { [weak self] observer in
+            guard let self = self else {
+                observer(.completed)
+                return Disposables.create()
+            }
+
+            do {
+                let realm = try self.createRealm()
+                try realm.write {
+                    let allKeywords = realm.objects(RecentSearchKeywordR.self)
+                    realm.delete(allKeywords)
+                    print("✅ All recent keywords cleared")
+                }
+                observer(.completed)
+            } catch {
+                print("❌ Failed to clear recent keywords: \(error)")
+                observer(.error(DataSourceError.cacheError))
+            }
+
+            return Disposables.create()
+        }
+        .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
+    }
 }
 
 // MARK: - Realm Objects (Temporary placeholders)

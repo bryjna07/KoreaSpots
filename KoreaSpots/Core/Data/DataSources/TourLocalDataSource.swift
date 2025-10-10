@@ -24,6 +24,12 @@ protocol TourLocalDataSource {
     func getPlaceDetail(contentId: String) -> Single<Place?>
     func savePlaceDetail(_ place: Place) -> Completable
 
+    // MARK: - Recent Search Keywords
+    func saveRecentKeyword(_ keyword: String) -> Completable
+    func getRecentKeywords(limit: Int) -> Single<[String]>
+    func deleteRecentKeyword(_ keyword: String) -> Completable
+    func clearAllRecentKeywords() -> Completable
+
     // MARK: - Cache Management
     func isCacheValid(for key: String, ttl: TimeInterval) -> Single<Bool>
     func clearExpiredCache() -> Completable

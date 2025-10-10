@@ -38,6 +38,19 @@ protocol TourRemoteDataSource {
         arrange: String
     ) -> Single<[Place]>
 
+    func fetchSearchKeyword(
+        keyword: String,
+        areaCode: Int?,
+        sigunguCode: Int?,
+        contentTypeId: Int?,
+        cat1: String?,
+        cat2: String?,
+        cat3: String?,
+        numOfRows: Int,
+        pageNo: Int,
+        arrange: String
+    ) -> Single<[Place]>
+
     func fetchDetailCommon(
         contentId: String,
         contentTypeId: Int?

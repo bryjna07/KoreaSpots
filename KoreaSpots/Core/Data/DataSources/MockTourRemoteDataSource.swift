@@ -103,6 +103,84 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
             .asSingle()
     }
 
+    func fetchSearchKeyword(
+        keyword: String,
+        areaCode: Int?,
+        sigunguCode: Int?,
+        contentTypeId: Int?,
+        cat1: String?,
+        cat2: String?,
+        cat3: String?,
+        numOfRows: Int,
+        pageNo: Int,
+        arrange: String
+    ) -> Single<[Place]> {
+        let filename = "areaBasedList2"
+
+        print("🔍 Keyword search - keyword: \(keyword)")
+        print("🔍 Filters - areaCode: \(areaCode ?? 0), sigunguCode: \(sigunguCode ?? 0), contentTypeId: \(contentTypeId ?? 0)")
+        print("📂 Using mock file: \(filename)")
+
+        return loadMockData(filename: filename)
+            .map { response in
+                var places = response.toPlaces()
+
+                // 1. 키워드 필터링 (title or address contains keyword)
+                let lowercasedKeyword = keyword.lowercased()
+                places = places.filter { place in
+                    place.title.lowercased().contains(lowercasedKeyword) ||
+                    (place.address.lowercased().contains(lowercasedKeyword) ?? false)
+                }
+                print("🔍 Keyword filter applied: \(keyword), results: \(places.count)")
+
+                // 2. 지역 필터링
+                if let areaCode = areaCode, areaCode > 0 {
+                    places = places.filter { $0.areaCode == areaCode }
+                    print("🔍 AreaCode filter applied: \(areaCode), results: \(places.count)")
+                }
+
+                // 3. 시군구 필터링
+                if let sigunguCode = sigunguCode {
+                    places = places.filter { $0.sigunguCode == sigunguCode }
+                    print("🔍 SigunguCode filter applied: \(sigunguCode), results: \(places.count)")
+                }
+
+                // 4. 콘텐츠 타입 필터링
+                if let contentTypeId = contentTypeId {
+                    places = places.filter { $0.contentTypeId == contentTypeId }
+                    print("🔍 ContentTypeId filter applied: \(contentTypeId), results: \(places.count)")
+                }
+
+                // 5. cat1 필터링 (대분류)
+                if let cat1 = cat1, !cat1.isEmpty {
+                    places = places.filter { $0.cat1 == cat1 }
+                    print("🔍 cat1 filter applied: \(cat1), results: \(places.count)")
+                }
+
+                // 6. cat2 필터링 (중분류)
+                if let cat2 = cat2, !cat2.isEmpty {
+                    places = places.filter { $0.cat2 == cat2 }
+                    print("🔍 cat2 filter applied: \(cat2), results: \(places.count)")
+                }
+
+                // 7. cat3 필터링 (쉼표 구분 복수 값 지원, 소분류)
+                if let cat3 = cat3, !cat3.isEmpty {
+                    let cat3List = cat3.split(separator: ",").map { String($0.trimmingCharacters(in: .whitespaces)) }
+                    if !cat3List.isEmpty {
+                        places = places.filter { place in
+                            guard let placeCat3 = place.cat3 else { return false }
+                            return cat3List.contains(placeCat3)
+                        }
+                        print("🔍 cat3 filter applied: \(cat3List), results: \(places.count)")
+                    }
+                }
+
+                print("📊 Final search results: \(places.count) places")
+                return places
+            }
+            .asSingle()
+    }
+
     func fetchLocationBasedList(
         mapX: Double,
         mapY: Double,

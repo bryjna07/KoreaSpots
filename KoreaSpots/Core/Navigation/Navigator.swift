@@ -56,12 +56,8 @@ extension ScreenNavigatable where Self: UIViewController {
     }
 
     func navigateToSearch() {
-        // TODO: SearchViewController 구현 후 활성화
-        print("Navigate to search screen")
-        showTemporaryAlert(
-            title: LocalizedKeys.Search.title.localized,
-            message: LocalizedKeys.Search.navigationMessage.localized
-        )
+        let viewController = AppContainer.shared.makeSearchViewController()
+        push(viewController)
     }
 
     func navigateToMap() {

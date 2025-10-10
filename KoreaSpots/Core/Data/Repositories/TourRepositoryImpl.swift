@@ -258,6 +258,56 @@ final class TourRepositoryImpl: TourRepository {
             })
     }
 
+    // MARK: - Search Operations
+    func searchPlacesByKeyword(
+        keyword: String,
+        areaCode: Int?,
+        sigunguCode: Int?,
+        contentTypeId: Int?,
+        cat1: String?,
+        cat2: String?,
+        cat3: String?,
+        numOfRows: Int,
+        pageNo: Int,
+        arrange: String
+    ) -> Single<[Place]> {
+        // 검색은 캐시하지 않고 항상 최신 데이터 반환
+        return remoteDataSource.fetchSearchKeyword(
+            keyword: keyword,
+            areaCode: areaCode,
+            sigunguCode: sigunguCode,
+            contentTypeId: contentTypeId,
+            cat1: cat1,
+            cat2: cat2,
+            cat3: cat3,
+            numOfRows: numOfRows,
+            pageNo: pageNo,
+            arrange: arrange
+        )
+        .do(onSuccess: { places in
+            print("✅ Search API Success: \(places.count) places for keyword '\(keyword)'")
+        }, onError: { error in
+            print("❌ Search API Error: \(error)")
+        })
+    }
+
+    // MARK: - Recent Search Keywords
+    func saveRecentKeyword(_ keyword: String) -> Completable {
+        return localDataSource.saveRecentKeyword(keyword)
+    }
+
+    func getRecentKeywords(limit: Int) -> Single<[String]> {
+        return localDataSource.getRecentKeywords(limit: limit)
+    }
+
+    func deleteRecentKeyword(_ keyword: String) -> Completable {
+        return localDataSource.deleteRecentKeyword(keyword)
+    }
+
+    func clearAllRecentKeywords() -> Completable {
+        return localDataSource.clearAllRecentKeywords()
+    }
+
     // MARK: - Cache Management
     func clearExpiredCache() -> Completable {
         return localDataSource.clearExpiredCache()

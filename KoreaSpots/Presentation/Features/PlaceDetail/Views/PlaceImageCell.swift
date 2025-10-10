@@ -2,7 +2,7 @@
 //  PlaceImageCell.swift
 //  KoreaSpots
 //
-//  Created by Claude on 10/09/25.
+//  Created by YoungJin on 10/09/25.
 //
 
 import UIKit

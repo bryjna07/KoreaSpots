@@ -40,10 +40,29 @@ protocol TourRepository {
         arrange: String
     ) -> Single<[Place]>
 
+    func searchPlacesByKeyword(
+        keyword: String,
+        areaCode: Int?,
+        sigunguCode: Int?,
+        contentTypeId: Int?,
+        cat1: String?,
+        cat2: String?,
+        cat3: String?,
+        numOfRows: Int,
+        pageNo: Int,
+        arrange: String
+    ) -> Single<[Place]>
+
     // MARK: - Detail Operations
     func getPlaceDetail(contentId: String, contentTypeId: Int?) -> Single<Place>
     func getPlaceOperatingInfo(contentId: String, contentTypeId: Int) -> Single<OperatingInfo>
     func getPlaceImages(contentId: String, numOfRows: Int, pageNo: Int) -> Single<[PlaceImage]>
+
+    // MARK: - Recent Search Keywords
+    func saveRecentKeyword(_ keyword: String) -> Completable
+    func getRecentKeywords(limit: Int) -> Single<[String]>
+    func deleteRecentKeyword(_ keyword: String) -> Completable
+    func clearAllRecentKeywords() -> Completable
 
     // MARK: - Cache Management
     func clearExpiredCache() -> Completable

@@ -64,6 +64,22 @@ final class AppContainer {
         FetchAreaBasedPlacesUseCaseImpl(tourRepository: tourRepository)
     }()
 
+    private lazy var searchPlacesUseCase: SearchPlacesUseCase = {
+        SearchPlacesUseCaseImpl(tourRepository: tourRepository)
+    }()
+
+    private lazy var getRecentKeywordsUseCase: GetRecentKeywordsUseCase = {
+        GetRecentKeywordsUseCaseImpl(tourRepository: tourRepository)
+    }()
+
+    private lazy var deleteRecentKeywordUseCase: DeleteRecentKeywordUseCase = {
+        DeleteRecentKeywordUseCaseImpl(tourRepository: tourRepository)
+    }()
+
+    private lazy var clearAllRecentKeywordsUseCase: ClearAllRecentKeywordsUseCase = {
+        ClearAllRecentKeywordsUseCaseImpl(tourRepository: tourRepository)
+    }()
+
     // MARK: - Services
     private lazy var locationService: LocationService = {
         LocationManager()
@@ -149,6 +165,23 @@ final class AppContainer {
             cat3: cat3
         )
         let viewController = PlaceListViewController()
+        viewController.reactor = reactor
+        return viewController
+    }
+
+    // MARK: Search
+    func makeSearchReactor() -> SearchReactor {
+        return SearchReactor(
+            searchPlacesUseCase: searchPlacesUseCase,
+            getRecentKeywordsUseCase: getRecentKeywordsUseCase,
+            deleteRecentKeywordUseCase: deleteRecentKeywordUseCase,
+            clearAllRecentKeywordsUseCase: clearAllRecentKeywordsUseCase
+        )
+    }
+
+    func makeSearchViewController() -> SearchViewController {
+        let reactor = makeSearchReactor()
+        let viewController = SearchViewController()
         viewController.reactor = reactor
         return viewController
     }

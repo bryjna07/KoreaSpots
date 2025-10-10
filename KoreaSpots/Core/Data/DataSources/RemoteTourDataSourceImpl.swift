@@ -90,7 +90,38 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
                 response.toPlaces()
             }
     }
-    
+
+    func fetchSearchKeyword(
+        keyword: String,
+        areaCode: Int?,
+        sigunguCode: Int?,
+        contentTypeId: Int?,
+        cat1: String?,
+        cat2: String?,
+        cat3: String?,
+        numOfRows: Int,
+        pageNo: Int,
+        arrange: String
+    ) -> Single<[Place]> {
+        return provider.rx
+            .request(.searchKeyword(
+                keyword: keyword,
+                areaCode: areaCode,
+                sigunguCode: sigunguCode,
+                contentTypeId: contentTypeId,
+                cat1: cat1,
+                cat2: cat2,
+                cat3: cat3,
+                numOfRows: numOfRows,
+                pageNo: pageNo,
+                arrange: arrange
+            ))
+            .map(TourAPIResponse.self)
+            .map { response in
+                response.toPlaces()
+            }
+    }
+
     func fetchDetailImages(contentId: String, numOfRows: Int, pageNo: Int) -> Single<[PlaceImage]> {
         return provider.rx.request(.detailImage(
             contentId: contentId,
