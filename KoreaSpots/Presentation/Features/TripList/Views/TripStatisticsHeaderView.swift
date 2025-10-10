@@ -12,25 +12,9 @@ import Then
 final class TripStatisticsHeaderView: BaseReusableView {
 
     // MARK: - UI Components
-
-    private let containerView = UIView().then {
-        $0.backgroundColor = .secondBackGround
-        $0.layer.cornerRadius = 12
-        $0.layer.masksToBounds = true
-    }
-
-    private let titleLabel = UILabel().then {
-        $0.text = "여행 통계"
-        $0.font = .systemFont(ofSize: 18, weight: .bold)
-        $0.textColor = .label
-    }
-
-    private let statsStackView = UIStackView().then {
-        $0.axis = .horizontal
-        $0.spacing = 12
-        $0.distribution = .fillEqually
-    }
-
+    private let containerView = UIView()
+    private let titleLabel = UILabel()
+    private let statsStackView = UIStackView()
     private let tripCountView = StatItemView()
     private let placeCountView = StatItemView()
     private let topAreaView = StatItemView()
@@ -84,62 +68,25 @@ final class TripStatisticsHeaderView: BaseReusableView {
             $0.bottom.equalToSuperview().offset(-16)
         }
     }
-}
-
-// MARK: - StatItemView
-
-private final class StatItemView: UIView {
-
-    private let iconImageView = UIImageView().then {
-        $0.contentMode = .scaleAspectFit
-        $0.tintColor = .textPrimary
-    }
-
-    private let titleLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 12, weight = .regular)
-        $0.textColor = .secondaryLabel
-        $0.textAlignment = .center
-    }
-
-    private let valueLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 16, weight: .bold)
-        $0.textColor = .label
-        $0.textAlignment = .center
-    }
-
-    private let stackView = UIStackView().then {
-        $0.axis = .vertical
-        $0.spacing = 4
-        $0.alignment = .center
-    }
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupView()
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    private func setupView() {
-        addSubview(stackView)
-        stackView.addArrangedSubview(iconImageView)
-        stackView.addArrangedSubview(titleLabel)
-        stackView.addArrangedSubview(valueLabel)
-
-        stackView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+    
+    override func configureView() {
+        super.configureView()
+        containerView.do {
+            $0.backgroundColor = .secondBackGround
+            $0.layer.cornerRadius = 12
+            $0.layer.masksToBounds = true
         }
 
-        iconImageView.snp.makeConstraints {
-            $0.width.height.equalTo(24)
+        titleLabel.do {
+            $0.text = "여행 통계"
+            $0.font = .systemFont(ofSize: 18, weight: .bold)
+            $0.textColor = .label
         }
-    }
 
-    func configure(icon: String, title: String, value: String) {
-        iconImageView.image = UIImage(systemName: icon)
-        titleLabel.text = title
-        valueLabel.text = value
+        statsStackView.do {
+            $0.axis = .horizontal
+            $0.spacing = 12
+            $0.distribution = .fillEqually
+        }
     }
 }

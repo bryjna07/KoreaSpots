@@ -427,6 +427,60 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
         }
         .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
     }
+
+    // MARK: - Favorites
+
+    func getFavoritePlaces() -> Single<[Place]> {
+        return Single.create { [weak self] observer in
+            guard let self = self else {
+                observer(.success([]))
+                return Disposables.create()
+            }
+
+            do {
+                let realm = try self.createRealm()
+                let favoritePlaces = realm.objects(PlaceR.self)
+                    .filter("isFavorite == true")
+                    .sorted(byKeyPath: "cachedAt", ascending: false)
+
+                let places = Array(favoritePlaces).map { $0.toDomain() }
+                observer(.success(places))
+            } catch {
+                observer(.failure(DataSourceError.cacheError))
+            }
+
+            return Disposables.create()
+        }
+        .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
+    }
+
+    func toggleFavorite(contentId: String) -> Completable {
+        return Completable.create { [weak self] observer in
+            guard let self = self else {
+                observer(.completed)
+                return Disposables.create()
+            }
+
+            do {
+                let realm = try self.createRealm()
+                try realm.write {
+                    if let place = realm.object(ofType: PlaceR.self, forPrimaryKey: contentId) {
+                        place.isFavorite.toggle()
+                        print("✅ Favorite toggled for contentId: \(contentId), isFavorite: \(place.isFavorite)")
+                    } else {
+                        print("⚠️ Place not found for contentId: \(contentId)")
+                    }
+                }
+                observer(.completed)
+            } catch {
+                print("❌ Failed to toggle favorite: \(error)")
+                observer(.error(DataSourceError.cacheError))
+            }
+
+            return Disposables.create()
+        }
+        .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
+    }
 }
 
 // MARK: - Realm Objects (Temporary placeholders)

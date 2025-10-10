@@ -308,6 +308,15 @@ final class TourRepositoryImpl: TourRepository {
         return localDataSource.clearAllRecentKeywords()
     }
 
+    // MARK: - Favorites
+    func getFavoritePlaces() -> Single<[Place]> {
+        return localDataSource.getFavoritePlaces()
+    }
+
+    func toggleFavorite(contentId: String) -> Completable {
+        return localDataSource.toggleFavorite(contentId: contentId)
+    }
+
     // MARK: - Cache Management
     func clearExpiredCache() -> Completable {
         return localDataSource.clearExpiredCache()

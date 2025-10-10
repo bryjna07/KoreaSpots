@@ -13,57 +13,15 @@ final class TripCell: BaseCollectionViewCell {
 
     // MARK: - UI Components
 
-    private let containerView = UIView().then {
-        $0.backgroundColor = .secondBackGround
-        $0.layer.cornerRadius = 12
-        $0.layer.masksToBounds = true
-    }
-
-    private let thumbnailImageView = UIImageView().then {
-        $0.contentMode = .scaleAspectFill
-        $0.backgroundColor = .systemGray5
-        $0.clipsToBounds = true
-    }
-
-    private let contentStackView = UIStackView().then {
-        $0.axis = .vertical
-        $0.spacing = 6
-        $0.alignment = .leading
-    }
-
-    private let titleLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.textColor = .label
-        $0.numberOfLines = 2
-    }
-
-    private let dateLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 13, weight: .regular)
-        $0.textColor = .secondaryLabel
-    }
-
-    private let memoLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 14, weight: .regular)
-        $0.textColor = .label
-        $0.numberOfLines = 1
-    }
-
-    private let bottomStackView = UIStackView().then {
-        $0.axis = .horizontal
-        $0.spacing = 4
-        $0.alignment = .center
-    }
-
-    private let placeIconImageView = UIImageView().then {
-        $0.image = UIImage(systemName: "mappin.circle.fill")
-        $0.tintColor = .textPrimary
-        $0.contentMode = .scaleAspectFit
-    }
-
-    private let placeCountLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 13, weight: .medium)
-        $0.textColor = .textPrimary
-    }
+    private let containerView = UIView()
+    private let thumbnailImageView = UIImageView()
+    private let contentStackView = UIStackView()
+    private let titleLabel = UILabel()
+    private let dateLabel = UILabel()
+    private let memoLabel = UILabel()
+    private let bottomStackView = UIStackView()
+    private let placeIconImageView = UIImageView()
+    private let placeCountLabel = UILabel()
 
     // MARK: - Configuration
 
@@ -85,9 +43,20 @@ final class TripCell: BaseCollectionViewCell {
             thumbnailImageView.image = UIImage(named: "placeholder")
         }
     }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        thumbnailImageView.image = nil
+        titleLabel.text = nil
+        dateLabel.text = nil
+        memoLabel.text = nil
+        placeCountLabel.text = nil
+    }
+}
 
     // MARK: - Hierarchy & Layout
 
+extension TripCell {
     override func configureHierarchy() {
         contentView.addSubview(containerView)
         containerView.addSubviews(thumbnailImageView, contentStackView)
@@ -117,13 +86,59 @@ final class TripCell: BaseCollectionViewCell {
             $0.width.height.equalTo(16)
         }
     }
+    
+    override func configureView() {
+        super.configureView()
+        containerView.do {
+            $0.backgroundColor = .secondBackGround
+            $0.layer.cornerRadius = 12
+            $0.layer.masksToBounds = true
+        }
 
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        thumbnailImageView.image = nil
-        titleLabel.text = nil
-        dateLabel.text = nil
-        memoLabel.text = nil
-        placeCountLabel.text = nil
+        thumbnailImageView.do {
+            $0.contentMode = .scaleAspectFill
+            $0.backgroundColor = .systemGray5
+            $0.clipsToBounds = true
+        }
+
+        contentStackView.do {
+            $0.axis = .vertical
+            $0.spacing = 6
+            $0.alignment = .leading
+        }
+
+        titleLabel.do {
+            $0.font = .systemFont(ofSize: 16, weight: .semibold)
+            $0.textColor = .label
+            $0.numberOfLines = 2
+        }
+
+        dateLabel.do {
+            $0.font = .systemFont(ofSize: 13, weight: .regular)
+            $0.textColor = .secondaryLabel
+        }
+
+        memoLabel.do {
+            $0.font = .systemFont(ofSize: 14, weight: .regular)
+            $0.textColor = .label
+            $0.numberOfLines = 1
+        }
+
+        bottomStackView.do {
+            $0.axis = .horizontal
+            $0.spacing = 4
+            $0.alignment = .center
+        }
+
+        placeIconImageView.do {
+            $0.image = UIImage(systemName: "mappin.circle.fill")
+            $0.tintColor = .textPrimary
+            $0.contentMode = .scaleAspectFit
+        }
+
+        placeCountLabel.do {
+            $0.font = .systemFont(ofSize: 13, weight: .medium)
+            $0.textColor = .textPrimary
+        }
     }
 }

@@ -10,20 +10,14 @@ import SnapKit
 import Then
 
 final class TripListView: BaseView {
-
+    
     // MARK: - UI Components
-
-    let collectionView: UICollectionView = {
-        let layout = createLayout()
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.backgroundColor = .backGround
-        cv.showsVerticalScrollIndicator = true
-        cv.contentInsetAdjustmentBehavior = .never
-        return cv
-    }()
+    lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
+}
 
     // MARK: - Hierarchy & Layout
 
+extension TripListView {
     override func configureHierarchy() {
         addSubview(collectionView)
     }
@@ -33,23 +27,35 @@ final class TripListView: BaseView {
             $0.edges.equalTo(safeAreaLayoutGuide)
         }
     }
+    
+    override func configureView() {
+        super.configureView()
+        
+        collectionView.do {
+            $0.backgroundColor = .backGround
+            $0.showsVerticalScrollIndicator = true
+            $0.contentInsetAdjustmentBehavior = .never
+        }
+    }
+}
 
     // MARK: - Compositional Layout
 
-    private static func createLayout() -> UICollectionViewLayout {
+extension TripListView {
+    func createLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { sectionIndex, environment in
             // Statistics section (header only)
             if sectionIndex == 0 {
-                return createStatisticsSection()
+                return self.createStatisticsSection()
             } else {
                 // Trips section
-                return createTripsSection()
+                return self.createTripsSection()
             }
         }
         return layout
     }
 
-    private static func createStatisticsSection() -> NSCollectionLayoutSection {
+    func createStatisticsSection() -> NSCollectionLayoutSection {
         // Header only section (no items)
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
@@ -80,7 +86,7 @@ final class TripListView: BaseView {
         return section
     }
 
-    private static func createTripsSection() -> NSCollectionLayoutSection {
+    func createTripsSection() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
             heightDimension: .estimated(140)

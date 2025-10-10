@@ -223,6 +223,36 @@ final class AppContainer {
         return viewController
     }
 
+    // MARK: PlaceSelector
+    func makePlaceSelectorReactor(
+        maxSelectionCount: Int,
+        preSelectedPlaceIds: [String]
+    ) -> PlaceSelectorReactor {
+        return PlaceSelectorReactor(
+            tourRepository: tourRepository,
+            maxSelectionCount: maxSelectionCount,
+            preSelectedPlaceIds: preSelectedPlaceIds
+        )
+    }
+
+    func makePlaceSelectorViewController(
+        maxSelectionCount: Int = 20,
+        preSelectedPlaceIds: [String] = [],
+        onConfirm: @escaping ([String]) -> Void
+    ) -> PlaceSelectorViewController {
+        let reactor = makePlaceSelectorReactor(
+            maxSelectionCount: maxSelectionCount,
+            preSelectedPlaceIds: preSelectedPlaceIds
+        )
+        let viewController = PlaceSelectorViewController(
+            reactor: reactor,
+            maxSelectionCount: maxSelectionCount,
+            preSelectedPlaceIds: preSelectedPlaceIds,
+            onConfirm: onConfirm
+        )
+        return viewController
+    }
+
     // MARK: Search
     func makeSearchReactor() -> SearchReactor {
         return SearchReactor(
