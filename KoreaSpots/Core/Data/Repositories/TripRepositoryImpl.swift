@@ -17,7 +17,7 @@ final class TripRepositoryImpl: TripRepository {
 
     // MARK: - CRUD
 
-    func createTrip(_ trip: Trip) -> Completable {
+    func createTrip(_ trip: Trip) -> Single<Trip> {
         return localDataSource.saveTrip(trip)
     }
 

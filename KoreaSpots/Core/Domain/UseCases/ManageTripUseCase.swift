@@ -35,8 +35,11 @@ final class CreateTripUseCaseImpl: CreateTripUseCase {
         }
 
         return tripRepository.createTrip(trip)
-            .andThen(tripRepository.syncVisitIndex(for: trip))
-            .andThen(.just(trip))
+            .flatMap { savedTrip in
+                // Use saved trip with new ObjectId for visit index
+                return self.tripRepository.syncVisitIndex(for: savedTrip)
+                    .andThen(.just(savedTrip))
+            }
     }
 }
 

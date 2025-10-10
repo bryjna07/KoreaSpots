@@ -9,7 +9,11 @@ import UIKit
 import SnapKit
 import Then
 
-final class TripCell: BaseCollectionViewCell {
+final class TripCell: BaseListCell {
+
+    // MARK: - Properties
+
+    var onDeleteTapped: (() -> Void)?
 
     // MARK: - UI Components
 
@@ -22,6 +26,7 @@ final class TripCell: BaseCollectionViewCell {
     private let bottomStackView = UIStackView()
     private let placeIconImageView = UIImageView()
     private let placeCountLabel = UILabel()
+    private let deleteButton = UIButton(type: .system)
 
     // MARK: - Configuration
 
@@ -43,7 +48,7 @@ final class TripCell: BaseCollectionViewCell {
             thumbnailImageView.image = UIImage(named: "placeholder")
         }
     }
-    
+
     override func prepareForReuse() {
         super.prepareForReuse()
         thumbnailImageView.image = nil
@@ -51,15 +56,14 @@ final class TripCell: BaseCollectionViewCell {
         dateLabel.text = nil
         memoLabel.text = nil
         placeCountLabel.text = nil
+        onDeleteTapped = nil
     }
-}
 
     // MARK: - Hierarchy & Layout
 
-extension TripCell {
     override func configureHierarchy() {
         contentView.addSubview(containerView)
-        containerView.addSubviews(thumbnailImageView, contentStackView)
+        containerView.addSubviews(thumbnailImageView, contentStackView, deleteButton)
 
         bottomStackView.addArrangedSubviews(placeIconImageView, placeCountLabel)
 
@@ -68,27 +72,45 @@ extension TripCell {
 
     override func configureLayout() {
         containerView.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16))
+            $0.top.equalToSuperview().offset(8)
+            $0.leading.equalToSuperview().offset(16)
+            $0.trailing.equalToSuperview().offset(-16)
+            $0.bottom.equalToSuperview().offset(-8).priority(.high)
         }
 
         thumbnailImageView.snp.makeConstraints {
             $0.leading.top.bottom.equalToSuperview()
             $0.width.equalTo(120)
+            $0.height.greaterThanOrEqualTo(100)
         }
 
         contentStackView.snp.makeConstraints {
             $0.leading.equalTo(thumbnailImageView.snp.trailing).offset(12)
+            $0.trailing.equalTo(deleteButton.snp.leading).offset(-8)
+            $0.top.equalToSuperview().offset(12)
+            $0.bottom.equalToSuperview().offset(-12).priority(.high)
+        }
+
+        deleteButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().offset(-12)
             $0.centerY.equalToSuperview()
+            $0.width.height.equalTo(24)
         }
 
         placeIconImageView.snp.makeConstraints {
             $0.width.height.equalTo(16)
         }
     }
-    
+
     override func configureView() {
         super.configureView()
+        // Remove default list cell background and accessories
+        accessories = []
+
+        // Disable default selection style
+        let backgroundConfig = UIBackgroundConfiguration.clear()
+        backgroundConfiguration = backgroundConfig
+
         containerView.do {
             $0.backgroundColor = .secondBackGround
             $0.layer.cornerRadius = 12
@@ -140,5 +162,31 @@ extension TripCell {
             $0.font = .systemFont(ofSize: 13, weight: .medium)
             $0.textColor = .textPrimary
         }
+
+        deleteButton.do {
+            $0.setImage(UIImage(systemName: "trash.fill"), for: .normal)
+            $0.tintColor = .gray
+            $0.backgroundColor = .systemBackground
+            $0.layer.cornerRadius = 16
+            $0.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        }
+    }
+
+    @objc private func deleteButtonTapped() {
+        onDeleteTapped?()
+    }
+
+    // MARK: - UICollectionViewListCell Configuration
+
+    override func updateConfiguration(using state: UICellConfigurationState) {
+        super.updateConfiguration(using: state)
+
+        // Update background configuration based on state
+        var backgroundConfig = UIBackgroundConfiguration.clear()
+        if state.isHighlighted || state.isSelected {
+            backgroundConfig.backgroundColor = .clear
+        }
+        backgroundConfiguration = backgroundConfig
     }
 }
+

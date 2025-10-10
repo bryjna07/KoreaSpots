@@ -67,26 +67,17 @@ final class PlaceListCell: BaseCollectionViewCell {
 
     // MARK: - ConfigureUI
     override func configureHierarchy() {
-        super.configureHierarchy()
-
         contentView.addSubview(containerStack)
-        contentView.addSubview(favoriteButton)
 
-        labelsStack.addArrangedSubview(tagLabel)
-        labelsStack.addArrangedSubview(titleLabel)
-        labelsStack.addArrangedSubview(subtitleLabel)
-
-        containerStack.addArrangedSubview(thumbnail)
-        containerStack.addArrangedSubview(labelsStack)
+        labelsStack.addArrangedSubviews(tagLabel, titleLabel, subtitleLabel)
+        containerStack.addArrangedSubviews(thumbnail, labelsStack, favoriteButton)
     }
 
     override func configureLayout() {
-        super.configureLayout()
-
         containerStack.snp.makeConstraints {
             $0.top.bottom.equalToSuperview().inset(12).priority(.high)
             $0.leading.equalToSuperview().inset(12)
-            $0.trailing.equalToSuperview().inset(52) // favoriteButton 공간 확보
+            $0.trailing.equalToSuperview().inset(12)
         }
 
         thumbnail.snp.makeConstraints {
@@ -95,8 +86,6 @@ final class PlaceListCell: BaseCollectionViewCell {
         }
 
         favoriteButton.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(12)
-            $0.trailing.equalToSuperview().offset(-12)
             $0.width.height.equalTo(32)
         }
 

@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - Trip (여행 기록)
-struct Trip {
+struct Trip: Hashable {
     let id: String
     let title: String
     let coverPhotoPath: String?
@@ -34,10 +34,19 @@ struct Trip {
     var visitedPlaceCount: Int {
         visitedPlaces.count
     }
+
+    // Hashable conformance
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+    static func == (lhs: Trip, rhs: Trip) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 
 // MARK: - VisitedPlace (방문 관광지)
-struct VisitedPlace {
+struct VisitedPlace: Hashable {
     let entryId: String
     let placeId: String
     let placeNameSnapshot: String
@@ -52,7 +61,7 @@ struct VisitedPlace {
 }
 
 // MARK: - VisitedArea (지역 집계)
-struct VisitedArea {
+struct VisitedArea: Hashable {
     let areaCode: Int
     let sigunguCode: Int?
     let count: Int
@@ -65,13 +74,13 @@ struct VisitedArea {
 }
 
 // MARK: - GeoPoint (좌표)
-struct GeoPoint {
+struct GeoPoint: Hashable {
     let lat: Double
     let lng: Double
 }
 
 // MARK: - TripStatistics (여행 통계)
-struct TripStatistics {
+struct TripStatistics: Hashable {
     let totalTripCount: Int
     let totalPlaceCount: Int
     let mostVisitedAreas: [VisitedArea]

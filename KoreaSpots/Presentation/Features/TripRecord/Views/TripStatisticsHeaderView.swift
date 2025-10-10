@@ -48,9 +48,9 @@ final class TripStatisticsHeaderView: BaseReusableView {
         addSubview(containerView)
         containerView.addSubviews(titleLabel, statsStackView)
 
-        statsStackView.addArrangedSubview(tripCountView)
-        statsStackView.addArrangedSubview(placeCountView)
-        statsStackView.addArrangedSubview(topAreaView)
+        statsStackView.addArrangedSubviews(tripCountView, placeCountView)
+ 
+//        statsStackView.addArrangedSubview(topAreaView)
     }
 
     override func configureLayout() {
@@ -71,6 +71,17 @@ final class TripStatisticsHeaderView: BaseReusableView {
     
     override func configureView() {
         super.configureView()
+        
+        tripCountView.do {
+            $0.layer.cornerRadius = 12
+            $0.layer.masksToBounds = true
+        }
+        
+        placeCountView.do {
+            $0.layer.cornerRadius = 12
+            $0.layer.masksToBounds = true
+        }
+        
         containerView.do {
             $0.backgroundColor = .secondBackGround
             $0.layer.cornerRadius = 12

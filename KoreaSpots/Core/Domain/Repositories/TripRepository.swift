@@ -10,7 +10,7 @@ import RxSwift
 
 protocol TripRepository {
     // MARK: - CRUD
-    func createTrip(_ trip: Trip) -> Completable
+    func createTrip(_ trip: Trip) -> Single<Trip>
     func getTrip(id: String) -> Single<Trip?>
     func getAllTrips(sortedBy sortOption: TripSortOption) -> Single<[Trip]>
     func getTrips(forMonth month: Date) -> Single<[Trip]>

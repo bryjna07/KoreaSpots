@@ -198,28 +198,35 @@ final class AppContainer {
         return viewController
     }
 
-    // MARK: TripList
-    func makeTripListReactor() -> TripListReactor {
-        return TripListReactor(
+    // MARK: TripRecord
+    func makeTripRecordReactor() -> TripRecordReactor {
+        return TripRecordReactor(
             getTripsUseCase: getTripsUseCase,
             getTripStatisticsUseCase: getTripStatisticsUseCase,
             deleteTripUseCase: deleteTripUseCase
         )
     }
 
-    func makeTripListViewController() -> TripListViewController {
-        let reactor = makeTripListReactor()
-        let viewController = TripListViewController()
+    func makeTripRecordViewController() -> TripRecordViewController {
+        let reactor = makeTripRecordReactor()
+        let viewController = TripRecordViewController()
         viewController.reactor = reactor
         return viewController
     }
 
     // MARK: TripEditor
-    func makeTripEditorViewController(trip: Trip?) -> UIViewController {
-        // TODO: Implement TripEditorViewController
-        let viewController = UIViewController()
-        viewController.view.backgroundColor = .systemBackground
-        viewController.title = trip == nil ? "새 여행 기록" : "여행 기록 수정"
+    func makeTripEditorReactor(trip: Trip?) -> TripEditorReactor {
+        return TripEditorReactor(
+            trip: trip,
+            createTripUseCase: createTripUseCase,
+            updateTripUseCase: updateTripUseCase,
+            tourRepository: tourRepository
+        )
+    }
+
+    func makeTripEditorViewController(trip: Trip?) -> TripEditorViewController {
+        let reactor = makeTripEditorReactor(trip: trip)
+        let viewController = TripEditorViewController(reactor: reactor, appContainer: self)
         return viewController
     }
 

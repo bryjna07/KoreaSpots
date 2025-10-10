@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Toast
 
 class BaseViewController: UIViewController {
     
@@ -38,5 +39,10 @@ class BaseViewController: UIViewController {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
     }
-    
+
+    // MARK: - Toast
+
+    func showToast(message: String) {
+        view.makeToast(message, duration: 2.0, position: .bottom)
+    }
 }

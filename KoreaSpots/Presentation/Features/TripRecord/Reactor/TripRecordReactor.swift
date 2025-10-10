@@ -1,5 +1,5 @@
 //
-//  TripListReactor.swift
+//  TripRecordReactor.swift
 //  KoreaSpots
 //
 //  Created by YoungJin on 10/10/25.
@@ -9,7 +9,7 @@ import Foundation
 import ReactorKit
 import RxSwift
 
-final class TripListReactor: Reactor {
+final class TripRecordReactor: Reactor {
 
     enum Action {
         case viewDidLoad
@@ -72,8 +72,12 @@ final class TripListReactor: Reactor {
             ])
 
         case .deleteTrip(let tripId):
+            print("🗑️ Delete trip action: \(tripId)")
             return deleteTripUseCase.execute(tripId: tripId)
-                .asObservable()
+                .andThen(Observable.just(()))
+                .do(onNext: { _ in
+                    print("✅ Delete completed, reloading data...")
+                })
                 .flatMap { _ -> Observable<Mutation> in
                     return self.loadData()
                 }
@@ -92,10 +96,12 @@ final class TripListReactor: Reactor {
             newState.isLoading = isLoading
 
         case .setTrips(let trips):
+            print("📊 Reduce: setTrips(\(trips.count) trips)")
             newState.trips = trips
             newState.isLoading = false
 
         case .setStatistics(let statistics):
+            print("📈 Reduce: setStatistics(total: \(statistics.totalTripCount))")
             newState.statistics = statistics
 
         case .setSortOption(let option):

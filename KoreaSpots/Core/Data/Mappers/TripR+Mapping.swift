@@ -28,8 +28,11 @@ extension TripR {
 
     convenience init(from trip: Trip) {
         self.init()
-        if let objectId = try? ObjectId(string: trip.id) {
+        if !trip.id.isEmpty, let objectId = try? ObjectId(string: trip.id) {
             self.id = objectId
+        } else {
+            // Generate new ObjectId for new trips
+            self.id = ObjectId.generate()
         }
         self.title = trip.title
         self.coverPhotoId = trip.coverPhotoPath
