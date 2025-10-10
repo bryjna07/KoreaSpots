@@ -29,12 +29,15 @@ class PlaceR: Object {
     @Persisted var areaCode: Int = 0
     @Persisted var sigunguCode: Int = 0
 
+    // 즐겨찾기
+    @Persisted var isFavorite: Bool = false
+
     override static func primaryKey() -> String? {
         return "contentId"
     }
 
     override static func indexedProperties() -> [String] {
-        return ["contentTypeId", "areaCode", "sigunguCode", "cat1", "cat2", "cat3", "cachedAt"]
+        return ["contentTypeId", "areaCode", "sigunguCode", "cat1", "cat2", "cat3", "cachedAt", "isFavorite"]
     }
 }
 
