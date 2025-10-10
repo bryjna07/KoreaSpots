@@ -30,9 +30,10 @@ final class TabBarController: UITabBarController {
         let categoryVC = createSearchTab()
         let homeVC = createHomeTab()
         let tripVC = createTripTab()
-        let settingsVC = createSettingsTab()
+        let favoriteVC = createFavoriteTab()
+       // let settingsVC = createSettingsTab()
 
-        setViewControllers([categoryVC, homeVC, tripVC, settingsVC], animated: false)
+        setViewControllers([categoryVC, homeVC, tripVC, favoriteVC, ], animated: false)
     }
     
     private func setupTabBar() {
@@ -90,9 +91,8 @@ private extension TabBarController {
 
 
     func createTripTab() -> UINavigationController {
-        // TODO: Trip 화면 구현 후 교체
-        let placeholderVC = PlaceholderViewController(title: "여행 기록", message: "여행 기록 화면 준비중입니다")
-        let navController = UINavigationController(rootViewController: placeholderVC)
+        let tripRecordVC = AppContainer.shared.makeTripRecordViewController()
+        let navController = UINavigationController(rootViewController: tripRecordVC)
 
         navController.tabBarItem = UITabBarItem(
             title: "기록",
@@ -104,6 +104,20 @@ private extension TabBarController {
         return navController
     }
 
+    func createFavoriteTab() -> UINavigationController {
+        let favoriteVC = AppContainer.shared.makeFavoriteViewController()
+        let navController = UINavigationController(rootViewController: favoriteVC)
+
+        navController.tabBarItem = UITabBarItem(
+            title: "즐겨찾기",
+            image: UIImage(systemName: "heart"),
+            selectedImage: UIImage(systemName: "heart.fill")
+        )
+        navController.tabBarItem.tag = 3
+
+        return navController
+    }
+    
     func createSettingsTab() -> UINavigationController {
         // TODO: Settings 화면 구현 후 교체
         let placeholderVC = PlaceholderViewController(title: "설정", message: "설정 화면 준비중입니다")
@@ -114,7 +128,7 @@ private extension TabBarController {
             image: UIImage(systemName: "gearshape"),
             selectedImage: UIImage(systemName: "gearshape.fill")
         )
-        navController.tabBarItem.tag = 3
+        navController.tabBarItem.tag = 4
 
         return navController
     }
@@ -132,10 +146,6 @@ private final class PlaceholderViewController: BaseViewController {
         self.displayTitle = title
         self.displayMessage = message
         super.init(nibName: nil, bundle: nil)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
     override func viewDidLoad() {

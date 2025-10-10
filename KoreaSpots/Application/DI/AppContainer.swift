@@ -59,6 +59,10 @@ final class AppContainer {
         TripRepositoryImpl(localDataSource: tripLocalDataSource)
     }()
 
+    private lazy var favoriteRepository: FavoriteRepository = {
+        FavoriteRepositoryImpl(localDataSource: tourLocalDataSource)
+    }()
+
     // MARK: - Use Cases
     private lazy var fetchFestivalUseCase: FetchFestivalUseCase = {
         FetchFestivalUseCaseImpl(tourRepository: tourRepository)
@@ -109,6 +113,23 @@ final class AppContainer {
         DeleteTripUseCaseImpl(tripRepository: tripRepository)
     }()
 
+    // Favorite UseCases
+    private lazy var getFavoritesUseCase: GetFavoritesUseCase = {
+        GetFavoritesUseCaseImpl(favoriteRepository: favoriteRepository)
+    }()
+
+    private lazy var toggleFavoriteUseCase: ToggleFavoriteUseCase = {
+        ToggleFavoriteUseCaseImpl(favoriteRepository: favoriteRepository)
+    }()
+
+    private lazy var checkFavoriteUseCase: CheckFavoriteUseCase = {
+        CheckFavoriteUseCaseImpl(favoriteRepository: favoriteRepository)
+    }()
+
+    private lazy var getFavoriteCountUseCase: GetFavoriteCountUseCase = {
+        GetFavoriteCountUseCaseImpl(favoriteRepository: favoriteRepository)
+    }()
+
     // MARK: - Services
     private lazy var locationService: LocationService = {
         LocationManager()
@@ -142,7 +163,9 @@ final class AppContainer {
         let reactor = PlaceDetailReactor(
             place: place,
             tourRepository: tourRepository,
-            fetchLocationBasedPlacesUseCase: fetchLocationBasedPlacesUseCase
+            fetchLocationBasedPlacesUseCase: fetchLocationBasedPlacesUseCase,
+            checkFavoriteUseCase: checkFavoriteUseCase,
+            toggleFavoriteUseCase: toggleFavoriteUseCase
         )
         let viewController = PlaceDetailViewController()
         viewController.reactor = reactor
@@ -161,6 +184,22 @@ final class AppContainer {
         return viewController
     }
 
+    // MARK: Favorite
+    func makeFavoriteReactor() -> FavoriteReactor {
+        return FavoriteReactor(
+            getFavoritesUseCase: getFavoritesUseCase,
+            toggleFavoriteUseCase: toggleFavoriteUseCase,
+            getFavoriteCountUseCase: getFavoriteCountUseCase
+        )
+    }
+
+    func makeFavoriteViewController() -> FavoriteViewController {
+        let reactor = makeFavoriteReactor()
+        let viewController = FavoriteViewController()
+        viewController.reactor = reactor
+        return viewController
+    }
+
     // MARK: PlaceList
     func makePlaceListReactor(
         initialArea: AreaCode? = nil,
@@ -175,7 +214,9 @@ final class AppContainer {
             cat1: cat1,
             cat2: cat2,
             cat3: cat3,
-            fetchAreaBasedPlacesUseCase: fetchAreaBasedPlacesUseCase
+            fetchAreaBasedPlacesUseCase: fetchAreaBasedPlacesUseCase,
+            checkFavoriteUseCase: checkFavoriteUseCase,
+            toggleFavoriteUseCase: toggleFavoriteUseCase
         )
     }
 
@@ -266,7 +307,9 @@ final class AppContainer {
             searchPlacesUseCase: searchPlacesUseCase,
             getRecentKeywordsUseCase: getRecentKeywordsUseCase,
             deleteRecentKeywordUseCase: deleteRecentKeywordUseCase,
-            clearAllRecentKeywordsUseCase: clearAllRecentKeywordsUseCase
+            clearAllRecentKeywordsUseCase: clearAllRecentKeywordsUseCase,
+            checkFavoriteUseCase: checkFavoriteUseCase,
+            toggleFavoriteUseCase: toggleFavoriteUseCase
         )
     }
 

@@ -15,6 +15,7 @@ final class PlaceDetailReactor: Reactor {
         case viewDidLoad
         case refresh
         case imagePageChanged(Int)
+        case toggleFavorite
     }
 
     enum Mutation {
@@ -22,6 +23,8 @@ final class PlaceDetailReactor: Reactor {
         case setPlaceDetail(PlaceDetail)
         case setError(String?)
         case setCurrentImageIndex(Int)
+        case setFavorite(Bool)
+        case showToast(String)
     }
 
     struct State {
@@ -30,21 +33,29 @@ final class PlaceDetailReactor: Reactor {
         var error: String?
         var currentImageIndex: Int = 0
         var sections: [PlaceDetailSectionModel] = []
+        var isFavorite: Bool = false
+        @Pulse var toastMessage: String?
     }
 
     let initialState = State()
     private let place: Place
     private let tourRepository: TourRepository
     private let fetchLocationBasedPlacesUseCase: FetchLocationBasedPlacesUseCase
+    private let checkFavoriteUseCase: CheckFavoriteUseCase
+    private let toggleFavoriteUseCase: ToggleFavoriteUseCase
 
     init(
         place: Place,
         tourRepository: TourRepository,
-        fetchLocationBasedPlacesUseCase: FetchLocationBasedPlacesUseCase
+        fetchLocationBasedPlacesUseCase: FetchLocationBasedPlacesUseCase,
+        checkFavoriteUseCase: CheckFavoriteUseCase,
+        toggleFavoriteUseCase: ToggleFavoriteUseCase
     ) {
         self.place = place
         self.tourRepository = tourRepository
         self.fetchLocationBasedPlacesUseCase = fetchLocationBasedPlacesUseCase
+        self.checkFavoriteUseCase = checkFavoriteUseCase
+        self.toggleFavoriteUseCase = toggleFavoriteUseCase
     }
 
     func mutate(action: Action) -> Observable<Mutation> {
@@ -52,6 +63,7 @@ final class PlaceDetailReactor: Reactor {
         case .viewDidLoad:
             return Observable.concat([
                 Observable.just(.setLoading(true)),
+                checkFavoriteStatus(),
                 fetchPlaceDetail(),
                 Observable.just(.setLoading(false))
             ])
@@ -65,6 +77,24 @@ final class PlaceDetailReactor: Reactor {
 
         case let .imagePageChanged(index):
             return Observable.just(.setCurrentImageIndex(index))
+
+        case .toggleFavorite:
+            let wasLiked = currentState.isFavorite
+            let placeName = place.title
+
+            return toggleFavoriteUseCase.execute(place: place, isFavorite: wasLiked)
+                .andThen(Observable.just(()))
+                .flatMap { _ -> Observable<Mutation> in
+                    let toastMessage = wasLiked ? "" : "\(placeName)이(가) 즐겨찾기에 추가되었습니다."
+                    return Observable.concat([
+                        self.checkFavoriteStatus(),
+                        wasLiked ? .empty() : .just(.showToast(toastMessage))
+                    ])
+                }
+                .catch { error in
+                    print("❌ Toggle favorite error: \(error)")
+                    return .just(.setError("좋아요 변경 중 오류가 발생했습니다."))
+                }
         }
     }
 
@@ -85,6 +115,12 @@ final class PlaceDetailReactor: Reactor {
 
         case let .setCurrentImageIndex(index):
             newState.currentImageIndex = index
+
+        case let .setFavorite(isFavorite):
+            newState.isFavorite = isFavorite
+
+        case let .showToast(message):
+            newState.toastMessage = message
         }
 
         return newState
@@ -93,6 +129,16 @@ final class PlaceDetailReactor: Reactor {
 
 // MARK: - Private Methods
 private extension PlaceDetailReactor {
+
+    func checkFavoriteStatus() -> Observable<Mutation> {
+        return checkFavoriteUseCase.execute(contentId: place.contentId)
+            .asObservable()
+            .map { Mutation.setFavorite($0) }
+            .catch { error in
+                print("❌ Check favorite error: \(error)")
+                return .empty()
+            }
+    }
 
     func fetchPlaceDetail() -> Observable<Mutation> {
         return Observable.combineLatest(

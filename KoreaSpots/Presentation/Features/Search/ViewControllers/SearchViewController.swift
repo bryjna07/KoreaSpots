@@ -38,10 +38,12 @@ final class SearchViewController: BaseViewController, View, ScreenNavigatable {
     struct PlaceItem: Hashable {
         let id: String
         let place: Place
+        let isFavorite: Bool
 
-        init(place: Place) {
+        init(place: Place, isFavorite: Bool = false) {
             self.id = place.contentId
             self.place = place
+            self.isFavorite = isFavorite
         }
 
         func hash(into hasher: inout Hasher) {
@@ -49,7 +51,7 @@ final class SearchViewController: BaseViewController, View, ScreenNavigatable {
         }
 
         static func == (lhs: PlaceItem, rhs: PlaceItem) -> Bool {
-            return lhs.id == rhs.id
+            return lhs.id == rhs.id && lhs.isFavorite == rhs.isFavorite
         }
     }
 
@@ -116,13 +118,19 @@ final class SearchViewController: BaseViewController, View, ScreenNavigatable {
             }
             .disposed(by: disposeBag)
 
-        // State: Search results
+        // State: Search results + favorites
         reactor.state
-            .map { $0.searchResults }
-            .distinctUntilChanged()
-            .asDriver(onErrorJustReturn: [])
-            .drive(with: self) { owner, results in
-                owner.applyResultsSnapshot(places: results)
+            .map { state -> (results: [Place], favorites: [String: Bool]) in
+                return (state.searchResults, state.favorites)
+            }
+            .distinctUntilChanged { prev, curr in
+                let resultsEqual = prev.results == curr.results
+                let favoritesEqual = prev.favorites == curr.favorites
+                return resultsEqual && favoritesEqual
+            }
+            .asDriver(onErrorJustReturn: (results: [], favorites: [:]))
+            .drive(with: self) { owner, data in
+                owner.applyResultsSnapshot(places: data.results)
             }
             .disposed(by: disposeBag)
 
@@ -175,6 +183,15 @@ final class SearchViewController: BaseViewController, View, ScreenNavigatable {
             .asDriver(onErrorJustReturn: "")
             .drive(with: self) { owner, error in
                 owner.showErrorAlert(message: error)
+            }
+            .disposed(by: disposeBag)
+
+        // State: Toast message
+        reactor.pulse(\.$toastMessage)
+            .compactMap { $0 }
+            .asDriver(onErrorJustReturn: "")
+            .drive(with: self) { owner, message in
+                owner.showToast(message: message)
             }
             .disposed(by: disposeBag)
 
@@ -258,13 +275,21 @@ final class SearchViewController: BaseViewController, View, ScreenNavigatable {
         let resultCellRegistration = UICollectionView.CellRegistration<PlaceListCell, PlaceItem> { [weak self] cell, indexPath, item in
             guard let self = self else { return }
 
-            cell.configure(with: item.place, showTag: true, isFavorite: false)
+            cell.configure(with: item.place, showTag: true, isFavorite: item.isFavorite)
 
-            // Favorite button Rx binding
+            // Favorite button tap with alert for removal
             cell.favoriteButton.rx.tap
                 .bind(with: self) { owner, _ in
-                    print("Favorite tapped for: \(item.place.title)")
-                    // TODO: Implement favorite logic
+                    if item.isFavorite {
+                        owner.showDeleteConfirmAlert(
+                            title: "즐겨찾기 삭제",
+                            message: "즐겨찾기에서 삭제하시겠습니까?"
+                        ) {
+                            owner.reactor?.action.onNext(.toggleFavorite(item.place, item.isFavorite))
+                        }
+                    } else {
+                        owner.reactor?.action.onNext(.toggleFavorite(item.place, item.isFavorite))
+                    }
                 }
                 .disposed(by: cell.disposeBag)
         }
@@ -403,14 +428,19 @@ final class SearchViewController: BaseViewController, View, ScreenNavigatable {
     }
 
     private func applyResultsSnapshot(places: [Place]) {
-        guard resultsDataSource != nil else {
+        guard resultsDataSource != nil, let reactor = reactor else {
             print("⚠️ resultsDataSource is not initialized yet")
             return
         }
 
+        let items = places.map { place in
+            let isFavorite = reactor.currentState.favorites[place.contentId] ?? false
+            return PlaceItem(place: place, isFavorite: isFavorite)
+        }
+
         var snapshot = NSDiffableDataSourceSnapshot<ResultSection, PlaceItem>()
         snapshot.appendSections([.main])
-        snapshot.appendItems(places.map { PlaceItem(place: $0) }, toSection: .main)
+        snapshot.appendItems(items, toSection: .main)
         resultsDataSource.apply(snapshot, animatingDifferences: true)
     }
 

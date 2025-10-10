@@ -22,6 +22,7 @@ final class SearchReactor: Reactor {
         case selectSigungu(Int?)
         case selectContentType(Int?)
         case loadNextPage
+        case toggleFavorite(Place, Bool) // contentId, currentIsFavorite
     }
 
     enum Mutation {
@@ -37,6 +38,8 @@ final class SearchReactor: Reactor {
         case setHasMorePages(Bool)
         case setCurrentPage(Int)
         case setHasSearched(Bool)
+        case setFavorites([String: Bool]) // contentId: isFavorite
+        case showToast(String)
     }
 
     struct State {
@@ -47,10 +50,12 @@ final class SearchReactor: Reactor {
         var selectedArea: AreaCode?
         var selectedSigungu: Int?
         var selectedContentType: Int?
+        var favorites: [String: Bool] = [:] // contentId: isFavorite
         var error: String?
         var hasMorePages: Bool = false
         var currentPage: Int = 1
         var hasSearched: Bool = false // 검색 실행 여부 추적
+        @Pulse var toastMessage: String?
     }
 
     let initialState = State()
@@ -59,17 +64,23 @@ final class SearchReactor: Reactor {
     private let getRecentKeywordsUseCase: GetRecentKeywordsUseCase
     private let deleteRecentKeywordUseCase: DeleteRecentKeywordUseCase
     private let clearAllRecentKeywordsUseCase: ClearAllRecentKeywordsUseCase
+    private let checkFavoriteUseCase: CheckFavoriteUseCase
+    private let toggleFavoriteUseCase: ToggleFavoriteUseCase
 
     init(
         searchPlacesUseCase: SearchPlacesUseCase,
         getRecentKeywordsUseCase: GetRecentKeywordsUseCase,
         deleteRecentKeywordUseCase: DeleteRecentKeywordUseCase,
-        clearAllRecentKeywordsUseCase: ClearAllRecentKeywordsUseCase
+        clearAllRecentKeywordsUseCase: ClearAllRecentKeywordsUseCase,
+        checkFavoriteUseCase: CheckFavoriteUseCase,
+        toggleFavoriteUseCase: ToggleFavoriteUseCase
     ) {
         self.searchPlacesUseCase = searchPlacesUseCase
         self.getRecentKeywordsUseCase = getRecentKeywordsUseCase
         self.deleteRecentKeywordUseCase = deleteRecentKeywordUseCase
         self.clearAllRecentKeywordsUseCase = clearAllRecentKeywordsUseCase
+        self.checkFavoriteUseCase = checkFavoriteUseCase
+        self.toggleFavoriteUseCase = toggleFavoriteUseCase
     }
 
     func mutate(action: Action) -> Observable<Mutation> {
@@ -304,6 +315,23 @@ final class SearchReactor: Reactor {
                 .just(.setCurrentPage(nextPage)),
                 performSearch(page: nextPage, appendResults: true)
             ])
+
+        case .toggleFavorite(let place, let isFavorite):
+            let placeName = place.title
+
+            return toggleFavoriteUseCase.execute(place: place, isFavorite: isFavorite)
+                .andThen(Observable.just(()))
+                .flatMap { _ -> Observable<Mutation> in
+                    let toastMessage = isFavorite ? "" : "\(placeName)이(가) 즐겨찾기에 추가되었습니다."
+                    return Observable.concat([
+                        self.checkFavoriteStatus(contentId: place.contentId),
+                        isFavorite ? .empty() : .just(.showToast(toastMessage))
+                    ])
+                }
+                .catch { error in
+                    print("❌ Toggle favorite error: \(error)")
+                    return .just(.setError("좋아요 변경 중 오류가 발생했습니다."))
+                }
         }
     }
 
@@ -353,13 +381,15 @@ final class SearchReactor: Reactor {
 
         case .setHasSearched(let hasSearched):
             newState.hasSearched = hasSearched
+
+        case .setFavorites(let favorites):
+            newState.favorites = favorites
+
+        case .showToast(let message):
+            newState.toastMessage = message
         }
 
         return newState
-    }
-
-    func transform(state: Observable<State>) -> Observable<State> {
-        return state
     }
 
     func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
@@ -369,10 +399,68 @@ final class SearchReactor: Reactor {
             .map { Mutation.setRecentKeywords($0) }
             .catchAndReturn(Mutation.setRecentKeywords([]))
 
-        return Observable.merge(mutation, initialKeywords)
+        // SearchResults가 변경될 때마다 좋아요 상태 체크
+        let favoritesUpdate = mutation
+            .compactMap { mutation -> [Place]? in
+                switch mutation {
+                case .setResults(let places), .appendResults(let places):
+                    return places
+                default:
+                    return nil
+                }
+            }
+            .flatMap { places -> Observable<Mutation> in
+                let contentIds = places.map { $0.contentId }
+                return self.checkFavoritesStatus(contentIds: contentIds)
+            }
+
+        return Observable.merge(mutation, initialKeywords, favoritesUpdate)
+    }
+
+    func transform(state: Observable<State>) -> Observable<State> {
+        return state
     }
 
     // MARK: - Private Methods
+
+    private func checkFavoriteStatus(contentId: String) -> Observable<Mutation> {
+        return checkFavoriteUseCase.execute(contentId: contentId)
+            .asObservable()
+            .map { isFavorite in
+                var favorites = self.currentState.favorites
+                favorites[contentId] = isFavorite
+                return Mutation.setFavorites(favorites)
+            }
+            .catch { error in
+                print("❌ Check favorite error: \(error)")
+                return .empty()
+            }
+    }
+
+    private func checkFavoritesStatus(contentIds: [String]) -> Observable<Mutation> {
+        guard !contentIds.isEmpty else {
+            return .empty()
+        }
+
+        let checks = contentIds.map { contentId in
+            checkFavoriteUseCase.execute(contentId: contentId)
+                .map { (contentId, $0) }
+        }
+
+        return Single.zip(checks)
+            .asObservable()
+            .map { results in
+                var favorites: [String: Bool] = [:]
+                results.forEach { contentId, isFavorite in
+                    favorites[contentId] = isFavorite
+                }
+                return Mutation.setFavorites(favorites)
+            }
+            .catch { error in
+                print("❌ Check favorites error: \(error)")
+                return .empty()
+            }
+    }
 
     private func performSearch(page: Int, appendResults: Bool = false) -> Observable<Mutation> {
         let input = SearchPlacesInput(

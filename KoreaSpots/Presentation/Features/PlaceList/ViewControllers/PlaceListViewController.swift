@@ -21,10 +21,12 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
     struct PlaceItem: Hashable {
         let id: String
         let place: Place
+        let isFavorite: Bool
 
-        init(place: Place) {
+        init(place: Place, isFavorite: Bool = false) {
             self.id = place.contentId
             self.place = place
+            self.isFavorite = isFavorite
         }
 
         func hash(into hasher: inout Hasher) {
@@ -32,7 +34,7 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
         }
 
         static func == (lhs: PlaceItem, rhs: PlaceItem) -> Bool {
-            return lhs.id == rhs.id
+            return lhs.id == rhs.id && lhs.isFavorite == rhs.isFavorite
         }
     }
 
@@ -101,19 +103,20 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
-        // State: places
+        // State: places + favorites
         reactor.state
-            .map { state -> (places: [Place], area: AreaCode?, contentType: Int?, cat3: String?) in
-                return (state.places, state.selectedArea, state.contentTypeId, state.cat3)
+            .map { state -> (places: [Place], favorites: [String: Bool], area: AreaCode?, contentType: Int?, cat3: String?) in
+                return (state.places, state.favorites, state.selectedArea, state.contentTypeId, state.cat3)
             }
             .distinctUntilChanged { prev, curr in
                 let placesEqual = prev.places == curr.places
+                let favoritesEqual = prev.favorites == curr.favorites
                 let areaEqual = prev.area == curr.area
                 let contentTypeEqual = prev.contentType == curr.contentType
                 let cat3Equal = prev.cat3 == curr.cat3
-                return placesEqual && areaEqual && contentTypeEqual && cat3Equal
+                return placesEqual && favoritesEqual && areaEqual && contentTypeEqual && cat3Equal
             }
-            .asDriver(onErrorJustReturn: (places: [], area: nil, contentType: nil, cat3: nil))
+            .asDriver(onErrorJustReturn: (places: [], favorites: [:], area: nil, contentType: nil, cat3: nil))
             .drive(with: self) { owner, data in
                 owner.applySnapshot(places: data.places)
                 owner.updateEmptyState(
@@ -145,6 +148,15 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
             .asDriver(onErrorJustReturn: "Unknown error")
             .drive(with: self) { owner, error in
                 owner.showErrorAlert(message: error)
+            }
+            .disposed(by: disposeBag)
+
+        // State: Toast message
+        reactor.pulse(\.$toastMessage)
+            .compactMap { $0 }
+            .asDriver(onErrorJustReturn: "")
+            .drive(with: self) { owner, message in
+                owner.showToast(message: message)
             }
             .disposed(by: disposeBag)
 
@@ -203,8 +215,26 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
     }
 
     private func setupDataSource() {
-        let cellRegistration = UICollectionView.CellRegistration<PlaceListCell, PlaceItem> { cell, indexPath, item in
-            cell.configure(with: item.place)
+        let cellRegistration = UICollectionView.CellRegistration<PlaceListCell, PlaceItem> { [weak self] cell, indexPath, item in
+            guard let self = self else { return }
+
+            cell.configure(with: item.place, showTag: false, isFavorite: item.isFavorite)
+
+            // Favorite button tap with alert for removal
+            cell.favoriteButton.rx.tap
+                .bind(with: self) { owner, _ in
+                    if item.isFavorite {
+                        owner.showDeleteConfirmAlert(
+                            title: "즐겨찾기 삭제",
+                            message: "즐겨찾기에서 삭제하시겠습니까?"
+                        ) {
+                            owner.reactor?.action.onNext(.toggleFavorite(item.place, item.isFavorite))
+                        }
+                    } else {
+                        owner.reactor?.action.onNext(.toggleFavorite(item.place, item.isFavorite))
+                    }
+                }
+                .disposed(by: cell.disposeBag)
         }
 
         dataSource = UICollectionViewDiffableDataSource<Section, PlaceItem>(
@@ -340,14 +370,19 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
     }
 
     private func applySnapshot(places: [Place]) {
-        guard let dataSource = dataSource else {
+        guard let dataSource = dataSource, let reactor = reactor else {
             print("⚠️ DataSource is nil, skipping snapshot apply")
             return
         }
 
+        let items = places.map { place in
+            let isFavorite = reactor.currentState.favorites[place.contentId] ?? false
+            return PlaceItem(place: place, isFavorite: isFavorite)
+        }
+
         var snapshot = NSDiffableDataSourceSnapshot<Section, PlaceItem>()
         snapshot.appendSections([.main])
-        snapshot.appendItems(places.map { PlaceItem(place: $0) }, toSection: .main)
+        snapshot.appendItems(items, toSection: .main)
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 

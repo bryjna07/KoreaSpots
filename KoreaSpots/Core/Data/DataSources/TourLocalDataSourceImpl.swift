@@ -468,7 +468,13 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
                         place.isFavorite.toggle()
                         print("✅ Favorite toggled for contentId: \(contentId), isFavorite: \(place.isFavorite)")
                     } else {
-                        print("⚠️ Place not found for contentId: \(contentId)")
+                        // Place가 Realm에 없으면 새로 생성하고 isFavorite = true로 설정
+                        print("⚠️ Place not found for contentId: \(contentId), creating new entry")
+                        let newPlace = PlaceR()
+                        newPlace.contentId = contentId
+                        newPlace.isFavorite = true
+                        realm.add(newPlace, update: .modified)
+                        print("✅ Created new favorite place: \(contentId)")
                     }
                 }
                 observer(.completed)
