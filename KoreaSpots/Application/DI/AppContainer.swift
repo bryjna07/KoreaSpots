@@ -42,6 +42,10 @@ final class AppContainer {
         TourLocalDataSourceImpl()
     }()
 
+    private lazy var tripLocalDataSource: TripLocalDataSource = {
+        TripLocalDataSourceImpl()
+    }()
+
     // MARK: - Repositories
     private lazy var tourRepository: TourRepository = {
         TourRepositoryImpl(
@@ -49,6 +53,10 @@ final class AppContainer {
             localDataSource: tourLocalDataSource,
             useMockData: useMockData
         )
+    }()
+
+    private lazy var tripRepository: TripRepository = {
+        TripRepositoryImpl(localDataSource: tripLocalDataSource)
     }()
 
     // MARK: - Use Cases
@@ -78,6 +86,27 @@ final class AppContainer {
 
     private lazy var clearAllRecentKeywordsUseCase: ClearAllRecentKeywordsUseCase = {
         ClearAllRecentKeywordsUseCaseImpl(tourRepository: tourRepository)
+    }()
+
+    // Trip UseCases
+    private lazy var getTripsUseCase: GetTripsUseCase = {
+        GetTripsUseCaseImpl(tripRepository: tripRepository)
+    }()
+
+    private lazy var getTripStatisticsUseCase: GetTripStatisticsUseCase = {
+        GetTripStatisticsUseCaseImpl(tripRepository: tripRepository)
+    }()
+
+    private lazy var createTripUseCase: CreateTripUseCase = {
+        CreateTripUseCaseImpl(tripRepository: tripRepository)
+    }()
+
+    private lazy var updateTripUseCase: UpdateTripUseCase = {
+        UpdateTripUseCaseImpl(tripRepository: tripRepository)
+    }()
+
+    private lazy var deleteTripUseCase: DeleteTripUseCase = {
+        DeleteTripUseCaseImpl(tripRepository: tripRepository)
     }()
 
     // MARK: - Services
@@ -166,6 +195,31 @@ final class AppContainer {
         )
         let viewController = PlaceListViewController()
         viewController.reactor = reactor
+        return viewController
+    }
+
+    // MARK: TripList
+    func makeTripListReactor() -> TripListReactor {
+        return TripListReactor(
+            getTripsUseCase: getTripsUseCase,
+            getTripStatisticsUseCase: getTripStatisticsUseCase,
+            deleteTripUseCase: deleteTripUseCase
+        )
+    }
+
+    func makeTripListViewController() -> TripListViewController {
+        let reactor = makeTripListReactor()
+        let viewController = TripListViewController()
+        viewController.reactor = reactor
+        return viewController
+    }
+
+    // MARK: TripEditor
+    func makeTripEditorViewController(trip: Trip?) -> UIViewController {
+        // TODO: Implement TripEditorViewController
+        let viewController = UIViewController()
+        viewController.view.backgroundColor = .systemBackground
+        viewController.title = trip == nil ? "새 여행 기록" : "여행 기록 수정"
         return viewController
     }
 
