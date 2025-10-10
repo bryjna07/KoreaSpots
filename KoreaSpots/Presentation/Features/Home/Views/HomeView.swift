@@ -43,8 +43,8 @@ extension HomeView {
     override func configureLayout() {
         
         searchButton.snp.makeConstraints {
-            $0.top.equalTo(safeAreaLayoutGuide)
-            $0.leading.trailing.equalToSuperview().inset(Constants.UI.Spacing.xLarge)
+            $0.top.equalTo(safeAreaLayoutGuide).inset(16)
+            $0.leading.trailing.equalToSuperview().inset(Constants.UI.Spacing.large)
             $0.height.equalTo(Constants.UI.Button.searchHeight)
         }
         

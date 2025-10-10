@@ -93,7 +93,7 @@ final class SectionHeaderView: BaseReusableView, HeaderViewConfigurable {
     
     override func configureLayout() {
         stackView.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(Constants.UI.Spacing.xLarge)
+            $0.leading.trailing.equalToSuperview().inset(Constants.UI.Spacing.large)
             $0.top.equalToSuperview().inset(Constants.UI.Spacing.small)
             $0.bottom.equalToSuperview().inset(Constants.UI.Spacing.large)
         }

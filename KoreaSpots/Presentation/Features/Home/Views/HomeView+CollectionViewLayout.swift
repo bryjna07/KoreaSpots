@@ -44,29 +44,7 @@ extension HomeView {
         section.interGroupSpacing = 0
         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: Constants.UI.Spacing.medium, trailing: 0)
 
-        section.boundarySupplementaryItems = [createSectionHeader(), createPageIndicatorFooter()]
-
-        return section
-    }
-
-    func createNearbySection() -> NSCollectionLayoutSection {
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .absolute(Constants.UI.CollectionView.Place.itemWidth),
-            heightDimension: .absolute(Constants.UI.CollectionView.Place.itemHeight)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .absolute(Constants.UI.CollectionView.Place.itemWidth),
-            heightDimension: .absolute(Constants.UI.CollectionView.Place.itemHeight)
-        )
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-
-        let section = NSCollectionLayoutSection(group: group)
-        section.orthogonalScrollingBehavior = .continuous
-        section.interGroupSpacing = Constants.UI.Spacing.medium
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: Constants.UI.Spacing.xLarge, bottom: Constants.UI.Spacing.xxLarge, trailing: Constants.UI.Spacing.xLarge)
-        section.boundarySupplementaryItems = [createSectionHeader()]
+        section.boundarySupplementaryItems = [createPageIndicatorFooter()]
 
         return section
     }
@@ -108,9 +86,9 @@ extension HomeView {
         let section = NSCollectionLayoutSection(group: containerGroup)
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 0,
-            leading: Constants.UI.Spacing.xLarge,
+            leading: Constants.UI.Spacing.xSmall,
             bottom: Constants.UI.Spacing.xxLarge,
-            trailing: Constants.UI.Spacing.xLarge
+            trailing: Constants.UI.Spacing.xSmall
         )
         section.boundarySupplementaryItems = [createSectionHeader()]
         return section
@@ -135,11 +113,38 @@ extension HomeView {
         section.interGroupSpacing = Constants.UI.CollectionView.Theme.spacing
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 0,
-            leading: Constants.UI.Spacing.xLarge,
+            leading: Constants.UI.Spacing.xSmall,
             bottom: Constants.UI.Spacing.xxLarge,
-            trailing: Constants.UI.Spacing.xLarge
+            trailing: Constants.UI.Spacing.xSmall
         )
         section.boundarySupplementaryItems = [createSectionHeader()]
+        return section
+    }
+    
+    func createNearbySection() -> NSCollectionLayoutSection {
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .absolute(Constants.UI.CollectionView.Place.itemWidth),
+            heightDimension: .absolute(Constants.UI.CollectionView.Place.itemHeight)
+        )
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .absolute(Constants.UI.CollectionView.Place.itemWidth),
+            heightDimension: .absolute(Constants.UI.CollectionView.Place.itemHeight)
+        )
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+
+        let section = NSCollectionLayoutSection(group: group)
+        section.orthogonalScrollingBehavior = .continuous
+        section.interGroupSpacing = Constants.UI.Spacing.medium
+        section.contentInsets = NSDirectionalEdgeInsets(
+            top: 0,
+            leading: Constants.UI.Spacing.xSmall,
+            bottom: Constants.UI.Spacing.xxLarge,
+            trailing: Constants.UI.Spacing.xSmall
+        )
+        section.boundarySupplementaryItems = [createSectionHeader()]
+
         return section
     }
 

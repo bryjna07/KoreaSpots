@@ -193,7 +193,8 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
 
         let actionTitle: String? = {
             switch section.section {
-            case .nearby: return LocalizedKeys.Action.openMap.localized
+                ///TODO: - 지도보기 화면
+//            case .nearby: return LocalizedKeys.Action.openMap.localized
             default: return nil
             }
         }()
