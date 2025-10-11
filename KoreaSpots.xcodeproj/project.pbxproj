@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		175235C82E9A2F1100333245 /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 17DDE7542E85325F00E6057A /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		179CE5242E8E0C9200181886 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 179CE5232E8E0C9200181886 /* FirebaseAnalytics */; };
 		179CE5262E8E0C9200181886 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 179CE5252E8E0C9200181886 /* FirebaseCrashlytics */; };
 		179CE5282E8E0C9200181886 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 179CE5272E8E0C9200181886 /* FirebaseMessaging */; };
@@ -22,6 +23,20 @@
 		17DDE76A2E85333000E6057A /* TextFieldEffects in Frameworks */ = {isa = PBXBuildFile; productRef = 17DDE7692E85333000E6057A /* TextFieldEffects */; };
 		17DDE76D2E853B0F00E6057A /* ReactorKit in Frameworks */ = {isa = PBXBuildFile; productRef = 17DDE76C2E853B0F00E6057A /* ReactorKit */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		175235C92E9A2F1100333245 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				175235C82E9A2F1100333245 /* RealmSwift in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		17DDE6862E851F2D00E6057A /* KoreaSpots.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KoreaSpots.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -100,6 +115,7 @@
 				17DDE6832E851F2D00E6057A /* Frameworks */,
 				17DDE6842E851F2D00E6057A /* Resources */,
 				179CE52B2E8E1B3600181886 /* ShellScript */,
+				175235C92E9A2F1100333245 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -231,6 +247,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = K9Z452TQ46;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KoreaSpots/Resources/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "위치 권한을 허용해주세요";
@@ -265,6 +282,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K9Z452TQ46;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KoreaSpots/Resources/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "위치 권한을 허용해주세요";
