@@ -163,3 +163,5 @@ final class CategoryReactor: Reactor {
         return newState
     }
 }
+
+///TODO:- 카테고리 스크롤 관련 문제 - 추후 업데이트

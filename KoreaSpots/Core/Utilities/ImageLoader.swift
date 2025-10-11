@@ -236,3 +236,5 @@ extension ImageLoader.ImageSize: CaseIterable {
         return [.thumbnail, .listItem, .banner, .detail, .fullScreen]
     }
 }
+
+///TODO:- 이미지 로드 시 파랑색 플레이스홀더 삭제 - 스켈레톤

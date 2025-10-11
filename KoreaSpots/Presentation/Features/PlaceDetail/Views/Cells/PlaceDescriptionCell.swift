@@ -143,3 +143,5 @@ private extension PlaceDescriptionCell {
         return fullTextHeight > threeLineHeight
     }
 }
+
+///TODO: - 카드셀 탭에서만 정보 표시되는중. - 해결 필요

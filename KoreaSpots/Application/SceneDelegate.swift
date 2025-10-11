@@ -17,6 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
 
+        ///TODO: - 추후 API로 업데이트 필요
         // Mock 데이터 사용 설정
         AppContainer.shared.setUseMockData(true)
 
