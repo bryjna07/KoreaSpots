@@ -145,10 +145,9 @@
 				};
 			};
 			buildConfigurationList = 17DDE6812E851F2D00E6057A /* Build configuration list for PBXProject "KoreaSpots" */;
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
 				Base,
 				ko,
 			);
