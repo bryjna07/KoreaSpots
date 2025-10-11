@@ -11,7 +11,6 @@ import Then
 import SkeletonView
 
 final class FestivalCardCell: BaseCollectionViewCell, CollectionViewCellConfigurable {
-    typealias Model = Festival
 
     // MARK: - UI Components
     private let containerView = UIView()

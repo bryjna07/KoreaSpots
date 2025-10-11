@@ -23,6 +23,7 @@ enum LocalizedKeys {
         static let theme = "section_theme"
         static let areaQuickLink = "section_area_quick_link"
         static let category = "section_category"
+        static let categoryTitle = "category_title"
         static let operatingInfo = "section_operating_info"
         static let location = "section_location"
         static let nearbyPlaces = "section_nearby_places"

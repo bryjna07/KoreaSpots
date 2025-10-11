@@ -225,8 +225,7 @@ final class SearchViewController: BaseViewController, View, ScreenNavigatable {
     // MARK: - Setup
 
     private func setupUI() {
-        title = "검색"
-        navigationController?.navigationBar.prefersLargeTitles = false
+         title = "검색"
 
         // Initially show recent keywords section
         searchView.showRecentKeywordsSection()

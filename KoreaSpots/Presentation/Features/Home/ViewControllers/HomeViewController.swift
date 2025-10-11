@@ -26,7 +26,6 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
         setupDataSource()
     }
 
@@ -115,9 +114,18 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
     }
 
     // MARK: - Setup
-    private func setupUI() {
-        title = LocalizedKeys.Home.title.localized
-        navigationController?.navigationBar.prefersLargeTitles = true
+    override func setupNaviBar() {
+        super.setupNaviBar()
+
+        let label = UILabel()
+        label.text = LocalizedKeys.Home.title.localized
+        label.font = FontManager.largeTitle
+        label.textColor = .textPrimary
+
+        // 3) 왼쪽 바 버튼으로 넣기
+        navigationItem.leftBarButtonItems = [
+            UIBarButtonItem(customView: label)
+        ]
     }
 
     private func setupDataSource() {

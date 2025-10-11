@@ -48,9 +48,22 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "카테고리"
         setupDataSources()
         setupSearchBarGesture()
+    }
+    
+    override func setupNaviBar() {
+        super.setupNaviBar()
+        
+        let label = UILabel()
+        label.text = LocalizedKeys.Section.categoryTitle.localized
+        label.font = FontManager.largeTitle
+        label.textColor = .textPrimary
+
+        // 3) 왼쪽 바 버튼으로 넣기
+        navigationItem.leftBarButtonItems = [
+            UIBarButtonItem(customView: label)
+        ]
     }
 
     private func setupSearchBarGesture() {

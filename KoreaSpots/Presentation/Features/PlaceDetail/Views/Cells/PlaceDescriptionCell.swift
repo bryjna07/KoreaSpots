@@ -134,11 +134,11 @@ private extension PlaceDescriptionCell {
         let fullTextHeight = fullText.boundingRect(
             with: maxSize,
             options: [.usesLineFragmentOrigin, .usesFontLeading],
-            attributes: [.font: FontManager.body],
+            attributes: [.font: FontManager.body ?? UIFont.systemFont(ofSize: 16)],
             context: nil
         ).height
 
-        let threeLineHeight = FontManager.body.lineHeight * 3
+        let threeLineHeight = (FontManager.body?.lineHeight ?? 16) * 3
 
         return fullTextHeight > threeLineHeight
     }

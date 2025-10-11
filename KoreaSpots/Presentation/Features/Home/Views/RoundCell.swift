@@ -78,7 +78,7 @@ extension RoundCell {
         }
 
         titleLabel.do {
-            $0.font = .systemFont(ofSize: 12, weight: .medium)
+            $0.font = FontManager.caption2
             $0.textColor = .textPrimary
             $0.textAlignment = .center
             $0.numberOfLines = 1

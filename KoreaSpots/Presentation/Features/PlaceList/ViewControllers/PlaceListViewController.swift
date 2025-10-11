@@ -66,7 +66,6 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
         setupEmptyState()
         setupDataSource()
         setupCollectionView()
@@ -196,9 +195,6 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
     }
 
     // MARK: - Setup
-    private func setupUI() {
-        navigationController?.navigationBar.prefersLargeTitles = false
-    }
 
     private func setupEmptyState() {
         view.addSubview(emptyStateView)

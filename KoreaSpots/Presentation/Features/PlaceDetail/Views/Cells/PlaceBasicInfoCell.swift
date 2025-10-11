@@ -64,7 +64,8 @@ extension PlaceBasicInfoCell {
         categoryTagView.snp.makeConstraints {
             $0.top.equalToSuperview().inset(Constants.Layout.mediumPadding)
             $0.trailing.equalToSuperview().inset(Constants.Layout.standardPadding)
-            $0.height.equalTo(28)
+            ///TODO: - 높이 조절 필요
+            $0.height.equalTo(36)
         }
 
         categoryLabel.snp.makeConstraints {

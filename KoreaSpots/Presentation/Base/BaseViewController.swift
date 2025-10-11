@@ -28,11 +28,16 @@ class BaseViewController: UIViewController {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = .backGround
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.textPrimary]
+        appearance.shadowColor = .clear
+        appearance.titleTextAttributes = [
+            .foregroundColor: UIColor.textPrimary,
+            .font: FontManager.title1 ?? UIFont.systemFont(ofSize: 20)
+        ]
+
         navigationController?.navigationBar.tintColor = .textPrimary
-        navigationController?.navigationBar.standardAppearance = appearance
-        navigationController?.navigationBar.compactAppearance = appearance
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        navigationItem.standardAppearance   = appearance
+        navigationItem.scrollEdgeAppearance = appearance
+        navigationItem.compactAppearance    = appearance
         
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
     }

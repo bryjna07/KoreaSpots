@@ -41,16 +41,16 @@ final class TabBarController: UITabBarController {
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = .backGround
 
-        appearance.stackedLayoutAppearance.selected.iconColor = .textPrimary
+        appearance.stackedLayoutAppearance.selected.iconColor = .greenPastel
         appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
             .foregroundColor: UIColor.textPrimary,
-            .font: FontManager.caption2
+            .font: FontManager.caption2 ?? UIFont.systemFont(ofSize: 12)
         ]
 
         appearance.stackedLayoutAppearance.normal.iconColor = .systemGray
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
             .foregroundColor: UIColor.systemGray,
-            .font: FontManager.caption2
+            .font: FontManager.caption2 ?? UIFont.systemFont(ofSize: 12)
         ]
 
         tabBar.standardAppearance = appearance
@@ -63,74 +63,74 @@ private extension TabBarController {
    
     func createSearchTab() -> UINavigationController {
         let categoryVC = AppContainer.shared.makeCategoryViewController()
-        let navController = UINavigationController(rootViewController: categoryVC)
+        let nav = UINavigationController(rootViewController: categoryVC)
 
-        navController.tabBarItem = UITabBarItem(
-            title: "검색",
+        nav.tabBarItem = UITabBarItem(
+            title: "카테고리",
             image: UIImage(systemName: "magnifyingglass"),
             selectedImage: UIImage(systemName: "magnifyingglass")
         )
-        navController.tabBarItem.tag = 1
+        nav.tabBarItem.tag = 1
 
-        return navController
+        return nav
     }
     
     func createHomeTab() -> UINavigationController {
         let homeVC = AppContainer.shared.makeHomeViewController()
-        let navController = UINavigationController(rootViewController: homeVC)
+        let nav = UINavigationController(rootViewController: homeVC)
 
-        navController.tabBarItem = UITabBarItem(
+        nav.tabBarItem = UITabBarItem(
             title: "홈",
             image: UIImage(systemName: "house"),
             selectedImage: UIImage(systemName: "house.fill")
         )
-        navController.tabBarItem.tag = 0
+        nav.tabBarItem.tag = 0
 
-        return navController
+        return nav
     }
 
 
     func createTripTab() -> UINavigationController {
         let tripRecordVC = AppContainer.shared.makeTripRecordViewController()
-        let navController = UINavigationController(rootViewController: tripRecordVC)
+        let nav = UINavigationController(rootViewController: tripRecordVC)
 
-        navController.tabBarItem = UITabBarItem(
+        nav.tabBarItem = UITabBarItem(
             title: "기록",
             image: UIImage(systemName: "book"),
             selectedImage: UIImage(systemName: "book.fill")
         )
-        navController.tabBarItem.tag = 2
+        nav.tabBarItem.tag = 2
 
-        return navController
+        return nav
     }
 
     func createFavoriteTab() -> UINavigationController {
         let favoriteVC = AppContainer.shared.makeFavoriteViewController()
-        let navController = UINavigationController(rootViewController: favoriteVC)
+        let nav = UINavigationController(rootViewController: favoriteVC)
 
-        navController.tabBarItem = UITabBarItem(
+        nav.tabBarItem = UITabBarItem(
             title: "즐겨찾기",
             image: UIImage(systemName: "heart"),
             selectedImage: UIImage(systemName: "heart.fill")
         )
-        navController.tabBarItem.tag = 3
+        nav.tabBarItem.tag = 3
 
-        return navController
+        return nav
     }
     
     func createSettingsTab() -> UINavigationController {
         // TODO: Settings 화면 구현 후 교체
         let placeholderVC = PlaceholderViewController(title: "설정", message: "설정 화면 준비중입니다")
-        let navController = UINavigationController(rootViewController: placeholderVC)
+        let nav = UINavigationController(rootViewController: placeholderVC)
 
-        navController.tabBarItem = UITabBarItem(
+        nav.tabBarItem = UITabBarItem(
             title: "설정",
             image: UIImage(systemName: "gearshape"),
             selectedImage: UIImage(systemName: "gearshape.fill")
         )
-        navController.tabBarItem.tag = 4
+        nav.tabBarItem.tag = 4
 
-        return navController
+        return nav
     }
 }
 

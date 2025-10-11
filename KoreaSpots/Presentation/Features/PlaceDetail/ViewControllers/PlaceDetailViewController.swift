@@ -12,8 +12,6 @@ import RxCocoa
 
 final class PlaceDetailViewController: BaseViewController, View, Navigator {
 
-    typealias Reactor = PlaceDetailReactor
-
     // MARK: - Properties
     var disposeBag = DisposeBag()
     private var placeDetailView: PlaceDetailView { return view as! PlaceDetailView }
@@ -32,12 +30,33 @@ final class PlaceDetailViewController: BaseViewController, View, Navigator {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigationBar()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+    
+    // MARK: - Setup
+
+    override func setupNaviBar() {
+        super.setupNaviBar()
+        
+        // Back button
+        let backButton = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.left"),
+            style: .plain,
+            target: self,
+            action: #selector(backButtonTapped)
+        )
+        navigationItem.leftBarButtonItem = backButton
+
+        // Favorite button
+        navigationItem.rightBarButtonItem = favoriteButton
+    }
+
+    @objc func backButtonTapped() {
+        pop()
     }
 
     // MARK: - Bind
@@ -133,29 +152,5 @@ final class PlaceDetailViewController: BaseViewController, View, Navigator {
                 owner.navigationItem.title = title
             })
             .disposed(by: disposeBag)
-    }
-}
-
-// MARK: - Setup
-private extension PlaceDetailViewController {
-
-    func setupNavigationBar() {
-        navigationItem.largeTitleDisplayMode = .never
-
-        // Back button
-        let backButton = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
-            style: .plain,
-            target: self,
-            action: #selector(backButtonTapped)
-        )
-        navigationItem.leftBarButtonItem = backButton
-
-        // Favorite button
-        navigationItem.rightBarButtonItem = favoriteButton
-    }
-
-    @objc func backButtonTapped() {
-        pop()
     }
 }
