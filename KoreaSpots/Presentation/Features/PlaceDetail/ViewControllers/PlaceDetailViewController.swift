@@ -77,7 +77,7 @@ final class PlaceDetailViewController: BaseViewController, View, Navigator {
             .drive(with: self) { owner, isFavorite in
                 let imageName = isFavorite ? "heart.fill" : "heart"
                 owner.favoriteButton.image = UIImage(systemName: imageName)
-                owner.favoriteButton.tintColor = isFavorite ? .systemRed : .label
+                owner.favoriteButton.tintColor = isFavorite ? .redPastel : .textPrimary
             }
             .disposed(by: disposeBag)
 

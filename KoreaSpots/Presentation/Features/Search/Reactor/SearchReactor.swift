@@ -330,7 +330,7 @@ final class SearchReactor: Reactor {
                 }
                 .catch { error in
                     print("❌ Toggle favorite error: \(error)")
-                    return .just(.setError("좋아요 변경 중 오류가 발생했습니다."))
+                    return .just(.setError("즐겨찾기 변경 중 오류가 발생했습니다."))
                 }
         }
     }
@@ -399,7 +399,7 @@ final class SearchReactor: Reactor {
             .map { Mutation.setRecentKeywords($0) }
             .catchAndReturn(Mutation.setRecentKeywords([]))
 
-        // SearchResults가 변경될 때마다 좋아요 상태 체크
+        // SearchResults가 변경될 때마다 즐겨찾기 상태 체크
         let favoritesUpdate = mutation
             .compactMap { mutation -> [Place]? in
                 switch mutation {

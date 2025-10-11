@@ -15,13 +15,13 @@ final class FavoriteView: BaseView {
 
     // Header
     let headerView = UIView().then {
-        $0.backgroundColor = .systemBackground
+        $0.backgroundColor = .backGround
     }
 
     let favoriteCountLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 18, weight: .bold)
         $0.textColor = .textPrimary
-        $0.text = "좋아요 0"
+        $0.text = "즐겨찾기 0"
     }
 
     private let separatorView = UIView().then {
@@ -32,9 +32,9 @@ final class FavoriteView: BaseView {
     let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.minimumInteritemSpacing = 12
-        layout.minimumLineSpacing = 16
-        layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+//        layout.minimumInteritemSpacing = 12
+//        layout.minimumLineSpacing = 16
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
 
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .backGround
@@ -54,7 +54,7 @@ final class FavoriteView: BaseView {
         $0.textColor = .secondaryLabel
         $0.textAlignment = .center
         $0.numberOfLines = 0
-        $0.text = "좋아요한 관광지가 없습니다."
+        $0.text = "즐겨찾기한 관광지가 없습니다."
     }
 
     // MARK: - Hierarchy & Layout
@@ -67,19 +67,19 @@ final class FavoriteView: BaseView {
 
     override func configureLayout() {
         headerView.snp.makeConstraints {
-            $0.top.equalTo(safeAreaLayoutGuide)
+            $0.top.equalTo(safeAreaLayoutGuide).inset(16)
             $0.leading.trailing.equalToSuperview()
             $0.height.equalTo(60)
         }
 
         favoriteCountLabel.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(16)
+            $0.leading.equalToSuperview().offset(24)
             $0.centerY.equalToSuperview()
         }
 
         separatorView.snp.makeConstraints {
             $0.leading.trailing.bottom.equalToSuperview()
-            $0.height.equalTo(1)
+            $0.height.equalTo(0.5)
         }
 
         collectionView.snp.makeConstraints {
@@ -106,7 +106,7 @@ final class FavoriteView: BaseView {
     // MARK: - Helper Methods
 
     func updateFavoriteCount(_ count: Int) {
-        favoriteCountLabel.text = "좋아요 \(count)"
+        favoriteCountLabel.text = "즐겨찾기 \(count)"
     }
 
     func showEmptyState() {

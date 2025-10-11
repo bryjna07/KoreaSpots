@@ -93,7 +93,7 @@ final class PlaceDetailReactor: Reactor {
                 }
                 .catch { error in
                     print("❌ Toggle favorite error: \(error)")
-                    return .just(.setError("좋아요 변경 중 오류가 발생했습니다."))
+                    return .just(.setError("즐겨찾기 변경 중 오류가 발생했습니다."))
                 }
         }
     }

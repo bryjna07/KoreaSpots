@@ -60,7 +60,7 @@ final class FavoriteReactor: Reactor {
                 }
                 .catch { error in
                     print("❌ Toggle favorite error: \(error)")
-                    return .just(.setError("좋아요 변경 중 오류가 발생했습니다."))
+                    return .just(.setError("즐겨찾기 변경 중 오류가 발생했습니다."))
                 }
         }
     }
@@ -91,7 +91,7 @@ final class FavoriteReactor: Reactor {
             .map { Mutation.setFavorites($0) }
             .catch { error in
                 print("❌ Favorites observation error: \(error)")
-                return .just(.setError("좋아요 목록을 불러오는 중 오류가 발생했습니다."))
+                return .just(.setError("즐겨찾기 목록을 불러오는 중 오류가 발생했습니다."))
             }
 
         return Observable.merge(mutation, favoritesObservation)

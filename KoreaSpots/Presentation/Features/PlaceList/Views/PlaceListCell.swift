@@ -51,14 +51,14 @@ final class PlaceListCell: BaseCollectionViewCell {
     let favoriteButton = UIButton().then {
         $0.setImage(UIImage(systemName: "heart"), for: .normal)
         $0.setImage(UIImage(systemName: "heart.fill"), for: .selected)
-        $0.tintColor = .systemRed
+        $0.tintColor = .redPastel
         $0.backgroundColor = .clear
     }
 
     private let tagLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 11, weight: .medium)
         $0.textColor = .white
-        $0.backgroundColor = .systemBlue.withAlphaComponent(0.8)
+        $0.backgroundColor = .greenPastel.withAlphaComponent(0.8)
         $0.textAlignment = .center
         $0.layer.cornerRadius = 8
         $0.layer.masksToBounds = true

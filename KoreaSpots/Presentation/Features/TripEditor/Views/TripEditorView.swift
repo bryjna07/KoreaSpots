@@ -118,7 +118,7 @@ final class TripEditorView: BaseView {
         saveButton.do {
             $0.setTitle("저장", for: .normal)
             $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-            $0.backgroundColor = .textPrimary
+            $0.backgroundColor = .bluePastel
             $0.setTitleColor(.white, for: .normal)
             $0.layer.cornerRadius = 12
         }

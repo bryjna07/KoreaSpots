@@ -111,7 +111,7 @@ final class FavoriteViewController: BaseViewController, View, ScreenNavigatable 
 
     override func setupNaviBar() {
         super.setupNaviBar()
-        title = "좋아요"
+        navigationItem.title = "즐겨찾기"
     }
 
     private func setupDataSource() {

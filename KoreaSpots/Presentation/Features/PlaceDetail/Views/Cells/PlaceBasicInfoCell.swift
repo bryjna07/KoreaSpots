@@ -14,6 +14,7 @@ final class PlaceBasicInfoCell: BaseCollectionViewCell {
 
     // MARK: - UI Components
     private let titleLabel = UILabel()
+    /// TODO: - CustomUI
     private let categoryTagView = UIView()
     private let categoryLabel = UILabel()
     private let addressLabel = UILabel()
@@ -96,7 +97,7 @@ extension PlaceBasicInfoCell {
         }
 
         categoryTagView.do {
-            $0.backgroundColor = .systemBlue
+            $0.backgroundColor = .greenPastel
             $0.layer.cornerRadius = Constants.UI.CornerRadius.medium
             $0.isSkeletonable = true
         }

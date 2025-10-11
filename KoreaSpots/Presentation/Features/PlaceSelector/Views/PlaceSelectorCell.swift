@@ -38,7 +38,7 @@ final class PlaceSelectorCell: BaseCollectionViewCell {
         }
 
         checkmarkImageView.isHidden = !isSelected
-        contentView.backgroundColor = isSelected ? .systemBlue.withAlphaComponent(0.1) : .systemBackground
+        contentView.backgroundColor = isSelected ? .bluePastel.withAlphaComponent(0.1) : .backGround
     }
 
     // MARK: - Reuse
@@ -117,7 +117,7 @@ extension PlaceSelectorCell {
 
         checkmarkImageView.do {
             $0.image = UIImage(systemName: "checkmark.circle.fill")
-            $0.tintColor = .systemBlue
+            $0.tintColor = .bluePastel
             $0.contentMode = .scaleAspectFit
             $0.isHidden = true
         }
