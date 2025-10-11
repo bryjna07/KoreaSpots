@@ -110,6 +110,7 @@ final class TripFormView: BaseView {
             $0.font = .systemFont(ofSize: 18, weight: .semibold)
             $0.borderStyle = .roundedRect
             $0.clearButtonMode = .whileEditing
+            $0.returnKeyType = .done
         }
 
         // Dates
@@ -206,6 +207,7 @@ final class TripFormView: BaseView {
 
     private func setupBindings() {
         titleTextField.addTarget(self, action: #selector(titleTextFieldChanged), for: .editingChanged)
+        titleTextField.addTarget(self, action: #selector(titleTextFieldDone), for: .editingDidEndOnExit)
         startDatePicker.addTarget(self, action: #selector(startDatePickerChanged), for: .valueChanged)
         endDatePicker.addTarget(self, action: #selector(endDatePickerChanged), for: .valueChanged)
         memoTextView.delegate = self
@@ -215,6 +217,10 @@ final class TripFormView: BaseView {
 
     @objc private func titleTextFieldChanged() {
         onTitleChanged?(titleTextField.text ?? "")
+    }
+
+    @objc private func titleTextFieldDone() {
+        titleTextField.resignFirstResponder()
     }
 
     @objc private func startDatePickerChanged() {
