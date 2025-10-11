@@ -50,6 +50,13 @@ final class LocationManager: NSObject {
         return locationManager.location
     }
 
+    // MARK: - Mock Location (임시: 목데이터 테스트용)
+    /// 서울역 좌표 (37.5547, 126.9707)
+    private static let seoulStationLocation = CLLocation(
+        latitude: 37.5547,
+        longitude: 126.9707
+    )
+
     override init() {
         super.init()
         setupLocationManager()
@@ -81,21 +88,29 @@ final class LocationManager: NSObject {
     }
 
     func requestCurrentLocation() {
-        guard isLocationAuthorized else {
-            requestLocationPermission()
-            return
-        }
+        // TODO: 실제 출시 시 아래 주석 해제하고 임시 위치 제거
+        // guard isLocationAuthorized else {
+        //     requestLocationPermission()
+        //     return
+        // }
+        // locationManager.requestLocation()
 
-        locationManager.requestLocation()
+        // MARK: - 임시: 목데이터 테스트용 서울역 위치 반환
+        print("⚠️ [MOCK] 임시 위치 사용 중: 서울역 (37.5547, 126.9707)")
+        _currentLocation.accept(Self.seoulStationLocation)
     }
 
     func startUpdatingLocation() {
-        guard isLocationAuthorized else {
-            requestLocationPermission()
-            return
-        }
+        // TODO: 실제 출시 시 아래 주석 해제하고 임시 위치 제거
+        // guard isLocationAuthorized else {
+        //     requestLocationPermission()
+        //     return
+        // }
+        // locationManager.startUpdatingLocation()
 
-        locationManager.startUpdatingLocation()
+        // MARK: - 임시: 목데이터 테스트용 서울역 위치 반환
+        print("⚠️ [MOCK] 임시 위치 사용 중: 서울역 (37.5547, 126.9707)")
+        _currentLocation.accept(Self.seoulStationLocation)
     }
 
     func stopUpdatingLocation() {
