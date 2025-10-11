@@ -114,8 +114,8 @@
 				17DDE6822E851F2D00E6057A /* Sources */,
 				17DDE6832E851F2D00E6057A /* Frameworks */,
 				17DDE6842E851F2D00E6057A /* Resources */,
-				179CE52B2E8E1B3600181886 /* ShellScript */,
 				175235C92E9A2F1100333245 /* Embed Frameworks */,
+				179CE52B2E8E1B3600181886 /* ShellScript */,
 			);
 			buildRules = (
 			);
