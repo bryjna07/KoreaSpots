@@ -48,7 +48,7 @@ extension HomeSectionModel {
 }
 
 enum HomeSectionItem: IdentifiableType, Equatable {
-    case festival(Festival)
+    case festival(Place)
     case category(Category)
     case theme(Theme)
     case place(Place)

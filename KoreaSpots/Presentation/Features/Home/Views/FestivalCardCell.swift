@@ -21,17 +21,19 @@ final class FestivalCardCell: BaseCollectionViewCell, CollectionViewCellConfigur
     private let locationLabel = UILabel()
 
     // MARK: - Configuration
-    func configure(with model: Festival) {
+    func configure(with model: Place) {
         configureFestival(model)
     }
 
-    private func configureFestival(_ festival: Festival) {
-        titleLabel.text = festival.title
-        periodLabel.text = DateFormatterUtil.formatPeriod(start: festival.eventStartDate, end: festival.eventEndDate)
-        locationLabel.text = festival.address
+    private func configureFestival(_ place: Place) {
+        titleLabel.text = place.title
+        guard let eventMeta = place.eventMeta else { return }
+        periodLabel.text = DateFormatterUtil.formatPeriod(start: eventMeta.eventStartDate, end: eventMeta.eventEndDate)
+
+        locationLabel.text = place.address
 
         // ImageLoader를 사용한 축제 배너 이미지 로딩
-        imageView.loadFestivalBanner(from: festival.imageURL)
+        imageView.loadFestivalBanner(from: place.imageURL)
     }
 
     override func prepareForReuse() {

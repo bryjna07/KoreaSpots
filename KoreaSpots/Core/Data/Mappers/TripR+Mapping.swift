@@ -22,7 +22,10 @@ extension TripR {
             visitedAreas: visitedAreas.map { $0.toDomain() },
             tags: Array(tags),
             createdAt: createdAt,
-            updatedAt: updatedAt
+            updatedAt: updatedAt,
+            isRouteTrackingEnabled: isRouteTrackingEnabled,
+            totalDistance: totalDistance,
+            travelStyle: travelStyle
         )
     }
 
@@ -44,6 +47,9 @@ extension TripR {
         self.tags.append(objectsIn: trip.tags)
         self.createdAt = trip.createdAt
         self.updatedAt = Date() // Always update timestamp
+        self.isRouteTrackingEnabled = trip.isRouteTrackingEnabled
+        self.totalDistance = trip.totalDistance
+        self.travelStyle = trip.travelStyle
     }
 }
 
@@ -61,7 +67,11 @@ extension VisitedPlaceE {
             order: order,
             note: note,
             rating: rating,
-            location: locationSnapshot?.toDomain()
+            location: locationSnapshot?.toDomain(),
+            visitedTime: visitedTime,
+            stayDuration: stayDuration,
+            routeIndex: routeIndex,
+            photos: photos.map { $0.toDomain() }
         )
     }
 
@@ -80,6 +90,10 @@ extension VisitedPlaceE {
         if let location = visitedPlace.location {
             self.locationSnapshot = GeoPointE(from: location)
         }
+        self.visitedTime = visitedPlace.visitedTime
+        self.stayDuration = visitedPlace.stayDuration
+        self.routeIndex = visitedPlace.routeIndex
+        self.photos.append(objectsIn: visitedPlace.photos.map { VisitPhotoE(from: $0) })
     }
 }
 
@@ -115,6 +129,38 @@ extension GeoPointE {
         self.init()
         self.lat = geoPoint.lat
         self.lng = geoPoint.lng
+    }
+}
+
+// MARK: - VisitPhotoE Mapping
+extension VisitPhotoE {
+    func toDomain() -> VisitPhoto {
+        return VisitPhoto(
+            photoId: photoId,
+            localPath: localPath,
+            caption: caption,
+            takenAt: takenAt,
+            isCover: isCover,
+            order: order,
+            width: width,
+            height: height,
+            cloudURL: cloudURL,
+            isUploaded: isUploaded
+        )
+    }
+
+    convenience init(from photo: VisitPhoto) {
+        self.init()
+        self.photoId = photo.photoId
+        self.localPath = photo.localPath
+        self.caption = photo.caption
+        self.takenAt = photo.takenAt
+        self.isCover = photo.isCover
+        self.order = photo.order
+        self.width = photo.width
+        self.height = photo.height
+        self.cloudURL = photo.cloudURL
+        self.isUploaded = photo.isUploaded
     }
 }
 

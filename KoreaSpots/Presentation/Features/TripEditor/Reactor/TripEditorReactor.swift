@@ -73,7 +73,7 @@ final class TripEditorReactor: Reactor {
                 title: trip.title,
                 startDate: trip.startDate,
                 endDate: trip.endDate,
-                memo: trip.memo ?? "",
+                memo: trip.memo,
                 visitedPlaces: trip.visitedPlaces
             )
         } else {
@@ -176,7 +176,7 @@ final class TripEditorReactor: Reactor {
                         placeNameSnapshot: place.title,
                         thumbnailURLSnapshot: place.imageURL,
                         areaCode: place.areaCode,
-                        sigunguCode: place.sigunguCode ?? 0,
+                        sigunguCode: place.sigunguCode,
                         addedAt: Date(),
                         order: index,
                         note: nil,
@@ -184,7 +184,11 @@ final class TripEditorReactor: Reactor {
                         location: GeoPoint(
                             lat: place.mapY ?? 0,
                             lng: place.mapX ?? 0
-                        )
+                        ),
+                        visitedTime: nil,
+                        stayDuration: nil,
+                        routeIndex: nil,
+                        photos: []
                     )
                     print("📍 Place: \(visitedPlace.placeNameSnapshot), Image: \(visitedPlace.thumbnailURLSnapshot ?? "nil")")
                     return visitedPlace
@@ -216,7 +220,10 @@ final class TripEditorReactor: Reactor {
                 visitedAreas: visitedAreas,
                 tags: existingTrip.tags,
                 createdAt: existingTrip.createdAt,
-                updatedAt: Date()
+                updatedAt: Date(),
+                isRouteTrackingEnabled: existingTrip.isRouteTrackingEnabled,
+                totalDistance: existingTrip.totalDistance,
+                travelStyle: existingTrip.travelStyle
             )
 
             return .concat([
@@ -242,7 +249,10 @@ final class TripEditorReactor: Reactor {
                 visitedAreas: visitedAreas,
                 tags: [],
                 createdAt: Date(),
-                updatedAt: Date()
+                updatedAt: Date(),
+                isRouteTrackingEnabled: false,
+                totalDistance: nil,
+                travelStyle: nil
             )
 
             return .concat([

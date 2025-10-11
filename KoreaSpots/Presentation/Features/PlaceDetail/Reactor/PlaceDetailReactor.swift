@@ -165,9 +165,14 @@ private extension PlaceDetailReactor {
 
     func fetchDetailInfo() -> Observable<(place: Place, operatingInfo: OperatingInfo)> {
         // detailCommon2와 detailIntro2를 결합하여 상세 정보 가져오기
+        guard let contentTypeId = place.contentTypeId else {
+            ///TODO: - 에러 설정
+            return Observable.error(TourRepositoryError.unknown)
+        }
+
         return Observable.combineLatest(
-            tourRepository.getPlaceDetail(contentId: place.contentId, contentTypeId: place.contentTypeId).asObservable(),
-            tourRepository.getPlaceOperatingInfo(contentId: place.contentId, contentTypeId: place.contentTypeId).asObservable()
+            tourRepository.getPlaceDetail(contentId: place.contentId, contentTypeId: contentTypeId).asObservable(),
+            tourRepository.getPlaceOperatingInfo(contentId: place.contentId, contentTypeId: contentTypeId).asObservable()
         )
         .map { placeDetail, operatingInfo -> (place: Place, operatingInfo: OperatingInfo) in
             print("✅ PlaceDetailReactor: Got operating info - useTime: \(operatingInfo.useTime ?? "nil")")

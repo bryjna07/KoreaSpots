@@ -9,11 +9,7 @@ import Foundation
 import RxSwift
 
 protocol TourLocalDataSource {
-    // MARK: - Festival Cache
-    func getFestivals(startDate: String, endDate: String) -> Single<[Festival]>
-    func saveFestivals(_ festivals: [Festival], startDate: String, endDate: String) -> Completable
-
-    // MARK: - Place Cache
+    // MARK: - Place Cache (이벤트성 콘텐츠 포함)
     func getPlaces(areaCode: Int, sigunguCode: Int?, contentTypeId: Int?) -> Single<[Place]>
     func savePlaces(_ places: [Place], areaCode: Int, sigunguCode: Int?, contentTypeId: Int?) -> Completable
 

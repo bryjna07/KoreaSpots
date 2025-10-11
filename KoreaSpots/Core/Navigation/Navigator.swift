@@ -45,7 +45,7 @@ protocol ScreenNavigatable: Navigator {
     func navigateToPlaceDetail(place: Place)
     func navigateToSearch()
     func navigateToMap()
-    func navigateToFestivalDetail(festival: Festival)
+    func navigateToFestivalDetail(place: Place)
 }
 
 // MARK: - Screen Navigation Implementation
@@ -69,9 +69,9 @@ extension ScreenNavigatable where Self: UIViewController {
         )
     }
 
-    func navigateToFestivalDetail(festival: Festival) {
+    func navigateToFestivalDetail(place: Place) {
         // TODO: FestivalDetailViewController 구현 후 활성화
-        print("Festival selected: \(festival.title)")
+        print("Festival selected: \(place.title)")
 //        showTemporaryAlert(
 //            title: "축제 상세",
 //            message: "축제 상세 화면으로 이동합니다."

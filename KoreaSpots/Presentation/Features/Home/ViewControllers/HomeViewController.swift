@@ -226,7 +226,7 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
 
         switch item {
         case .festival(let festival):
-            navigateToFestivalDetail(festival: festival)
+            navigateToFestivalDetail(place: festival)
 
         case .place(let place):
             navigateToPlaceDetail(place: place)

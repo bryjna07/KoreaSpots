@@ -27,7 +27,7 @@ protocol TourRemoteDataSource {
         numOfRows: Int,
         pageNo: Int,
         arrange: String
-    ) -> Single<[Festival]>
+    ) -> Single<[Place]>  // Festival → Place (eventMeta 포함)
 
     func fetchLocationBasedList(
         mapX: Double,

@@ -211,7 +211,8 @@ final class TripLocalDataSourceImpl: TripLocalDataSource {
 
             for trip in trips {
                 for area in trip.visitedAreas {
-                    if let existing = areaMap[area.areaCode] {
+                    ///TODO: - 지역코드 0 옵셔널 처리
+                    if let existing = areaMap[area.areaCode ?? 0] {
                         // Merge counts
                         let merged = VisitedAreaE()
                         merged.areaCode = area.areaCode
@@ -219,9 +220,9 @@ final class TripLocalDataSourceImpl: TripLocalDataSource {
                         merged.count = existing.count + area.count
                         merged.firstVisitedAt = min(existing.firstVisitedAt, area.firstVisitedAt)
                         merged.lastVisitedAt = max(existing.lastVisitedAt, area.lastVisitedAt)
-                        areaMap[area.areaCode] = merged
+                        areaMap[area.areaCode ?? 0] = merged
                     } else {
-                        areaMap[area.areaCode] = area
+                        areaMap[area.areaCode ?? 0] = area
                     }
                 }
             }

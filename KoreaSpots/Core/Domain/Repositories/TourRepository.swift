@@ -9,14 +9,14 @@ import Foundation
 import RxSwift
 
 protocol TourRepository {
-    // MARK: - Festival Operations
+    // MARK: - Festival Operations (Place with eventMeta)
     func getFestivals(
         eventStartDate: String,
         eventEndDate: String,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
-    ) -> Single<[Festival]>
+    ) -> Single<[Place]>
 
     // MARK: - Place Operations
     func getLocationBasedPlaces(

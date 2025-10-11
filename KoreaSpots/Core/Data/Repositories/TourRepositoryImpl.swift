@@ -28,36 +28,21 @@ final class TourRepositoryImpl: TourRepository {
         numOfRows: Int,
         pageNo: Int,
         arrange: String
-    ) -> Single<[Festival]> {
-        // Cache-first 전략
-        return localDataSource.getFestivals(startDate: eventStartDate, endDate: eventEndDate)
-            .flatMap { [weak self] cachedFestivals -> Single<[Festival]> in
-                guard let self = self else { return .just([]) }
-
-                if !cachedFestivals.isEmpty {
-                    print("✅ Festival Cache Hit: \(cachedFestivals.count) festivals")
-                    return .just(cachedFestivals)
-                }
-
-                // 캐시가 없으면 API 호출 후 캐시 저장
-                return self.remoteDataSource
-                    .fetchFestivalList(
-                        eventStartDate: eventStartDate,
-                        eventEndDate: eventEndDate,
-                        numOfRows: numOfRows,
-                        pageNo: pageNo,
-                        arrange: arrange
-                    )
-                    .do(onSuccess: { [weak self] festivals in
-                        print("✅ Festival API Success: \(festivals.count) festivals")
-                        // 백그라운드에서 캐시 저장
-                        self?.localDataSource.saveFestivals(festivals, startDate: eventStartDate, endDate: eventEndDate)
-                            .subscribe()
-                            .disposed(by: self?.disposeBag ?? DisposeBag())
-                    }, onError: { error in
-                        print("❌ Festival API Error: \(error)")
-                    })
-            }
+    ) -> Single<[Place]> {
+        // 축제는 contentTypeId=15, 캐시 없이 항상 API 호출
+        return remoteDataSource
+            .fetchFestivalList(
+                eventStartDate: eventStartDate,
+                eventEndDate: eventEndDate,
+                numOfRows: numOfRows,
+                pageNo: pageNo,
+                arrange: arrange
+            )
+            .do(onSuccess: { places in
+                print("✅ Festival API Success: \(places.count) festivals")
+            }, onError: { error in
+                print("❌ Festival API Error: \(error)")
+            })
     }
 
     // MARK: - Place Operations

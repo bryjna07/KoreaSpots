@@ -53,7 +53,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
         numOfRows: Int,
         pageNo: Int,
         arrange: String
-    ) -> Single<[Festival]> {
+    ) -> Single<[Place]> {
         return provider.rx
             .request(.searchFestival(
                 eventStartDate: eventStartDate,
@@ -64,7 +64,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
             ))
             .map(TourAPIResponse.self)
             .map { response in
-                response.toFestivals()
+                response.toFestivalPlaces()  // Festival → Place (eventMeta 포함)
             }
     }
 

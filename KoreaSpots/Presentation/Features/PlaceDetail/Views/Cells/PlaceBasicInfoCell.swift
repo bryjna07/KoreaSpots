@@ -27,7 +27,7 @@ final class PlaceBasicInfoCell: BaseCollectionViewCell {
         phoneLabel.text = place.tel ?? "전화번호 정보 없음"
 
         // ContentType에 따른 카테고리 표시
-        let categoryText = getCategoryText(for: place.contentTypeId)
+        let categoryText = getCategoryText(for: place.contentTypeId ?? 0)
         categoryLabel.text = categoryText
     }
 

@@ -21,7 +21,7 @@ final class FavoriteRepositoryImpl: FavoriteRepository {
             do {
                 let realm = try Realm()
                 try realm.write {
-                    let placeR = PlaceR(place: place, areaCode: place.areaCode, sigunguCode: place.sigunguCode ?? 0)
+                    let placeR = PlaceR(place: place)
                     placeR.isFavorite = true
                     realm.add(placeR, update: .modified)
                 }

@@ -11,66 +11,28 @@ import RealmSwift
 
 final class TourLocalDataSourceImpl: TourLocalDataSource {
 
+    private static var didLogRealmPath = false
+    
     init() {
         // Realm 인스턴스는 각 스레드에서 별도로 생성
     }
 
     // 스레드별 Realm 인스턴스 생성
     private func createRealm() throws -> Realm {
-        return try Realm()
-    }
-
-    // MARK: - Festival Cache
-    func getFestivals(startDate: String, endDate: String) -> Single<[Festival]> {
-        return Single.create { [weak self] observer in
-            guard let self = self else {
-                observer(.success([]))
-                return Disposables.create()
-            }
-
-            do {
-                let realm = try self.createRealm()
-                let cachedFestivals = realm.objects(FestivalRealmObject.self)
-                    .filter("eventStartDate >= %@ AND eventEndDate <= %@", startDate, endDate)
-                    .filter("cachedAt > %@", Date().addingTimeInterval(-24 * 60 * 60) as NSDate) // 24시간 TTL
-
-                let festivals = Array(cachedFestivals).map { $0.toDomain() }
-                observer(.success(festivals))
-            } catch {
-                observer(.failure(DataSourceError.cacheError))
-            }
-
-            return Disposables.create()
-        }
-        .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
-    }
-
-    func saveFestivals(_ festivals: [Festival], startDate: String, endDate: String) -> Completable {
-        return Completable.create { [weak self] observer in
-            guard let self = self else {
-                observer(.completed)
-                return Disposables.create()
-            }
-
-            do {
-                let realm = try self.createRealm()
-                try realm.write {
-                    let realmObjects = festivals.map { festival in
-                        let realmObject = FestivalRealmObject()
-                        realmObject.configure(from: festival)
-                        realmObject.cachedAt = Date()
-                        return realmObject
-                    }
-                    realm.add(realmObjects, update: .modified)
-                }
-                observer(.completed)
-            } catch {
-                observer(.error(DataSourceError.cacheError))
-            }
-
-            return Disposables.create()
-        }
-        .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
+        let realm = try Realm()
+        //MARK: - realm 파일 위치 확인
+              #if DEBUG
+              if !Self.didLogRealmPath {
+                  Self.didLogRealmPath = true
+                  if let url = realm.configuration.fileURL {
+                      print("📁 Realm file: \(url.path)")
+                  } else {
+                      print("📁 Realm file: nil (inMemory or custom config)")
+                  }
+              }
+              #endif
+              return realm
+//        return try Realm()
     }
 
     // MARK: - Place Cache
@@ -98,7 +60,7 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
                 let ttlPredicate = NSPredicate(format: "cachedAt > %@", Date().addingTimeInterval(-3 * 60 * 60) as NSDate) // 3시간 TTL
                 predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate, ttlPredicate])
 
-                let cachedPlaces = realm.objects(PlaceRealmObject.self).filter(predicate)
+                let cachedPlaces = realm.objects(PlaceR.self).filter(predicate)
                 let places = Array(cachedPlaces).map { $0.toDomain() }
                 observer(.success(places))
             } catch {
@@ -120,16 +82,17 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
             do {
                 let realm = try self.createRealm()
                 try realm.write {
-                    let realmObjects = places.map { place in
-                        let realmObject = PlaceRealmObject()
-                        realmObject.configure(from: place)
-                        realmObject.areaCode = areaCode
-                        realmObject.sigunguCode = sigunguCode ?? 0
-                        realmObject.contentTypeId = contentTypeId ?? 0
-                        realmObject.cachedAt = Date()
-                        return realmObject
+                    for place in places {
+                        if let existing = realm.object(ofType: PlaceR.self, forPrimaryKey: place.contentId) {
+                            // Update existing
+                            existing.update(from: place)
+                            existing.cachedAt = Date()
+                        } else {
+                            // Create new
+                            let newPlace = PlaceR(place: place)
+                            realm.add(newPlace, update: .modified)
+                        }
                     }
-                    realm.add(realmObjects, update: .modified)
                 }
                 observer(.completed)
             } catch {
@@ -158,7 +121,7 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
                                           mapY - radiusInDegrees, mapY + radiusInDegrees,
                                           Date().addingTimeInterval(-1 * 60 * 60) as NSDate) // 1시간 TTL
 
-                let cachedPlaces = realm.objects(PlaceRealmObject.self).filter(predicate)
+                let cachedPlaces = realm.objects(PlaceR.self).filter(predicate)
                 let places = Array(cachedPlaces).map { $0.toDomain() }
                 observer(.success(places))
             } catch {
@@ -188,7 +151,7 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
                                           contentId,
                                           Date().addingTimeInterval(-7 * 24 * 60 * 60) as NSDate) // 7일 TTL
 
-                if let cachedPlace = realm.objects(PlaceRealmObject.self).filter(predicate).first {
+                if let cachedPlace = realm.objects(PlaceR.self).filter(predicate).first {
                     observer(.success(cachedPlace.toDomain()))
                 } else {
                     observer(.success(nil))
@@ -212,10 +175,13 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
             do {
                 let realm = try self.createRealm()
                 try realm.write {
-                    let realmObject = PlaceRealmObject()
-                    realmObject.configure(from: place)
-                    realmObject.cachedAt = Date()
-                    realm.add(realmObject, update: .modified)
+                    if let existing = realm.object(ofType: PlaceR.self, forPrimaryKey: place.contentId) {
+                        existing.update(from: place)
+                        existing.cachedAt = Date()
+                    } else {
+                        let newPlace = PlaceR(place: place)
+                        realm.add(newPlace, update: .modified)
+                    }
                 }
                 observer(.completed)
             } catch {
@@ -237,12 +203,14 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
 
             do {
                 let realm = try self.createRealm()
-                let predicate = NSPredicate(format: "cacheKey == %@ AND cachedAt > %@",
-                                          key,
-                                          Date().addingTimeInterval(-ttl) as NSDate)
+                // contentId를 캐시 키로 사용하여 PlaceR에서 검색 (이벤트 포함)
+                let expiryDate = Date().addingTimeInterval(-ttl)
 
-                let hasValidCache = realm.objects(CacheMetadataRealmObject.self).filter(predicate).count > 0
-                observer(.success(hasValidCache))
+                let hasValidPlace = realm.objects(PlaceR.self)
+                    .filter("contentId == %@ AND cachedAt > %@", key, expiryDate as NSDate)
+                    .count > 0
+
+                observer(.success(hasValidPlace))
             } catch {
                 observer(.failure(DataSourceError.cacheError))
             }
@@ -262,22 +230,19 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
             do {
                 let realm = try self.createRealm()
                 try realm.write {
-                    let expiredDate = Date().addingTimeInterval(-7 * 24 * 60 * 60) as NSDate // 7일 전
+                    let now = Date()
 
-                    let expiredFestivals = realm.objects(FestivalRealmObject.self)
-                        .filter("cachedAt < %@", expiredDate)
-                    realm.delete(expiredFestivals)
-
-                    let expiredPlaces = realm.objects(PlaceRealmObject.self)
-                        .filter("cachedAt < %@", expiredDate)
+                    // Place 캐시: 7일 TTL (이벤트성 콘텐츠 포함)
+                    let expiredPlaceDate = now.addingTimeInterval(-7 * 24 * 60 * 60) as NSDate
+                    let expiredPlaces = realm.objects(PlaceR.self)
+                        .filter("cachedAt < %@ AND isFavorite == false", expiredPlaceDate)
                     realm.delete(expiredPlaces)
 
-                    let expiredMetadata = realm.objects(CacheMetadataRealmObject.self)
-                        .filter("cachedAt < %@", expiredDate)
-                    realm.delete(expiredMetadata)
+                    print("✅ Expired cache cleared - Places: \(expiredPlaces.count)")
                 }
                 observer(.completed)
             } catch {
+                print("❌ Failed to clear expired cache: \(error)")
                 observer(.error(DataSourceError.cacheError))
             }
 
@@ -296,12 +261,15 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
             do {
                 let realm = try self.createRealm()
                 try realm.write {
-                    realm.delete(realm.objects(FestivalRealmObject.self))
-                    realm.delete(realm.objects(PlaceRealmObject.self))
-                    realm.delete(realm.objects(CacheMetadataRealmObject.self))
+                    // 즐겨찾기가 아닌 항목만 삭제 (이벤트성 콘텐츠 포함)
+                    let nonFavoritePlaces = realm.objects(PlaceR.self).filter("isFavorite == false")
+                    realm.delete(nonFavoritePlaces)
+
+                    print("✅ All cache cleared (preserving favorites)")
                 }
                 observer(.completed)
             } catch {
+                print("❌ Failed to clear all cache: \(error)")
                 observer(.error(DataSourceError.cacheError))
             }
 
@@ -486,117 +454,5 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
             return Disposables.create()
         }
         .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
-    }
-}
-
-// MARK: - Realm Objects (Temporary placeholders)
-class FestivalRealmObject: Object {
-    @Persisted var contentId: String = ""
-    @Persisted var title: String = ""
-    @Persisted var address: String = ""
-    @Persisted var imageURL: String? = nil
-    @Persisted var eventStartDate: String = ""
-    @Persisted var eventEndDate: String = ""
-    @Persisted var tel: String? = nil
-    @Persisted var mapX: Double = 0.0
-    @Persisted var mapY: Double = 0.0
-    @Persisted var overview: String? = nil
-    @Persisted var cachedAt: Date = Date()
-
-    override static func primaryKey() -> String? {
-        return "contentId"
-    }
-
-    func configure(from festival: Festival) {
-        self.contentId = festival.contentId
-        self.title = festival.title
-        self.address = festival.address
-        self.imageURL = festival.imageURL
-        self.eventStartDate = festival.eventStartDate
-        self.eventEndDate = festival.eventEndDate
-        self.tel = festival.tel
-        self.mapX = festival.mapX ?? 0.0
-        self.mapY = festival.mapY ?? 0.0
-        self.overview = festival.overview
-    }
-
-    func toDomain() -> Festival {
-        return Festival(
-            contentId: self.contentId,
-            title: self.title,
-            address: self.address,
-            imageURL: self.imageURL,
-            eventStartDate: self.eventStartDate,
-            eventEndDate: self.eventEndDate,
-            tel: self.tel,
-            mapX: self.mapX == 0.0 ? nil : self.mapX,
-            mapY: self.mapY == 0.0 ? nil : self.mapY,
-            overview: self.overview
-        )
-    }
-}
-
-class PlaceRealmObject: Object {
-    @Persisted var contentId: String = ""
-    @Persisted var title: String = ""
-    @Persisted var address: String = ""
-    @Persisted var imageURL: String? = nil
-    @Persisted var mapX: Double = 0.0
-    @Persisted var mapY: Double = 0.0
-    @Persisted var tel: String? = nil
-    @Persisted var overview: String? = nil
-    @Persisted var contentTypeId: Int = 0
-    @Persisted var distance: Int = 0
-    @Persisted var areaCode: Int = 0
-    @Persisted var sigunguCode: Int = 0
-    @Persisted var cat1: String? = nil
-    @Persisted var cat2: String? = nil
-    @Persisted var cat3: String? = nil
-    @Persisted var cachedAt: Date = Date()
-
-    override static func primaryKey() -> String? {
-        return "contentId"
-    }
-
-    func configure(from place: Place) {
-        self.contentId = place.contentId
-        self.title = place.title
-        self.address = place.address
-        self.imageURL = place.imageURL
-        self.mapX = place.mapX ?? 0.0
-        self.mapY = place.mapY ?? 0.0
-        self.tel = place.tel
-        self.overview = place.overview
-        self.contentTypeId = place.contentTypeId
-        self.distance = place.distance ?? 0
-    }
-
-    func toDomain() -> Place {
-        return Place(
-            contentId: self.contentId,
-            title: self.title,
-            address: self.address,
-            imageURL: self.imageURL,
-            mapX: self.mapX == 0.0 ? nil : self.mapX,
-            mapY: self.mapY == 0.0 ? nil : self.mapY,
-            tel: self.tel,
-            overview: self.overview,
-            contentTypeId: self.contentTypeId,
-            areaCode: self.areaCode,
-            sigunguCode: self.sigunguCode,
-            cat1: self.cat1,
-            cat2: self.cat2,
-            cat3: self.cat3,
-            distance: self.distance == 0 ? nil : self.distance
-        )
-    }
-}
-
-class CacheMetadataRealmObject: Object {
-    @Persisted var cacheKey: String = ""
-    @Persisted var cachedAt: Date = Date()
-
-    override static func primaryKey() -> String? {
-        return "cacheKey"
     }
 }

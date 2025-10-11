@@ -179,7 +179,11 @@ final class TripEditorViewController: BaseViewController, View {
                     location: GeoPoint(
                         lat: place.mapY ?? 0,
                         lng: place.mapX ?? 0
-                    )
+                    ),
+                    visitedTime: nil,
+                    stayDuration: nil,
+                    routeIndex: nil,
+                    photos: []
                 )
             }
 

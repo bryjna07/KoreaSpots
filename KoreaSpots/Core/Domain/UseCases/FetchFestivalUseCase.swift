@@ -31,7 +31,7 @@ enum FestivalSortOption {
 }
 
 protocol FetchFestivalUseCase {
-    func execute(_ input: FetchFestivalInput) -> Single<[Festival]>
+    func execute(_ input: FetchFestivalInput) -> Single<[Place]>
 }
 
 final class FetchFestivalUseCaseImpl: FetchFestivalUseCase {
@@ -47,10 +47,10 @@ final class FetchFestivalUseCaseImpl: FetchFestivalUseCase {
         self.tourRepository = tourRepository
     }
 
-    func execute(_ input: FetchFestivalInput) -> Single<[Festival]> {
+    func execute(_ input: FetchFestivalInput) -> Single<[Place]> {
         // MARK: - Input Validation & Business Rules
         return validateAndNormalize(input)
-            .flatMap { [weak self] normalizedInput -> Single<[Festival]> in
+            .flatMap { [weak self] normalizedInput -> Single<[Place]> in
                 guard let self = self else { return .just([]) }
 
                 return self.tourRepository
@@ -61,9 +61,9 @@ final class FetchFestivalUseCaseImpl: FetchFestivalUseCase {
                         pageNo: 1,
                         arrange: normalizedInput.sortOption.arrangeCode
                     )
-                    .map { festivals in
+                    .map { places in
                         // MARK: - Post-processing Business Rules
-                        return self.applyBusinessFilters(festivals)
+                        return self.applyBusinessFilters(places)
                     }
             }
     }
@@ -108,31 +108,23 @@ final class FetchFestivalUseCaseImpl: FetchFestivalUseCase {
         }
     }
 
-    private func applyBusinessFilters(_ festivals: [Festival]) -> [Festival] {
-        return festivals
-            .filter { festival in
-                // 블랙리스트 필터링 (예: 성인 콘텐츠, 금칙어 등)
-                !self.isBlacklisted(festival)
-            }
+    private func applyBusinessFilters(_ places: [Place]) -> [Place] {
+        return places
             .removingDuplicates() // 중복 제거
-            .sorted { (first: Festival, second: Festival) -> Bool in
+            .sorted { (first: Place, second: Place) -> Bool in
                 // 진행중인 축제를 우선순위로
                 return self.isOngoing(first) && !self.isOngoing(second)
             }
     }
 
-    private func isBlacklisted(_ festival: Festival) -> Bool {
-        let blacklistedKeywords = ["성인", "19금", "adult"]
-        let title = festival.title.lowercased()
-        return blacklistedKeywords.contains { title.contains($0) }
-    }
-
-    private func isOngoing(_ festival: Festival) -> Bool {
+    private func isOngoing(_ place: Place) -> Bool {
+        guard let eventMeta = place.eventMeta else { return false }
+        
         let today = Date()
         let todayString = DateFormatterUtil.yyyyMMdd.string(from: today)
 
         // 문자열 날짜 비교: "yyyyMMdd" 형식이므로 문자열 비교로 충분
-        return festival.eventStartDate <= todayString && festival.eventEndDate >= todayString
+        return eventMeta.eventStartDate <= todayString && eventMeta.eventEndDate >= todayString
     }
 }
 
@@ -158,11 +150,11 @@ enum UseCaseError: Error, LocalizedError {
 }
 
 // MARK: - Array Extension for Deduplication
-private extension Array where Element == Festival {
-    func removingDuplicates() -> [Festival] {
+private extension Array where Element == Place {
+    func removingDuplicates() -> [Place] {
         var seen: Set<String> = []
-        return filter { festival in
-            let key = "\(festival.contentId)-\(festival.title)"
+        return filter { place in
+            let key = "\(place.contentId)-\(place.title)"
             if seen.contains(key) {
                 return false
             } else {

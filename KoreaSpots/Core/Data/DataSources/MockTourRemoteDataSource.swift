@@ -83,7 +83,7 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
         numOfRows: Int,
         pageNo: Int,
         arrange: String
-    ) -> Single<[Festival]> {
+    ) -> Single<[Place]> {
         // 날짜에 따라 다른 축제 Mock 데이터 제공
         let filename: String
         // yyyyMMdd 형식에서 겨울철 (12월, 1월, 2월) 체크
@@ -98,7 +98,7 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
 
         return loadMockData(filename: filename)
             .map { response in
-                response.toFestivals()
+                response.toFestivalPlaces()  // Festival → Place (eventMeta 포함)
             }
             .asSingle()
     }

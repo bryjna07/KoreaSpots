@@ -19,7 +19,7 @@ final class HomeReactor: Reactor {
 
     enum Mutation {
         case setLoading(Bool)
-        case setFestivals([Festival])
+        case setFestivals([Place])
         case setNearbyPlaces([Place])
         case setError(String?)
         case setUserLocation(latitude: Double, longitude: Double)
@@ -27,7 +27,7 @@ final class HomeReactor: Reactor {
 
     struct State {
         var isLoading: Bool = false
-        var festivals: [Festival] = []
+        var festivals: [Place] = []
         var nearbyPlaces: [Place] = []
         var error: String?
         var userLocation: (latitude: Double, longitude: Double)?
@@ -135,8 +135,8 @@ private extension HomeReactor {
         return fetchFestivalUseCase
             .execute(input)
             .asObservable()
-            .map { festivals -> Mutation in
-                .setFestivals(festivals)
+            .map { places -> Mutation in
+                .setFestivals(places)
             }
             .catch { error in
                 Observable.just(.setError(LocalizedKeys.Error.fetchFestivalFailed.localized))
@@ -170,7 +170,7 @@ private extension HomeReactor {
             }
     }
 
-    private func buildSections(festivals: [Festival], nearbyPlaces: [Place]) -> [HomeSectionModel] {
+    private func buildSections(festivals: [Place], nearbyPlaces: [Place]) -> [HomeSectionModel] {
         var sections: [HomeSectionModel] = []
 
         // Festival Section (Always show - with placeholder if empty)
