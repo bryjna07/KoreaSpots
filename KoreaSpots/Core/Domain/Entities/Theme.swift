@@ -23,7 +23,7 @@ extension Theme {
         Theme(
             id: theme12.rawValue,
             title: theme12.displayName,
-            imageName: "theme_\(theme12.rawValue)",
+            imageName: theme12.imageURLString,
             description: theme12.description,
             contentTypeId: theme12.contentTypeId,
             theme12: theme12,
@@ -81,6 +81,35 @@ private extension Theme12 {
             return 14 // 문화시설
         case .etc:
             return nil
+        }
+    }
+    
+    var imageURLString: String {
+        switch self {
+        case .ocean:
+            return "https://tong.visitkorea.or.kr/cms/resource/45/3534645_image2_1.jpg"
+        case .mountain:
+            return "https://tong.visitkorea.or.kr/cms/resource/57/3492857_image2_1.jpg"
+        case .valley:
+            return "https://tong.visitkorea.or.kr/cms/resource/62/3538262_image2_1.jpg"
+        case .river:
+            return "https://tong.visitkorea.or.kr/cms/resource/14/2656114_image2_1.jpg"
+        case .forest:
+            return "https://tong.visitkorea.or.kr/cms/resource/66/3511566_image2_1.jpg"
+        case .cave:
+            return "https://tong.visitkorea.or.kr/cms/resource/73/2649973_image2_1.jpg"
+        case .park:
+            return "https://tong.visitkorea.or.kr/cms/resource/78/3524778_image2_1.jpg"
+        case .themePark:
+            return "https://tong.visitkorea.or.kr/cms/resource/00/3304300_image2_1.jpg"
+        case .spa:
+            return "https://tong.visitkorea.or.kr/cms/resource/80/1591380_image2_1.jpg"
+        case .tradition:
+            return "https://tong.visitkorea.or.kr/cms/resource/47/2388347_image2_1.jpg"
+        case .history:
+            return "https://tong.visitkorea.or.kr/cms/resource/32/2678632_image2_1.jpg"
+        case .etc:
+            return "https://tong.visitkorea.or.kr/cms/resource/59/3351159_image2_1.jpg"
         }
     }
 }

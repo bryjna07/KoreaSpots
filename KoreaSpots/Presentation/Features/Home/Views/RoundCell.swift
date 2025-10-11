@@ -18,15 +18,18 @@ final class RoundCell: BaseCollectionViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
+        iconImageView.cancelImageLoad()
         iconImageView.image = nil
         titleLabel.text = nil
     }
 
     // MARK: - Configuration
     func configure(with theme: Theme) {
-        // SF Symbol로 표시
-        iconImageView.image = UIImage(systemName: "photo")?.withConfiguration(
-            UIImage.SymbolConfiguration(pointSize: 24, weight: .medium)
+        iconImageView.loadImage(
+            from: theme.imageName,
+            placeholder: UIImage(systemName: "photo"),
+            size: .thumbnail,
+            cachePolicy: .aggressive
         )
         titleLabel.text = theme.title
     }
@@ -65,7 +68,7 @@ extension RoundCell {
         }
 
         iconImageView.do {
-            $0.contentMode = .center
+            $0.contentMode = .scaleAspectFill
             $0.tintColor = .secondBackGround
             $0.backgroundColor = .onPrimary
             $0.layer.cornerRadius = Constants.UI.CollectionView.Theme.imageSize / 2
