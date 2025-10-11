@@ -1,0 +1,82 @@
+/*
+  Localizable.strings (Korean)
+  KoreaSpots
+*/
+
+// Home
+"home_title" = " 어디로";
+
+// Section Headers
+"section_festival" = "지금 열리는 축제";
+"section_nearby" = "내 주변 관광지";
+"section_theme" = "테마";
+"section_category" = "카테고리";
+"section_placeholder" = "날씨 정보";
+"section_operating_info" = "운영 정보";
+"section_location" = "상세 위치";
+"section_nearby_places" = "주변 명소";
+
+// Category
+"category_title" = " 카테고리";
+
+// Actions
+"action_open_map" = "지도 보기";
+"action_confirm" = "확인";
+"action_cancel" = "취소";
+"action_delete" = "삭제";
+
+// Errors
+"error_title" = "오류";
+"error_fetch_festival_failed" = "축제 정보를 불러올 수 없습니다.";
+"error_fetch_places_failed" = "주변 관광지 정보를 불러올 수 없습니다.";
+"error_fetch_place_detail_failed" = "상세 정보를 불러오는데 실패했습니다.";
+
+// Search
+"search_placeholder" = "가고싶은 여행지";
+"search_title" = "검색";
+
+// Area Names
+"area_seoul" = "서울";
+"area_incheon" = "인천";
+"area_daejeon" = "대전";
+"area_daegu" = "대구";
+"area_gwangju" = "광주";
+"area_busan" = "부산";
+"area_ulsan" = "울산";
+"area_sejong" = "세종";
+"area_gyeonggi" = "경기도";
+"area_gangwon" = "강원도";
+"area_chungbuk" = "충북";
+"area_chungnam" = "충남";
+"area_gyeongbuk" = "경북";
+"area_gyeongnam" = "경남";
+"area_jeonbuk" = "전북";
+"area_jeonnam" = "전남";
+"area_jeju" = "제주";
+
+// Categories
+"category_nature" = "자연";
+"category_culture" = "문화시설";
+"category_sports" = "레포츠";
+"category_shopping" = "쇼핑";
+"category_food" = "음식점";
+"category_accommodation" = "숙박";
+"category_course" = "여행코스";
+"category_festival" = "축제";
+"category_performance" = "공연·전시";
+"category_leisure" = "레포츠";
+"category_lodging" = "숙박";
+
+// Theme Categories
+"theme_ocean" = "바다";
+"theme_mountain" = "산";
+"theme_valley" = "계곡";
+"theme_river" = "강";
+"theme_forest" = "휴양림";
+"theme_cave" = "동굴";
+"theme_park" = "공원";
+"theme_theme_park" = "테마파크";
+"theme_spa" = "온천";
+"theme_tradition" = "전통체험";
+"theme_history" = "역사";
+"theme_etc" = "기타";

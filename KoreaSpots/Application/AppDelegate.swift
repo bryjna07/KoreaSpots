@@ -6,16 +6,38 @@
 //
 
 import UIKit
+import FirebaseCore
+//import RxSwift
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
+//    private let disposeBag = DisposeBag()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+
+        FirebaseApp.configure()
+        
+        // 앱 시작 시 만료된 캐시 정리 (백그라운드)
+//        clearExpiredCacheOnStartup()
+
         return true
     }
+
+    // MARK: - Cache Management
+//    private func clearExpiredCacheOnStartup() {
+//        let localDataSource = TourLocalDataSourceImpl()
+//        localDataSource.clearExpiredCache()
+//            .subscribe(
+//                onCompleted: {
+//                    print("✅ AppDelegate: Expired cache cleared on startup")
+//                },
+//                onError: { error in
+//                    print("⚠️ AppDelegate: Failed to clear expired cache: \(error)")
+//                }
+//            )
+//            .disposed(by: disposeBag)
+//    }
 
     // MARK: UISceneSession Lifecycle
 

@@ -1,0 +1,33 @@
+{
+    "response": {
+        "header": {
+            "resultCode": "0000",
+            "resultMsg": "OK"
+        },
+        "body": {
+            "items": {
+                "item": [
+                    {
+                        "contentid": "3002001",
+                        "originimgurl": "https://tong.visitkorea.or.kr/cms/resource/82/2944282_image2_1.bmp",
+                        "imgname": "",
+                        "smallimageurl": "https://tong.visitkorea.or.kr/cms/resource/82/2944282_image2_1.bmp",
+                        "cpyrhtDivCd": "Type1",
+                        "serialnum": "2678636_1"
+                    },
+                    {
+                        "contentid": "3002001",
+                        "originimgurl": "https://tong.visitkorea.or.kr/cms/resource/93/1876193_image2_1.jpg",
+                        "imgname": "",
+                        "smallimageurl": "https://tong.visitkorea.or.kr/cms/resource/93/1876193_image2_1.jpg",
+                        "cpyrhtDivCd": "Type1",
+                        "serialnum": "2678637_2"
+                    }
+                ]
+            },
+            "numOfRows": 2,
+            "pageNo": 1,
+            "totalCount": 2
+        }
+    }
+}

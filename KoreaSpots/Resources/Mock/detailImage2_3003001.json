@@ -1,0 +1,25 @@
+{
+    "response": {
+        "header": {
+            "resultCode": "0000",
+            "resultMsg": "OK"
+        },
+        "body": {
+            "items": {
+                "item": [
+                    {
+                        "contentid": "3003001",
+                        "originimgurl": "https://tong.visitkorea.or.kr/cms/resource/68/3468968_image2_1.jpg",
+                        "imgname": "",
+                        "smallimageurl": "https://tong.visitkorea.or.kr/cms/resource/68/3468968_image2_1.jpg",
+                        "cpyrhtDivCd": "Type1",
+                        "serialnum": "2678636_1"
+                    }
+                ]
+            },
+            "numOfRows": 1,
+            "pageNo": 1,
+            "totalCount": 1
+        }
+    }
+}
