@@ -250,12 +250,10 @@
 				DEVELOPMENT_TEAM = K9Z452TQ46;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KoreaSpots/Resources/Info.plist;
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "현재 위치를 사용해 주변 관광지/축제 추천, 거리순 정렬에 활용합니다.\n예: ‘내 주변 스팟’에서 반경 1km 내 장소를 보여줍니다. 위치 정보는 기기에서만 사용되며 서버로 전송·저장되지 않습니다.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -285,12 +283,10 @@
 				DEVELOPMENT_TEAM = K9Z452TQ46;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KoreaSpots/Resources/Info.plist;
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "현재 위치를 사용해 주변 관광지/축제 추천, 거리순 정렬에 활용합니다.\n예: ‘내 주변 스팟’에서 반경 1km 내 장소를 보여줍니다. 위치 정보는 기기에서만 사용되며 서버로 전송·저장되지 않습니다.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
