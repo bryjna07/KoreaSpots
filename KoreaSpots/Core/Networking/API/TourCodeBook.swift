@@ -211,6 +211,7 @@ public enum Cat2: String, CaseIterable {
     // A01 자연
     case A0101 // 자연관광지
     case A0102 // 관광자원
+    
     // A02 인문
     case A0201 // 역사관광지
     case A0202 // 휴양관광지
@@ -221,10 +222,36 @@ public enum Cat2: String, CaseIterable {
     case A0207 // 축제
     case A0208 // 공연/행사
     
+    // A03 레포츠
+    case A0301 // 레포츠소개
+    case A0302 // 육상레포츠
+    case A0303 // 수상레포츠
+    case A0304 // 항공레포츠
+    case A0305 // 복합레포츠
+    
+    // A04 쇼핑
+    case A0401 // 쇼핑
+    
+    // A05 음식점
+    case A0502 // 음식점
+    
+    // B02 숙박
+    case B0201 // 숙박시설
+    
+    // C01 추천코스
+    case C0112 // 가족코스
+    case C0113 // 나홀로코스
+    case C0114 // 힐링코스
+    case C0115 // 도보코스
+    case C0116 // 캠핑코스
+    case C0117 // 맛코스
+    
     public var labelKo: String {
         switch self {
+        // A01 자연
         case .A0101: return "자연관광지"
         case .A0102: return "관광자원"
+        // A02 인문
         case .A0201: return "역사관광지"
         case .A0202: return "휴양관광지"
         case .A0203: return "체험관광지"
@@ -233,6 +260,25 @@ public enum Cat2: String, CaseIterable {
         case .A0206: return "문화시설"
         case .A0207: return "축제"
         case .A0208: return "공연/행사"
+        // A03 레포츠
+        case .A0301: return "레포츠소개"
+        case .A0302: return "육상 레포츠"
+        case .A0303: return "수상 레포츠"
+        case .A0304: return "항공 레포츠"
+        case .A0305: return "복합 레포츠"
+        // A04 쇼핑
+        case .A0401: return "쇼핑"
+        // A05 음식점
+        case .A0502: return "음식점"
+        // B02 숙박
+        case .B0201: return "숙박시설"
+        // C01 추천코스
+        case .C0112: return "가족코스"
+        case .C0113: return "나홀로코스"
+        case .C0114: return "힐링코스"
+        case .C0115: return "도보코스"
+        case .C0116: return "캠핑코스"
+        case .C0117: return "맛코스"
         }
     }
 
@@ -344,6 +390,9 @@ public enum Cat3: String, CaseIterable {
     case A02081200 // 스포츠경기
     case A02081300 // 기타행사
     case A02081400 // 넌버벌
+    
+    // CO1 -> C0112 ~ C0117 은 소분류 각 1개씩 + 0001
+    // ex) C01120001
 
     public var labelKo: String {
         switch self {
