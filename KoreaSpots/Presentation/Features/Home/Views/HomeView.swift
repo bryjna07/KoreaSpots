@@ -48,13 +48,13 @@ extension HomeView {
     }
     
     override func configureLayout() {
-        
+
         searchButton.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide).inset(16)
             $0.leading.trailing.equalToSuperview().inset(Constants.UI.Spacing.large)
             $0.height.equalTo(Constants.UI.Button.searchHeight)
         }
-        
+
         collectionView.snp.makeConstraints {
             $0.top.equalTo(searchButton.snp.bottom).offset(Constants.UI.Spacing.medium)
             $0.leading.trailing.bottom.equalToSuperview()
@@ -168,13 +168,18 @@ extension HomeView {
         totalFestivalPages = count
 
         // 데이터 변경 시 명시적으로 첫 페이지로 리셋
-        currentFestivalPage = 0  // didSet에서 자동으로 updatePageIndicator 호출
+        currentFestivalPage = 0
 
         // 데이터 변경 시 supplementary view 강제 갱신
         if count > 1 {
             // 레이아웃 무효화로 supplementary view 재생성 유도
             if let layout = collectionView.collectionViewLayout as? UICollectionViewCompositionalLayout {
                 layout.invalidateLayout()
+            }
+
+            // 초기 인디케이터 강제 업데이트
+            DispatchQueue.main.async { [weak self] in
+                self?.updatePageIndicator()
             }
 
             startAutoScroll()
