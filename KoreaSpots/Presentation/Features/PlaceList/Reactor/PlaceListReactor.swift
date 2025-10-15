@@ -154,13 +154,14 @@ final class PlaceListReactor: Reactor {
                 return Observable.empty()
             }
 
+            let nextPage = currentState.currentPage + 1
             let area = currentState.selectedArea
             let sigungu = currentState.selectedSigungu
             let contentTypeId = currentState.contentTypeId
-            let nextPage = currentState.currentPage + 1
 
             return Observable.concat([
                 Observable.just(.setLoading(true)),
+                Observable.just(.setCurrentPage(nextPage)),
                 fetchPlaces(area: area, sigungu: sigungu, contentTypeId: contentTypeId, page: nextPage)
                     .map { places in
                         // 페이징된 아이템이 itemsPerPage보다 적으면 마지막 페이지
@@ -172,7 +173,6 @@ final class PlaceListReactor: Reactor {
                     .catch { error in
                         Observable.just(Mutation.setError(error.localizedDescription))
                     },
-                Observable.just(.setCurrentPage(nextPage)),
                 Observable.just(.setLoading(false))
             ])
 
@@ -302,18 +302,20 @@ final class PlaceListReactor: Reactor {
         page: Int
     ) -> Observable<[Place]> {
         // 지역 우선, 없으면 카테고리/테마 필터링으로 전국 검색
-        let areaCode: Int
+        let areaCode: Int?
         if let area = area {
             areaCode = area.rawValue
         } else if currentState.cat1 != nil || currentState.cat2 != nil || currentState.cat3 != nil {
-            // 카테고리/테마 필터가 있으면 전국 검색
-            areaCode = 0
+            // 카테고리/테마 필터가 있으면 전국 검색 (nil로 전송)
+            areaCode = nil
         } else if contentTypeId != nil {
-            // contentTypeId만 있어도 전국 검색
-            areaCode = 0
+            // contentTypeId만 있어도 전국 검색 (nil로 전송)
+            areaCode = nil
         } else {
             return Observable.just([])
         }
+
+        print("🌐 API 요청: page=\(page), areaCode=\(areaCode?.description ?? "nil"), contentTypeId=\(contentTypeId?.description ?? "nil")")
 
         return fetchAreaBasedPlacesUseCase
             .execute(
@@ -323,7 +325,8 @@ final class PlaceListReactor: Reactor {
                 cat1: currentState.cat1,
                 cat2: currentState.cat2,
                 cat3: currentState.cat3,
-                maxCount: itemsPerPage
+                maxCount: itemsPerPage,
+                pageNo: page
             )
             .asObservable()
             .observe(on: MainScheduler.instance)

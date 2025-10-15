@@ -90,15 +90,26 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
-        // Action: loadNextPage (infinite scroll)
-        placeListView.collectionView.rx.willDisplayCell
-            .filter { [weak self] _, indexPath in
-                guard let self = self,
-                      let reactor = self.reactor else { return false }
+        // Action: loadNextPage (무한 스크롤)
+        placeListView.collectionView.rx.prefetchItems
+            .compactMap { [weak self] indexPaths -> PlaceListReactor.Action? in
+                guard let self,
+                      let reactor = self.reactor else { return nil }
+
                 let itemCount = reactor.currentState.places.count
-                return indexPath.item >= itemCount - 5 && reactor.currentState.hasMorePages
+                let threshold = itemCount - 5
+
+                // prefetch된 indexPath 중 하나라도 threshold를 넘으면 다음 페이지 로드
+                let shouldLoadNextPage = indexPaths.contains { $0.item >= threshold }
+
+                guard shouldLoadNextPage,
+                      reactor.currentState.hasMorePages,
+                      !reactor.currentState.isLoading else {
+                    return nil
+                }
+
+                return .loadNextPage
             }
-            .map { _ in PlaceListReactor.Action.loadNextPage }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 

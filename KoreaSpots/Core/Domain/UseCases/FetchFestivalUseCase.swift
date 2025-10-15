@@ -60,7 +60,7 @@ final class FetchFestivalUseCaseImpl: FetchFestivalUseCase {
                         eventEndDate: normalizedInput.endDate,
                         areaCode: normalizedInput.areaCode,
                         numOfRows: normalizedInput.maxCount,
-                        pageNo: 1,
+                        pageNo: 1, //TODO: - pageNo 설정
                         arrange: normalizedInput.sortOption.arrangeCode
                     )
                     .map { places in
