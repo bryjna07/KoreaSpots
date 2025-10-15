@@ -142,6 +142,14 @@ private extension HomeReactor {
         let today = DateFormatterUtil.yyyyMMdd.string(from: Date())
         let endDate = DateFormatterUtil.yyyyMMdd.string(from: Date().addingTimeInterval(30 * 24 * 60 * 60)) // 30일 후
 
+        // 사용자 위치 기반 지역코드 조회 후 축제 요청
+        return locationService.getCurrentAreaCode()
+            .asObservable()
+            .flatMap { [weak self] areaCode -> Observable<Mutation> in
+                guard let self = self else { return .empty() }
+
+                print("📍 현재 지역: \(areaCode.displayName) (코드: \(areaCode.rawValue))")
+
                 let input = FetchFestivalInput(
                     startDate: today,
                     endDate: endDate,
