@@ -276,6 +276,9 @@ final class SearchViewController: BaseViewController, View, ScreenNavigatable {
 
             cell.configure(with: item.place, showTag: true, isFavorite: item.isFavorite)
 
+            // 스켈레톤 적용
+            self.searchView.resultsCollectionView.configureSkeletonIfNeeded(for: cell, with: item.place)
+
             // Favorite button tap with alert for removal
             cell.favoriteButton.rx.tap
                 .bind(with: self) { owner, _ in
@@ -316,12 +319,6 @@ final class SearchViewController: BaseViewController, View, ScreenNavigatable {
             PlaceListCell.self,
             forCellWithReuseIdentifier: PlaceListCell.reuseIdentifier
         )
-
-        // Configure results collection view layout
-        if let layout = searchView.resultsCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-            let width = UIScreen.main.bounds.width - 32
-            layout.itemSize = CGSize(width: width, height: 120)
-        }
     }
 
     // MARK: - Filter Chips

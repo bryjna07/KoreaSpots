@@ -58,7 +58,10 @@ final class SearchReactor: Reactor {
         @Pulse var toastMessage: String?
     }
 
-    let initialState = State()
+    let initialState: State = {
+        // 검색 전에는 빈 상태 (최근 검색어만 표시)
+        return State()
+    }()
 
     private let searchPlacesUseCase: SearchPlacesUseCase
     private let getRecentKeywordsUseCase: GetRecentKeywordsUseCase
@@ -92,11 +95,14 @@ final class SearchReactor: Reactor {
             ])
 
         case .search:
-            // Reset pagination - hasSearched는 검색 성공 후 설정
+            // 검색 시작 시 스켈레톤 더미 데이터 표시
+            let skeletonPlaces = SkeletonDataProvider.makeSkeletonPlaces(count: 5, type: .place)
+
             let resetMutations: [Mutation] = [
                 .setSearching(true),
                 .setCurrentPage(1),
-                .setError("")
+                .setError(""),
+                .setResults(skeletonPlaces) // 스켈레톤 더미 데이터 설정
             ]
 
             // Perform search using UseCase

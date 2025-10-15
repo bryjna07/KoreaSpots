@@ -30,7 +30,6 @@ final class PlaceSelectorCell: BaseCollectionViewCell {
         if let imageURL = place.imageURL, let url = URL(string: imageURL) {
             thumbnailImageView.kf.setImage(
                 with: url,
-                placeholder: UIImage(systemName: "photo"),
                 options: [.transition(.fade(0.2))]
             )
         } else {

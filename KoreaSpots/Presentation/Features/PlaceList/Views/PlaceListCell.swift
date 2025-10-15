@@ -10,60 +10,19 @@ import SnapKit
 import Then
 import RxSwift
 import RxCocoa
+import SkeletonView
 
-final class PlaceListCell: BaseCollectionViewCell {
+final class PlaceListCell: BaseCollectionViewCell, SkeletonableCell {
 
     var disposeBag = DisposeBag()
 
-    private let thumbnail = UIImageView().then {
-        $0.contentMode = .scaleAspectFill
-        $0.clipsToBounds = true
-        $0.layer.cornerRadius = 8
-        $0.backgroundColor = UIColor(white: 0.9, alpha: 1) // Placeholder background
-    }
-
-    private let titleLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.textColor = .textPrimary
-        $0.numberOfLines = 2
-    }
-
-    private let subtitleLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 13, weight: .regular)
-        $0.textColor = .textSecondary
-        $0.numberOfLines = 1
-    }
-
-    private let labelsStack = UIStackView().then {
-        $0.axis = .vertical
-        $0.spacing = 4
-        $0.alignment = .leading
-        $0.distribution = .fill
-    }
-
-    private let containerStack = UIStackView().then {
-        $0.axis = .horizontal
-        $0.spacing = 12
-        $0.alignment = .center
-        $0.distribution = .fill
-    }
-
-    let favoriteButton = UIButton().then {
-        $0.setImage(UIImage(systemName: "heart"), for: .normal)
-        $0.setImage(UIImage(systemName: "heart.fill"), for: .selected)
-        $0.tintColor = .redPastel
-        $0.backgroundColor = .clear
-    }
-
-    private let tagLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 11, weight: .medium)
-        $0.textColor = .white
-        $0.backgroundColor = .greenPastel.withAlphaComponent(0.8)
-        $0.textAlignment = .center
-        $0.layer.cornerRadius = 8
-        $0.layer.masksToBounds = true
-        $0.isHidden = true
-    }
+    private let thumbnail = UIImageView()
+    private let titleLabel = UILabel()
+    private let subtitleLabel = UILabel()
+    private let labelsStack = UIStackView()
+    private let containerStack = UIStackView()
+    let favoriteButton = UIButton()
+    private let tagLabel = UILabel()
 
     // MARK: - ConfigureUI
     override func configureHierarchy() {
@@ -96,16 +55,66 @@ final class PlaceListCell: BaseCollectionViewCell {
 
     override func configureView() {
         super.configureView()
-        
+
         containerStack.do {
+            $0.axis = .horizontal
+            $0.spacing = 12
+            $0.alignment = .center
+            $0.distribution = .fill
             $0.backgroundColor = .white
             $0.layer.cornerRadius = Constants.UI.CornerRadius.medium
             $0.layer.shadowColor = UIColor.black.cgColor
             $0.layer.shadowOpacity = Constants.UI.Shadow.opacity
             $0.layer.shadowOffset = Constants.UI.Shadow.offset
             $0.layer.shadowRadius = Constants.UI.Shadow.radius
+            $0.isSkeletonable = true
         }
-        
+
+        thumbnail.do {
+            $0.contentMode = .scaleAspectFill
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 8
+            $0.backgroundColor = .secondBackGround
+            $0.isSkeletonable = true
+        }
+
+        labelsStack.do {
+            $0.axis = .vertical
+            $0.spacing = 4
+            $0.alignment = .leading
+            $0.distribution = .fill
+        }
+
+        titleLabel.do {
+            $0.font = .systemFont(ofSize: 16, weight: .semibold)
+            $0.textColor = .textPrimary
+            $0.numberOfLines = 2
+            $0.isSkeletonable = true
+        }
+
+        subtitleLabel.do {
+            $0.font = .systemFont(ofSize: 13, weight: .regular)
+            $0.textColor = .textSecondary
+            $0.numberOfLines = 1
+            $0.isSkeletonable = true
+        }
+
+        favoriteButton.do {
+            $0.setImage(UIImage(systemName: "heart"), for: .normal)
+            $0.setImage(UIImage(systemName: "heart.fill"), for: .selected)
+            $0.tintColor = .redPastel
+            $0.backgroundColor = .clear
+        }
+
+        tagLabel.do {
+            $0.font = .systemFont(ofSize: 11, weight: .medium)
+            $0.textColor = .white
+            $0.backgroundColor = .greenPastel.withAlphaComponent(0.8)
+            $0.textAlignment = .center
+            $0.layer.cornerRadius = 8
+            $0.layer.masksToBounds = true
+            $0.isHidden = true
+        }
     }
     
     // MARK: - Configure

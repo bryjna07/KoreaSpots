@@ -101,7 +101,8 @@ final class SectionHeaderView: BaseReusableView, HeaderViewConfigurable {
     
     override func configureView() {
         super.configureView()
-        isSkeletonable = true
+        // 섹션 헤더는 스켈레톤뷰 제외
+        isSkeletonable = false
 
         stackView.do {
             $0.axis = .horizontal
@@ -112,7 +113,7 @@ final class SectionHeaderView: BaseReusableView, HeaderViewConfigurable {
         titleLabel.do {
             $0.font = FontManager.Header.sectionTitle
             $0.textColor = .label
-            $0.isSkeletonable = true
+            $0.isSkeletonable = false
         }
 
         actionButton.do {

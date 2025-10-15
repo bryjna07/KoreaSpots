@@ -13,23 +13,9 @@ final class RecentKeywordCell: BaseCollectionViewCell {
 
     // MARK: - UI Components
 
-    private let containerView = UIView().then {
-        $0.backgroundColor = .secondBackGround
-        $0.layer.cornerRadius = 16
-        $0.layer.masksToBounds = true
-    }
-
-    private let keywordLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 14, weight: .medium)
-        $0.textColor = .label
-        $0.numberOfLines = 1
-    }
-
-    let deleteButton = UIButton(type: .system).then {
-        $0.setImage(UIImage(systemName: "xmark"), for: .normal)
-        $0.tintColor = .secondaryLabel
-        $0.contentMode = .center
-    }
+    private let containerView = UIView()
+    private let keywordLabel = UILabel()
+    let deleteButton = UIButton(type: .system)
 
     var onDeleteTapped: (() -> Void)?
 
@@ -94,6 +80,24 @@ extension RecentKeywordCell {
     
     override func configureView() {
         super.configureView()
-        deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+
+        containerView.do {
+            $0.backgroundColor = .secondBackGround
+            $0.layer.cornerRadius = 16
+            $0.layer.masksToBounds = true
+        }
+
+        keywordLabel.do {
+            $0.font = .systemFont(ofSize: 14, weight: .medium)
+            $0.textColor = .label
+            $0.numberOfLines = 1
+        }
+
+        deleteButton.do {
+            $0.setImage(UIImage(systemName: "xmark"), for: .normal)
+            $0.tintColor = .secondaryLabel
+            $0.contentMode = .center
+            $0.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        }
     }
 }

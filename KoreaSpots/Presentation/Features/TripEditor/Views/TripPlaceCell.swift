@@ -10,51 +10,21 @@ import SnapKit
 import Then
 import Kingfisher
 
-final class TripPlaceCell: UICollectionViewCell {
+final class TripPlaceCell: BaseCollectionViewCell {
 
     // MARK: - UI Components
 
-    private let thumbnailImageView = UIImageView().then {
-        $0.contentMode = .scaleAspectFill
-        $0.clipsToBounds = true
-        $0.layer.cornerRadius = 8
-        $0.backgroundColor = .systemGray6
+    private let thumbnailImageView = UIImageView()
+    private let titleLabel = UILabel()
+    private let reorderIcon = UIImageView()
+
+    // MARK: - Lifecycle
+
+    override func configureHierarchy() {
+        contentView.addSubviews(thumbnailImageView, titleLabel, reorderIcon)
     }
 
-    private let titleLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.textColor = .label
-    }
-
-    private let reorderIcon = UIImageView().then {
-        $0.image = UIImage(systemName: "line.3.horizontal")
-        $0.tintColor = .secondaryLabel
-        $0.contentMode = .scaleAspectFit
-    }
-
-    // MARK: - Initialization
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupViews()
-        setupConstraints()
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    // MARK: - Setup
-
-    private func setupViews() {
-        contentView.backgroundColor = .systemGray6
-        contentView.layer.cornerRadius = 8
-        contentView.addSubview(thumbnailImageView)
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(reorderIcon)
-    }
-
-    private func setupConstraints() {
+    override func configureLayout() {
         thumbnailImageView.snp.makeConstraints {
             $0.leading.equalToSuperview().inset(8)
             $0.centerY.equalToSuperview()
@@ -74,6 +44,33 @@ final class TripPlaceCell: UICollectionViewCell {
         }
     }
 
+    override func configureView() {
+        super.configureView()
+
+        contentView.do {
+            $0.backgroundColor = .systemGray6
+            $0.layer.cornerRadius = 8
+        }
+
+        thumbnailImageView.do {
+            $0.contentMode = .scaleAspectFill
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 8
+            $0.backgroundColor = .systemGray6
+        }
+
+        titleLabel.do {
+            $0.font = .systemFont(ofSize: 16, weight: .semibold)
+            $0.textColor = .label
+        }
+
+        reorderIcon.do {
+            $0.image = UIImage(systemName: "line.3.horizontal")
+            $0.tintColor = .secondaryLabel
+            $0.contentMode = .scaleAspectFit
+        }
+    }
+
     // MARK: - Configuration
 
     func configure(with place: VisitedPlace) {
@@ -81,8 +78,7 @@ final class TripPlaceCell: UICollectionViewCell {
 
         if let thumbnailURL = place.thumbnailURLSnapshot, let url = URL(string: thumbnailURL) {
             thumbnailImageView.kf.setImage(
-                with: url,
-                placeholder: UIImage(systemName: "photo")
+                with: url
             )
         } else {
             thumbnailImageView.image = UIImage(systemName: "photo")

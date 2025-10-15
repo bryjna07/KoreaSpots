@@ -158,9 +158,7 @@ final class FavoriteViewController: BaseViewController, View, ScreenNavigatable 
             }
             .disposed(by: disposeBag)
 
-        // Set delegate for flow layout
-        favoriteView.collectionView.rx.setDelegate(self)
-            .disposed(by: disposeBag)
+        // Compositional Layout을 사용하므로 별도 delegate 설정 불필요
     }
 
     // MARK: - Snapshot
@@ -180,14 +178,5 @@ final class FavoriteViewController: BaseViewController, View, ScreenNavigatable 
     func navigateToPlaceDetail(place: Place) {
         let viewController = AppContainer.shared.makePlaceDetailViewController(place: place)
         navigationController?.pushViewController(viewController, animated: true)
-    }
-}
-
-// MARK: - UICollectionViewDelegateFlowLayout
-
-extension FavoriteViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let width = collectionView.bounds.width - 32 // 16px padding on each side
-        return CGSize(width: width, height: 104)
     }
 }
