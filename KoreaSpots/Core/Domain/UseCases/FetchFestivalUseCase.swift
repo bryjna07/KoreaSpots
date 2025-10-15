@@ -12,6 +12,7 @@ import RxSwift
 struct FetchFestivalInput {
     let startDate: String?
     let endDate: String?
+    let areaCode: Int?  // 지역 필터링 (옵셔널, nil이면 전국)
     let maxCount: Int?
     let sortOption: FestivalSortOption?
 }
@@ -57,6 +58,7 @@ final class FetchFestivalUseCaseImpl: FetchFestivalUseCase {
                     .getFestivals(
                         eventStartDate: normalizedInput.startDate,
                         eventEndDate: normalizedInput.endDate,
+                        areaCode: normalizedInput.areaCode,
                         numOfRows: normalizedInput.maxCount,
                         pageNo: 1,
                         arrange: normalizedInput.sortOption.arrangeCode
@@ -69,7 +71,7 @@ final class FetchFestivalUseCaseImpl: FetchFestivalUseCase {
     }
 
     // MARK: - Private Business Logic
-    private func validateAndNormalize(_ input: FetchFestivalInput) -> Single<(startDate: String, endDate: String, maxCount: Int, sortOption: FestivalSortOption)> {
+    private func validateAndNormalize(_ input: FetchFestivalInput) -> Single<(startDate: String, endDate: String, areaCode: Int?, maxCount: Int, sortOption: FestivalSortOption)> {
         return Single.create { observer in
             // 날짜 검증 및 기본값 설정
             let today = DateFormatterUtil.yyyyMMdd.string(from: Date())
@@ -102,8 +104,9 @@ final class FetchFestivalUseCaseImpl: FetchFestivalUseCase {
             }
 
             let sortOption = input.sortOption ?? self.defaultSortOption
+            let areaCode = input.areaCode  // 옵셔널로 전달 (nil이면 전국)
 
-            observer(.success((startDate: startDate, endDate: endDate, maxCount: maxCount, sortOption: sortOption)))
+            observer(.success((startDate: startDate, endDate: endDate, areaCode: areaCode, maxCount: maxCount, sortOption: sortOption)))
             return Disposables.create()
         }
     }

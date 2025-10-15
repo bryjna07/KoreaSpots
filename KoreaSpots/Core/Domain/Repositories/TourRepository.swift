@@ -13,6 +13,7 @@ protocol TourRepository {
     func getFestivals(
         eventStartDate: String,
         eventEndDate: String,
+        areaCode: Int?,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
@@ -23,13 +24,14 @@ protocol TourRepository {
         mapX: Double,
         mapY: Double,
         radius: Int,
+        contentTypeId: Int?,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
     ) -> Single<[Place]>
 
     func getAreaBasedPlaces(
-        areaCode: Int,
+        areaCode: Int?,
         sigunguCode: Int?,
         contentTypeId: Int?,
         cat1: String?,

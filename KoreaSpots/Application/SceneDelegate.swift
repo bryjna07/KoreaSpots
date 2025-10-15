@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         ///TODO: - 추후 API로 업데이트 필요
         // Mock 데이터 사용 설정
-        AppContainer.shared.setUseMockData(true)
+        AppContainer.shared.setUseMockData(false)
 
         let tabBarVC = AppContainer.shared.makeTabBarController()
         tabBarVC.selectedIndex = 1 // 시작 탭: 두 번째 탭

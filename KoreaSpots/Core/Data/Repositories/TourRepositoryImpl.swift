@@ -25,6 +25,7 @@ final class TourRepositoryImpl: TourRepository {
     func getFestivals(
         eventStartDate: String,
         eventEndDate: String,
+        areaCode: Int?,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
@@ -34,12 +35,14 @@ final class TourRepositoryImpl: TourRepository {
             .fetchFestivalList(
                 eventStartDate: eventStartDate,
                 eventEndDate: eventEndDate,
+                areaCode: areaCode,
                 numOfRows: numOfRows,
                 pageNo: pageNo,
                 arrange: arrange
             )
             .do(onSuccess: { places in
-                print("✅ Festival API Success: \(places.count) festivals")
+                let areaInfo = areaCode != nil ? "지역코드 \(areaCode!)" : "전국"
+                print("✅ Festival API Success: \(places.count) festivals (\(areaInfo))")
             }, onError: { error in
                 print("❌ Festival API Error: \(error)")
             })
@@ -50,6 +53,7 @@ final class TourRepositoryImpl: TourRepository {
         mapX: Double,
         mapY: Double,
         radius: Int,
+        contentTypeId: Int?,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
@@ -70,12 +74,14 @@ final class TourRepositoryImpl: TourRepository {
                         mapX: mapX,
                         mapY: mapY,
                         radius: radius,
+                        contentTypeId: contentTypeId,
                         numOfRows: numOfRows,
                         pageNo: pageNo,
                         arrange: arrange
                     )
                     .do(onSuccess: { [weak self] places in
-                        print("✅ Location API Success: \(places.count) places")
+                        let typeInfo = contentTypeId != nil ? "타입 \(contentTypeId!)" : "전체 타입"
+                        print("✅ Location API Success: \(places.count) places (\(typeInfo))")
                         // 백그라운드에서 캐시 저장
                         self?.localDataSource.saveLocationBasedPlaces(places, mapX: mapX, mapY: mapY, radius: radius)
                             .subscribe()
@@ -87,7 +93,7 @@ final class TourRepositoryImpl: TourRepository {
     }
 
     func getAreaBasedPlaces(
-        areaCode: Int,
+        areaCode: Int?,
         sigunguCode: Int?,
         contentTypeId: Int?,
         cat1: String?,
@@ -142,6 +148,28 @@ final class TourRepositoryImpl: TourRepository {
         }
 
         // Cache-first 전략 (Real API + 단순 쿼리일 때만)
+        // areaCode가 nil이면 캐시 조회 스킵 (전국 데이터)
+        if areaCode == nil {
+            print("🔄 Fetching nationwide data (no cache)")
+            return remoteDataSource
+                .fetchAreaBasedList(
+                    areaCode: areaCode,
+                    sigunguCode: sigunguCode,
+                    contentTypeId: contentTypeId,
+                    cat1: cat1,
+                    cat2: cat2,
+                    cat3: cat3,
+                    numOfRows: numOfRows,
+                    pageNo: pageNo,
+                    arrange: arrange
+                )
+                .do(onSuccess: { places in
+                    print("✅ Nationwide Area API Success: \(places.count) places")
+                }, onError: { error in
+                    print("❌ Area API Error: \(error)")
+                })
+        }
+
         return localDataSource.getPlaces(areaCode: areaCode, sigunguCode: sigunguCode, contentTypeId: contentTypeId)
             .flatMap { [weak self] cachedPlaces -> Single<[Place]> in
                 guard let self = self else { return .just([]) }

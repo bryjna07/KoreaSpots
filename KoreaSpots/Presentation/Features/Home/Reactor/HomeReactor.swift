@@ -142,12 +142,13 @@ private extension HomeReactor {
         let today = DateFormatterUtil.yyyyMMdd.string(from: Date())
         let endDate = DateFormatterUtil.yyyyMMdd.string(from: Date().addingTimeInterval(30 * 24 * 60 * 60)) // 30일 후
 
-        let input = FetchFestivalInput(
-            startDate: today,
-            endDate: endDate,
-            maxCount: 10,
-            sortOption: .date
-        )
+                let input = FetchFestivalInput(
+                    startDate: today,
+                    endDate: endDate,
+                    areaCode: areaCode.rawValue,  // 사용자 지역 코드 전달
+                    maxCount: 10,
+                    sortOption: .date
+                )
 
                 return self.fetchFestivalUseCase
                     .execute(input)
@@ -176,6 +177,7 @@ private extension HomeReactor {
             latitude: latitude,
             longitude: longitude,
             radius: 1000,
+            contentTypeId: 12,  // 관광지만 필터링 (12: 관광지, 14: 문화시설, 15: 축제, 38: 쇼핑, 39: 음식점)
             maxCount: 20,
             sortOption: .distance
         )

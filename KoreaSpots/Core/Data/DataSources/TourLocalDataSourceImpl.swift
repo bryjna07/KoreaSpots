@@ -36,7 +36,7 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
     }
 
     // MARK: - Place Cache
-    func getPlaces(areaCode: Int, sigunguCode: Int?, contentTypeId: Int?) -> Single<[Place]> {
+    func getPlaces(areaCode: Int?, sigunguCode: Int?, contentTypeId: Int?) -> Single<[Place]> {
         return Single.create { [weak self] observer in
             guard let self = self else {
                 observer(.success([]))
@@ -44,23 +44,27 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
             }
 
             do {
-                var predicate = NSPredicate(format: "areaCode == %d", areaCode)
+                var predicates: [NSPredicate] = []
+
+                // areaCode가 nil이면 전국 데이터이므로 필터링하지 않음
+                if let areaCode = areaCode {
+                    predicates.append(NSPredicate(format: "areaCode == %d", areaCode))
+                }
 
                 if let sigunguCode = sigunguCode {
-                    let sigunguPredicate = NSPredicate(format: "sigunguCode == %d", sigunguCode)
-                    predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate, sigunguPredicate])
+                    predicates.append(NSPredicate(format: "sigunguCode == %d", sigunguCode))
                 }
 
                 if let contentTypeId = contentTypeId {
-                    let contentTypePredicate = NSPredicate(format: "contentTypeId == %d", contentTypeId)
-                    predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate, contentTypePredicate])
+                    predicates.append(NSPredicate(format: "contentTypeId == %d", contentTypeId))
                 }
 
                 let realm = try self.createRealm()
                 let ttlPredicate = NSPredicate(format: "cachedAt > %@", Date().addingTimeInterval(-3 * 60 * 60) as NSDate) // 3시간 TTL
-                predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate, ttlPredicate])
+                predicates.append(ttlPredicate)
 
-                let cachedPlaces = realm.objects(PlaceR.self).filter(predicate)
+                let finalPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+                let cachedPlaces = realm.objects(PlaceR.self).filter(finalPredicate)
                 let places = Array(cachedPlaces).map { $0.toDomain() }
                 observer(.success(places))
             } catch {
@@ -72,7 +76,7 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
         .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
     }
 
-    func savePlaces(_ places: [Place], areaCode: Int, sigunguCode: Int?, contentTypeId: Int?) -> Completable {
+    func savePlaces(_ places: [Place], areaCode: Int?, sigunguCode: Int?, contentTypeId: Int?) -> Completable {
         return Completable.create { [weak self] observer in
             guard let self = self else {
                 observer(.completed)

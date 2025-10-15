@@ -12,7 +12,7 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
     private let jsonDecoder = JSONDecoder()
 
     func fetchAreaBasedList(
-        areaCode: Int,
+        areaCode: Int?,
         sigunguCode: Int?,
         contentTypeId: Int?,
         cat1: String?,
@@ -25,15 +25,15 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
         // 통합 Mock 파일 사용
         let filename = "areaBasedList2"
 
-        print("🏛️ Area-based search - areaCode: \(areaCode), sigunguCode: \(sigunguCode ?? 0), contentTypeId: \(contentTypeId ?? 0), cat1: \(cat1 ?? "nil"), cat2: \(cat2 ?? "nil"), cat3: \(cat3 ?? "nil")")
+        print("🏛️ Area-based search - areaCode: \(areaCode ?? 0), sigunguCode: \(sigunguCode ?? 0), contentTypeId: \(contentTypeId ?? 0), cat1: \(cat1 ?? "nil"), cat2: \(cat2 ?? "nil"), cat3: \(cat3 ?? "nil")")
         print("📂 Using mock file: \(filename)")
 
         return loadMockData(filename: filename)
             .map { response in
                 var places = response.toPlaces()
 
-                // 지역 필터링 (areaCode가 0이면 전국 검색)
-                if areaCode > 0 {
+                // 지역 필터링 (areaCode가 nil이면 전국 검색)
+                if let areaCode = areaCode, areaCode > 0 {
                     places = places.filter { $0.areaCode == areaCode }
                 }
 
@@ -80,6 +80,7 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
     func fetchFestivalList(
         eventStartDate: String,
         eventEndDate: String,
+        areaCode: Int?,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
@@ -93,12 +94,20 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
             filename = "searchFestival2_2025-09-27_2025-10-27"
         }
 
-        print("🗓️ Festival search - startDate: \(eventStartDate), endDate: \(eventEndDate)")
+        print("🗓️ Festival search - startDate: \(eventStartDate), endDate: \(eventEndDate), areaCode: \(areaCode ?? 0)")
         print("📂 Using mock file: \(filename)")
 
         return loadMockData(filename: filename)
             .map { response in
-                response.toFestivalPlaces()  // Festival → Place (eventMeta 포함)
+                var places = response.toFestivalPlaces()  // Festival → Place (eventMeta 포함)
+
+                // 지역 필터링 (areaCode가 nil이면 전국 축제)
+                if let areaCode = areaCode, areaCode > 0 {
+                    places = places.filter { $0.areaCode == areaCode }
+                    print("🔍 AreaCode filter applied: \(areaCode), results: \(places.count)")
+                }
+
+                return places
             }
             .asSingle()
     }
@@ -185,11 +194,12 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
         mapX: Double,
         mapY: Double,
         radius: Int,
+        contentTypeId: Int?,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
     ) -> Single<[Place]> {
-        print("📍 Location-based search - mapX: \(mapX), mapY: \(mapY), radius: \(radius)m")
+        print("📍 Location-based search - mapX: \(mapX), mapY: \(mapY), radius: \(radius)m, contentTypeId: \(contentTypeId ?? 0)")
 
         // 사용자 위치에 따라 다른 Mock 데이터 제공
         let filename = determineLocationMockFile(mapX: mapX, mapY: mapY)
@@ -197,7 +207,15 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
 
         return loadMockData(filename: filename)
             .map { response in
-                response.toPlaces()
+                var places = response.toPlaces()
+
+                // 콘텐츠 타입 필터링 (12: 관광지, 14: 문화시설, 15: 축제, 38: 쇼핑, 39: 음식점)
+                if let contentTypeId = contentTypeId {
+                    places = places.filter { $0.contentTypeId == contentTypeId }
+                    print("🔍 ContentTypeId filter applied: \(contentTypeId), results: \(places.count)")
+                }
+
+                return places
             }
             .asSingle()
     }

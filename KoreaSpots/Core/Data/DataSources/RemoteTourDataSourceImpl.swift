@@ -19,7 +19,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
     }
 
     func fetchAreaBasedList(
-        areaCode: Int,
+        areaCode: Int?,
         sigunguCode: Int?,
         contentTypeId: Int?,
         cat1: String?,
@@ -50,6 +50,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
     func fetchFestivalList(
         eventStartDate: String,
         eventEndDate: String,
+        areaCode: Int?,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
@@ -58,6 +59,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
             .request(.searchFestival(
                 eventStartDate: eventStartDate,
                 eventEndDate: eventEndDate,
+                areaCode: areaCode,
                 numOfRows: numOfRows,
                 pageNo: pageNo,
                 arrange: arrange
@@ -72,6 +74,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
         mapX: Double,
         mapY: Double,
         radius: Int,
+        contentTypeId: Int?,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
@@ -81,6 +84,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
                 mapX: mapX,
                 mapY: mapY,
                 radius: radius,
+                contentTypeId: contentTypeId,
                 numOfRows: numOfRows,
                 pageNo: pageNo,
                 arrange: arrange

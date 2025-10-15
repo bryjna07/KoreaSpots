@@ -195,6 +195,7 @@ private extension PlaceDetailReactor {
             latitude: latitude,
             longitude: longitude,
             radius: 1000,
+            contentTypeId: 12,
             maxCount: 10,
             sortOption: .distance
         )
