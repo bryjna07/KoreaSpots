@@ -15,6 +15,7 @@ final class HomeReactor: Reactor {
         case viewDidLoad
         case refresh
         case locationPermissionGranted(latitude: Double, longitude: Double)
+        case locationPermissionDenied
     }
 
     enum Mutation {
@@ -23,6 +24,8 @@ final class HomeReactor: Reactor {
         case setNearbyPlaces([Place])
         case setError(String?)
         case setUserLocation(latitude: Double, longitude: Double)
+        case setCurrentAreaCode(AreaCode?)
+        case setShouldShowNearbySection(Bool)
     }
 
     struct State {
@@ -31,9 +34,9 @@ final class HomeReactor: Reactor {
         var nearbyPlaces: [Place] = []
         var error: String?
         var userLocation: (latitude: Double, longitude: Double)?
+        var currentAreaCode: AreaCode?
         var sections: [HomeSectionModel] = []
-        var hasFestivalData: Bool = false  // 실제 축제 데이터 로드 여부
-        var hasNearbyData: Bool = false    // 실제 관광지 데이터 로드 여부
+        var shouldShowNearbySection: Bool = true
     }
 
     let initialState: State = {
@@ -74,6 +77,7 @@ final class HomeReactor: Reactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
+            // Nearby는 observeLocationUpdates()를 통해 자동으로 로드됨
             return Observable.concat([
                 Observable.just(.setLoading(true)),
                 fetchCurrentFestivals(),
@@ -81,19 +85,40 @@ final class HomeReactor: Reactor {
             ])
 
         case .refresh:
+            // Nearby는 observeLocationUpdates()를 통해 자동으로 로드됨
             return Observable.concat([
                 Observable.just(.setLoading(true)),
                 fetchCurrentFestivals(),
-                fetchNearbyPlacesIfLocationAvailable(),
                 Observable.just(.setLoading(false))
             ])
 
         case let .locationPermissionGranted(latitude, longitude):
+            // 한국 내 위치인지 먼저 확인
+            let isInKorea = locationService.isCoordinateInKorea(latitude: latitude, longitude: longitude)
+
+            if !isInKorea {
+                // 한국 밖이면 Nearby 섹션 숨김
+                return Observable.concat([
+                    Observable.just(.setUserLocation(latitude: latitude, longitude: longitude)),
+                    Observable.just(.setShouldShowNearbySection(false)),
+                    Observable.just(.setNearbyPlaces([]))
+                ])
+            }
+
+            // 한국 내면 Nearby 섹션 표시 + 데이터 로드
             return Observable.concat([
                 Observable.just(.setUserLocation(latitude: latitude, longitude: longitude)),
+                Observable.just(.setShouldShowNearbySection(true)),
                 Observable.just(.setLoading(true)),
                 fetchNearbyPlaces(latitude: latitude, longitude: longitude),
                 Observable.just(.setLoading(false))
+            ])
+
+        case .locationPermissionDenied:
+            // 위치 권한 거부 시: 축제는 전국 데이터, Nearby 섹션 숨김
+            return Observable.concat([
+                Observable.just(.setShouldShowNearbySection(false)),
+                Observable.just(.setNearbyPlaces([]))
             ])
         }
     }
@@ -108,20 +133,20 @@ final class HomeReactor: Reactor {
         case let .setFestivals(festivals):
             newState.festivals = festivals
             newState.error = nil
-            // 실제 데이터가 로드되면 플래그 업데이트
-            if !festivals.isEmpty {
-                newState.hasFestivalData = true
-            }
-            newState.sections = buildSections(festivals: festivals, nearbyPlaces: newState.nearbyPlaces)
+            newState.sections = buildSections(
+                festivals: festivals,
+                nearbyPlaces: newState.nearbyPlaces,
+                shouldShowNearby: newState.shouldShowNearbySection
+            )
 
         case let .setNearbyPlaces(places):
             newState.nearbyPlaces = places
             newState.error = nil
-            // 실제 데이터가 로드되면 플래그 업데이트
-            if !places.isEmpty {
-                newState.hasNearbyData = true
-            }
-            newState.sections = buildSections(festivals: newState.festivals, nearbyPlaces: places)
+            newState.sections = buildSections(
+                festivals: newState.festivals,
+                nearbyPlaces: places,
+                shouldShowNearby: newState.shouldShowNearbySection
+            )
 
         case let .setError(error):
             newState.error = error
@@ -129,6 +154,12 @@ final class HomeReactor: Reactor {
         case let .setUserLocation(latitude, longitude):
             newState.userLocation = (latitude: latitude, longitude: longitude)
 
+        case let .setCurrentAreaCode(areaCode):
+            newState.currentAreaCode = areaCode
+
+        case let .setShouldShowNearbySection(shouldShow):
+            newState.shouldShowNearbySection = shouldShow
+            // buildSections는 setNearbyPlaces에서 호출될 예정이므로 여기서는 생략
         }
 
         return newState
@@ -140,44 +171,31 @@ private extension HomeReactor {
 
     func fetchCurrentFestivals() -> Observable<Mutation> {
         let today = DateFormatterUtil.yyyyMMdd.string(from: Date())
-        let endDate = DateFormatterUtil.yyyyMMdd.string(from: Date().addingTimeInterval(30 * 24 * 60 * 60)) // 30일 후
+        let endDate = DateFormatterUtil.yyyyMMdd.string(from: Date().addingTimeInterval(30 * 24 * 60 * 60))
 
         // 사용자 위치 기반 지역코드 조회 후 축제 요청
         return locationService.getCurrentAreaCode()
             .asObservable()
             .flatMap { [weak self] areaCode -> Observable<Mutation> in
-                guard let self = self else { return .empty() }
-
-                print("📍 현재 지역: \(areaCode.displayName) (코드: \(areaCode.rawValue))")
+                guard let self else { return .empty() }
 
                 let input = FetchFestivalInput(
                     startDate: today,
                     endDate: endDate,
-                    areaCode: areaCode.rawValue,  // 사용자 지역 코드 전달
+                    areaCode: areaCode?.rawValue,
                     maxCount: 10,
                     sortOption: .date
                 )
 
-                return self.fetchFestivalUseCase
-                    .execute(input)
-                    .asObservable()
-                    .map { places -> Mutation in
-                        // 빈 배열 단계를 건너뛰고 바로 실제 데이터로 교체
-                        return .setFestivals(places)
-                    }
+                return Observable.concat([
+                    .just(.setCurrentAreaCode(areaCode)),
+                    self.fetchFestivalUseCase
+                        .execute(input)
+                        .asObservable()
+                        .map(Mutation.setFestivals)
+                ])
             }
-            .catch { error in
-                print("⚠️ 축제 조회 실패: \(error.localizedDescription)")
-                // 에러 발생 시 빈 배열로 설정 + 에러 메시지 표시
-                return Observable.just(.setFestivals([]))
-            }
-    }
-
-    func fetchNearbyPlacesIfLocationAvailable() -> Observable<Mutation> {
-        guard let location = currentState.userLocation else {
-            return Observable.empty()
-        }
-        return fetchNearbyPlaces(latitude: location.latitude, longitude: location.longitude)
+            .catch { _ in .just(.setFestivals([])) }
     }
 
     func fetchNearbyPlaces(latitude: Double, longitude: Double) -> Observable<Mutation> {
@@ -186,29 +204,21 @@ private extension HomeReactor {
             longitude: longitude,
             radius: 1000,
             contentTypeId: 12,  // 관광지만 필터링 (12: 관광지, 14: 문화시설, 15: 축제, 38: 쇼핑, 39: 음식점)
-            maxCount: 20,
+            maxCount: 10,
             sortOption: .distance
         )
 
         return fetchLocationBasedPlacesUseCase
             .execute(input)
             .asObservable()
-            .map { places -> Mutation in
-                print("📍 내 주변 관광지 \(places.count)개 조회 완료")
-                // 빈 배열 단계를 건너뛰고 바로 실제 데이터로 교체
-                return .setNearbyPlaces(places)
-            }
-            .catch { error in
-                print("⚠️ 내 주변 관광지 조회 실패: \(error.localizedDescription)")
-                // 에러 발생 시 빈 배열로 설정
-                return Observable.just(.setNearbyPlaces([]))
-            }
+            .map(Mutation.setNearbyPlaces)
+            .catch { _ in .just(.setNearbyPlaces([])) }
     }
 
-    private func buildSections(festivals: [Place], nearbyPlaces: [Place]) -> [HomeSectionModel] {
+    private func buildSections(festivals: [Place], nearbyPlaces: [Place], shouldShowNearby: Bool) -> [HomeSectionModel] {
         var sections: [HomeSectionModel] = []
 
-        // Festival Section - 데이터가 있을 때만 표시
+        // Festival Section
         let festivalItems = festivals.map { HomeSectionItem.festival($0) }
         sections.append(HomeSectionModel(section: .festival, items: festivalItems))
 
@@ -220,9 +230,11 @@ private extension HomeReactor {
         let themeItems = Theme.staticThemes.map { HomeSectionItem.theme($0) }
         sections.append(HomeSectionModel(section: .theme, items: themeItems))
 
-        // Nearby Places Section - 데이터가 있을 때만 표시
-        let placeItems = nearbyPlaces.map { HomeSectionItem.place($0) }
-        sections.append(HomeSectionModel(section: .nearby, items: placeItems))
+        // Nearby Places Section - 한국 내에서만 표시
+        if shouldShowNearby {
+            let nearbyItems = nearbyPlaces.map { HomeSectionItem.place($0) }
+            sections.append(HomeSectionModel(section: .nearby, items: nearbyItems))
+        }
 
         return sections
     }
@@ -239,6 +251,19 @@ extension HomeReactor {
     func observeLocationUpdates() -> Observable<Action> {
         return locationService.currentLocation
             .map { Action.locationPermissionGranted(latitude: $0.coordinate.latitude, longitude: $0.coordinate.longitude) }
+    }
+
+    func observeAuthorizationStatus() -> Observable<Action> {
+        return locationService.authorizationStatus
+            .distinctUntilChanged()
+            .compactMap { status -> Action? in
+                switch status {
+                case .denied, .restricted:
+                    return .locationPermissionDenied
+                default:
+                    return nil
+                }
+            }
     }
 }
 

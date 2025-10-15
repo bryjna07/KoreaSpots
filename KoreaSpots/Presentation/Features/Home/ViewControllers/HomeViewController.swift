@@ -83,8 +83,13 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             }
             .disposed(by: disposeBag)
 
-        // Location Updates
+        // Location Updates (권한 허용 시)
         reactor.observeLocationUpdates()
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+
+        // Authorization Status (권한 거부 감지)
+        reactor.observeAuthorizationStatus()
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
@@ -115,6 +120,8 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
                 return self?.configureCell(collectionView: collectionView, indexPath: indexPath, item: item) ?? UICollectionViewCell()
             },
             configureSupplementaryView: { [weak self] dataSource, collectionView, kind, indexPath in
+                guard let self = self, let reactor = self.reactor else { return UICollectionReusableView() }
+
                 switch kind {
                 case FestivalPageIndicatorView.elementKind:
                     let view = collectionView.dequeueReusableSupplementaryView(
@@ -124,12 +131,12 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
                     ) as! FestivalPageIndicatorView
 
                     let totalPages = dataSource[indexPath.section].items.count
-                    let currentPage = self?.homeView.currentPage ?? 0
+                    let currentPage = self.homeView.currentPage
                     view.configure(currentPage: currentPage + 1, totalPages: totalPages)
                     return view
 
                 case UICollectionView.elementKindSectionHeader:
-                    return self?.configureSupplementaryView(collectionView: collectionView, kind: kind, indexPath: indexPath, section: dataSource[indexPath.section]) ?? UICollectionReusableView()
+                    return self.configureSupplementaryView(collectionView: collectionView, kind: kind, indexPath: indexPath, section: dataSource[indexPath.section])
 
                 default:
                     return UICollectionReusableView()
@@ -152,7 +159,7 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             cell.configure(with: place)
             collectionView.configureSkeletonIfNeeded(for: cell, with: place)
             return cell
-            
+
         case .category(let category):
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RectangleCell.reuseIdentifier, for: indexPath) as? RectangleCell else { return UICollectionViewCell() }
             cell.configure(with: category)
@@ -217,18 +224,14 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
         case .festival:
             // TODO: Navigate to festival list
             print("Navigate to festival list")
-            break
         case .nearby:
             navigateToNearbyPlaceList()
-            break
         case .category:
             // TODO: Navigate to category list
             print("Navigate to category list")
-            break
         case .theme:
             // TODO: Navigate to theme list
             print("Navigate to theme list")
-            break
         }
     }
 
@@ -245,32 +248,15 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
     }
 
     private func navigateToNearbyPlaceList() {
-        guard let reactor = reactor,
-              let location = reactor.currentState.userLocation else {
-            showLocationAlert()
-            return
-        }
+        guard let reactor = reactor else { return }
 
-        // Get AreaCode from location using LocationService
-        reactor.locationService.getCurrentAreaCode()
-            .subscribe(onSuccess: { [weak self] areaCode in
-                let viewController = AppContainer.shared.makePlaceListViewController(
-                    initialArea: areaCode,
-                    contentTypeId: nil
-                )
-                viewController.title = LocalizedKeys.Home.nearby.localized
-                self?.navigationController?.pushViewController(viewController, animated: true)
-            }, onFailure: { [weak self] error in
-                print("⚠️ Failed to get area code: \(error.localizedDescription)")
-                // Fallback: Navigate with Seoul as default
-                let viewController = AppContainer.shared.makePlaceListViewController(
-                    initialArea: .seoul,
-                    contentTypeId: nil
-                )
-                viewController.title = LocalizedKeys.Home.nearby.localized
-                self?.navigationController?.pushViewController(viewController, animated: true)
-            })
-            .disposed(by: disposeBag)
+        let areaCode = reactor.currentState.currentAreaCode
+        let viewController = AppContainer.shared.makePlaceListViewController(
+            initialArea: areaCode,
+            contentTypeId: nil
+        )
+        viewController.title = LocalizedKeys.Home.nearby.localized
+        navigationController?.pushViewController(viewController, animated: true)
     }
 
     private func navigateToThemePlaceList(theme: Theme) {
@@ -293,12 +279,5 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
         )
         viewController.title = theme.title
         navigationController?.pushViewController(viewController, animated: true)
-    }
-
-    private func showLocationAlert() {
-        showErrorAlert(
-            message: "위치 정보를 가져올 수 없습니다.",
-            title: LocalizedKeys.Common.error.localized
-        )
     }
 }
