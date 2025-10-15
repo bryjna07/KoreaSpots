@@ -13,12 +13,10 @@ final class TourRepositoryImpl: TourRepository {
     private let remoteDataSource: TourRemoteDataSource
     private let localDataSource: TourLocalDataSource
     private let disposeBag = DisposeBag()
-    private let useMockData: Bool
 
-    init(remoteDataSource: TourRemoteDataSource, localDataSource: TourLocalDataSource, useMockData: Bool = false) {
+    init(remoteDataSource: TourRemoteDataSource, localDataSource: TourLocalDataSource) {
         self.remoteDataSource = remoteDataSource
         self.localDataSource = localDataSource
-        self.useMockData = useMockData
     }
 
     // MARK: - Festival Operations
@@ -103,27 +101,7 @@ final class TourRepositoryImpl: TourRepository {
         pageNo: Int,
         arrange: String
     ) -> Single<[Place]> {
-        // Mock 환경에서는 캐싱 완전 비활성화 (즉시 메모리 필터링)
-        if useMockData {
-            print("🔄 Mock mode: bypassing cache entirely")
-            return remoteDataSource
-                .fetchAreaBasedList(
-                    areaCode: areaCode,
-                    sigunguCode: sigunguCode,
-                    contentTypeId: contentTypeId,
-                    cat1: cat1,
-                    cat2: cat2,
-                    cat3: cat3,
-                    numOfRows: numOfRows,
-                    pageNo: pageNo,
-                    arrange: arrange
-                )
-                .do(onSuccess: { places in
-                    print("✅ Mock data filtered: \(places.count) places")
-                })
-        }
-
-        // Real API 환경: 카테고리/테마 필터가 있으면 캐시 스킵
+        // 카테고리/테마 필터가 있으면 캐시 스킵
         let skipCache = cat1 != nil || cat2 != nil || cat3 != nil
 
         if skipCache {
@@ -232,15 +210,14 @@ final class TourRepositoryImpl: TourRepository {
     }
 
     func getPlaceOperatingInfo(contentId: String, contentTypeId: Int) -> Single<OperatingInfo> {
-        // detailIntro2에서 운영정보를 가져오고 TourAPIItem에서 직접 OperatingInfo로 변환
+        // detailIntro2 API에서 운영정보를 가져옴
         return remoteDataSource
             .fetchDetailIntro(contentId: contentId, contentTypeId: contentTypeId)
             .flatMap { place -> Single<OperatingInfo> in
-                // Mock에서는 detailIntro2_sample.json의 데이터를 사용
-                // 실제로는 API 응답의 TourAPIItem을 OperatingInfo로 변환
-                // 임시로 Mock 데이터 기반으로 고정 값 사용
+                // TODO: TourAPI detailIntro2 응답을 OperatingInfo로 제대로 파싱 필요
+                // 현재는 임시로 고정 값 반환 (실제 API 응답 필드 매핑 필요)
                 let operatingInfo = OperatingInfo(
-                    useTime: "09:00~18:00 (하절기 09:00~18:30)", // detailIntro2 데이터 기반
+                    useTime: "09:00~18:00 (하절기 09:00~18:30)",
                     restDate: "화요일",
                     useFee: "성인 3,000원, 청소년 1,500원, 어린이 1,500원",
                     homepage: place.tel

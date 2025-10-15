@@ -17,15 +17,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
 
-        ///TODO: - 추후 API로 업데이트 필요
-        // Mock 데이터 사용 설정
-        AppContainer.shared.setUseMockData(false)
+        // 레거시 Mock 설정 제거 (1회성 마이그레이션)
+        cleanupLegacyMockSettings()
 
         let tabBarVC = AppContainer.shared.makeTabBarController()
         tabBarVC.selectedIndex = 1 // 시작 탭: 두 번째 탭
-        
+
         window?.rootViewController = tabBarVC
         window?.makeKeyAndVisible()
+    }
+
+    // MARK: - Legacy Cleanup
+    /// 1차 출시 시 사용된 Mock 데이터 설정을 제거, 마이그레이션 코드
+    /// TODO: - 기존 유저 모두 업데이트 이후 제거 가능
+    private func cleanupLegacyMockSettings() {
+        let legacyKey = "AppEnvironment.useMockData"
+        if UserDefaults.standard.object(forKey: legacyKey) != nil {
+            UserDefaults.standard.removeObject(forKey: legacyKey)
+            print("🧹 Cleaned up legacy mock data settings")
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
