@@ -59,23 +59,7 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             }
             .disposed(by: disposeBag)
 
-        // State
-//        reactor.state
-//            .map(\.isLoading)
-//            .distinctUntilChanged()
-//            .asDriver(onErrorJustReturn: false)
-//            .drive(with: self) { owner, isLoading in
-//                if isLoading {
-//                    // 뷰가 화면에 표시된 경우에만 beginRefreshing 호출
-//                    if owner.isViewLoaded && owner.view.window != nil {
-//                        owner.homeView.refreshControl.beginRefreshing()
-//                    }
-//                } else {
-//                    owner.homeView.refreshControl.endRefreshing()
-//                }
-//            }
-//            .disposed(by: disposeBag)
-
+        // State - 섹션 데이터 바인딩 (각 셀이 더미 데이터인지 확인하여 스켈레톤 제어)
         reactor.state
             .map(\.sections)
             .asDriver(onErrorJustReturn: [])
@@ -157,9 +141,6 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
                 }
             }
         )
-
-        // Setup skeleton compatibility
-        homeView.setupSkeletonCompatibility()
     }
 
     // MARK: - Data Source Configuration
@@ -168,11 +149,13 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
         case .festival(let festival):
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FestivalCardCell.reuseIdentifier, for: indexPath) as? FestivalCardCell else {  return UICollectionViewCell() }
             cell.configure(with: festival)
+            collectionView.configureSkeletonIfNeeded(for: cell, with: festival)
             return cell
 
         case .place(let place):
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PlaceCardCell.reuseIdentifier, for: indexPath) as? PlaceCardCell else { return UICollectionViewCell() }
             cell.configure(with: place)
+            collectionView.configureSkeletonIfNeeded(for: cell, with: place)
             return cell
             
         case .category(let category):
@@ -185,10 +168,10 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             cell.configure(with: theme)
             return cell
 
-        case .placeholder(let text, _):
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PlaceholderCardCell.reuseIdentifier, for: indexPath) as? PlaceholderCardCell else { return UICollectionViewCell() }
-            cell.configure(with: text)
-            return cell
+//        case .placeholder(let text, _):
+//            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PlaceholderCardCell.reuseIdentifier, for: indexPath) as? PlaceholderCardCell else { return UICollectionViewCell() }
+//            cell.configure(with: text)
+//            return cell
         }
     }
 
@@ -233,13 +216,13 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
 
         case .category(let category):
             navigateToCategoryPlaceList(category: category)
-            
+
         case .theme(let theme):
             navigateToThemePlaceList(theme: theme)
 
-        case .placeholder(_, _):
-            // TODO: Handle placeholder action
-            print("Placeholder tapped")
+//        case .placeholder(_, _):
+//            // Placeholder는 탭 불가
+//            break
         }
     }
 

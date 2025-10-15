@@ -10,7 +10,7 @@ import SnapKit
 import Then
 import SkeletonView
 
-final class PlaceCardCell: BaseCollectionViewCell {
+final class PlaceCardCell: BaseCollectionViewCell, SkeletonableCell {
 
     // MARK: - UI Components
     private let containerView = UIView()
@@ -36,8 +36,8 @@ final class PlaceCardCell: BaseCollectionViewCell {
             distanceLabel.isHidden = true
         }
 
-        // ImageLoader를 사용한 관광지 이미지 로딩
-        imageView.loadTourismImage(from: place.imageURL, type: .attraction)
+        // ImageLoader를 사용한 관광지 이미지 로딩 (placeholder는 ImageLoader 내부에서 처리)
+        imageView.loadTourismImage(from: place.imageURL, placeholder: nil, type: .attraction)
     }
 
     override func prepareForReuse() {

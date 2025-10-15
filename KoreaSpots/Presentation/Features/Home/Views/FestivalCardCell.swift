@@ -10,15 +10,20 @@ import SnapKit
 import Then
 import SkeletonView
 
-final class FestivalCardCell: BaseCollectionViewCell, CollectionViewCellConfigurable {
+final class FestivalCardCell: BaseCollectionViewCell, CollectionViewCellConfigurable, SkeletonableCell {
 
     // MARK: - UI Components
     private let containerView = UIView()
     private let imageView = UIImageView()
-    private let overlayView = UIView()
+    private let overlayView = UIView() // 텍스트 가독성을 위한 이미지뷰 위 오버레이뷰
     private let titleLabel = UILabel()
     private let periodLabel = UILabel()
     private let locationLabel = UILabel()
+
+    // MARK: - SkeletonableCell
+    var viewsToHideOnSkeleton: [UIView] {
+        return [overlayView]  // 스켈레톤 표시 시 overlayView 숨김
+    }
 
     // MARK: - Configuration
     func configure(with model: Place) {
@@ -27,6 +32,7 @@ final class FestivalCardCell: BaseCollectionViewCell, CollectionViewCellConfigur
 
     private func configureFestival(_ place: Place) {
         titleLabel.text = place.title
+
         guard let eventMeta = place.eventMeta else { return }
         periodLabel.text = DateFormatterUtil.formatPeriod(start: eventMeta.eventStartDate, end: eventMeta.eventEndDate)
 
@@ -40,6 +46,7 @@ final class FestivalCardCell: BaseCollectionViewCell, CollectionViewCellConfigur
         super.prepareForReuse()
         imageView.cancelImageLoad()
         imageView.image = nil
+        overlayView.isHidden = false
     }
 }
 

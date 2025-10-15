@@ -109,23 +109,28 @@ extension UIImageView: ImageLoadable {
         guard let urlString = urlString,
               !urlString.isEmpty,
               let url = URL(string: urlString) else {
-            image = placeholder
+            // URL이 없으면 nil 이미지 (배경색만 표시)
+            image = nil
             completion?(.failure(ImageLoaderError.invalidURL))
             return
         }
 
         let options = ImageLoader.makeOptions(for: size, cachePolicy: cachePolicy)
 
-        kf.indicatorType = .activity
+        // 스켈레톤뷰가 초기 로딩 상태를 처리하므로 Kingfisher indicator 비활성화
+        kf.indicatorType = .none
+
+        // placeholder 없이 로딩 (실패 시 배경색만 표시)
         kf.setImage(
             with: url,
-            placeholder: placeholder,
+            placeholder: nil,
             options: options
         ) { result in
             switch result {
             case .success(let imageResult):
                 completion?(.success(imageResult.image))
             case .failure(let error):
+                // 로딩 실패 시 이미지 nil (배경색만 표시)
                 completion?(.failure(error))
             }
         }
@@ -152,7 +157,7 @@ extension UIImageView: ImageLoadable {
     // MARK: - 관광지 특화 메서드들
     func loadTourismImage(
         from urlString: String?,
-        placeholder: UIImage? = UIImage(systemName: "photo.artframe"),
+        placeholder: UIImage? = nil,
         type: TourismImageType = .attraction
     ) {
         let (size, cachePolicy) = type.imageConfiguration
@@ -167,7 +172,7 @@ extension UIImageView: ImageLoadable {
     func loadFestivalBanner(from urlString: String?) {
         loadImage(
             from: urlString,
-            placeholder: UIImage(systemName: "calendar.badge.exclamationmark"),
+            placeholder: nil,
             size: .banner,
             cachePolicy: .aggressive
         )
@@ -176,7 +181,7 @@ extension UIImageView: ImageLoadable {
     func loadPlaceThumbnail(from urlString: String?) {
         loadImage(
             from: urlString,
-            placeholder: UIImage(systemName: "photo.artframe"),
+            placeholder: nil,
             size: .thumbnail,
             cachePolicy: .memoryOnly
         )
@@ -237,4 +242,3 @@ extension ImageLoader.ImageSize: CaseIterable {
     }
 }
 
-///TODO:- 이미지 로드 시 파랑색 플레이스홀더 삭제 - 스켈레톤
