@@ -15,8 +15,8 @@ struct SkeletonDataProvider {
         return (0..<count).map { index in
             Place(
                 contentId: "skeleton-\(type.rawValue)-\(index)",
-                title: "Loading...",
-                address: "Loading...",
+                title: " ",
+                address: " ",
                 imageURL: nil,
                 mapX: nil,
                 mapY: nil,

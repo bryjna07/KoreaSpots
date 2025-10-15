@@ -46,6 +46,22 @@ extension HomeView {
 
         section.boundarySupplementaryItems = [createPageIndicatorFooter()]
 
+        // Orthogonal scrolling 감지
+        section.visibleItemsInvalidationHandler = { [weak self] visibleItems, scrollOffset, environment in
+            guard let self = self else { return }
+
+            // 현재 페이지 계산
+            let containerWidth = environment.container.contentSize.width
+            guard containerWidth > 0 else { return }
+
+            let page = Int(round(scrollOffset.x / containerWidth))
+
+            // 페이지 업데이트 (내부에서 중복 체크)
+            DispatchQueue.main.async {
+                self.updateFestivalPageFromScroll(page)
+            }
+        }
+
         return section
     }
 

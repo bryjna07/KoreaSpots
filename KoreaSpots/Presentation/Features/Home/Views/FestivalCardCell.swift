@@ -31,6 +31,10 @@ final class FestivalCardCell: BaseCollectionViewCell, CollectionViewCellConfigur
     }
 
     private func configureFestival(_ place: Place) {
+        if !place.isSkeletonData {
+            containerView.hideSkeleton()
+        }
+
         titleLabel.text = place.title
 
         guard let eventMeta = place.eventMeta else { return }

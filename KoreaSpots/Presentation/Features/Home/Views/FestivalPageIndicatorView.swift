@@ -42,6 +42,13 @@ final class FestivalPageIndicatorView: BaseReusableView {
         }
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        // 재사용 시 숨김 상태를 명시적으로 리셋
+        // configure에서 totalPages에 따라 다시 판단할 것
+        isHidden = false
+    }
+
     // MARK: - Public Methods
     func configure(currentPage: Int, totalPages: Int) {
         label.text = "\(currentPage)/\(totalPages)"

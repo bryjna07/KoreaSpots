@@ -21,6 +21,10 @@ final class PlaceCardCell: BaseCollectionViewCell, SkeletonableCell {
 
     // MARK: - Configuration
     func configure(with place: Place) {
+        if !place.isSkeletonData {
+            containerView.hideSkeleton()
+        }
+
         titleLabel.text = place.title
         addressLabel.text = place.address
 

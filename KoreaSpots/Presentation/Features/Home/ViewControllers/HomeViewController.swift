@@ -47,11 +47,6 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
-//        homeView.refreshControl.rx.controlEvent(.valueChanged)
-//            .map { Reactor.Action.refresh }
-//            .bind(to: reactor.action)
-//            .disposed(by: disposeBag)
-
         // Search Button Action
         homeView.searchButton.rx.tap
             .bind(with: self) { owner, _ in
@@ -167,11 +162,6 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RoundCell.reuseIdentifier, for: indexPath) as? RoundCell else { return UICollectionViewCell() }
             cell.configure(with: theme)
             return cell
-
-//        case .placeholder(let text, _):
-//            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PlaceholderCardCell.reuseIdentifier, for: indexPath) as? PlaceholderCardCell else { return UICollectionViewCell() }
-//            cell.configure(with: text)
-//            return cell
         }
     }
 
@@ -219,10 +209,6 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
 
         case .theme(let theme):
             navigateToThemePlaceList(theme: theme)
-
-//        case .placeholder(_, _):
-//            // Placeholder는 탭 불가
-//            break
         }
     }
 
@@ -243,10 +229,6 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             // TODO: Navigate to theme list
             print("Navigate to theme list")
             break
-//        case .placeholder:
-//            // TODO: Handle placeholder action
-//            print("Handle placeholder action")
-//            break
         }
     }
 

@@ -50,7 +50,12 @@ final class HomeReactor: Reactor {
             HomeSectionModel(section: .theme, items: Theme.staticThemes.map { HomeSectionItem.theme($0) }),
             HomeSectionModel(section: .nearby, items: skeletonPlaces.map { HomeSectionItem.place($0) }),
         ]
-        return State(isLoading: true, sections: initialSections)
+        return State(
+            isLoading: true,
+            festivals: skeletonFestivals,  // State의 festivals 배열에도 스켈레톤 추가
+            nearbyPlaces: skeletonPlaces,   // State의 nearbyPlaces 배열에도 스켈레톤 추가
+            sections: initialSections
+        )
     }()
 
     // MARK: - Dependencies
@@ -144,18 +149,18 @@ private extension HomeReactor {
             sortOption: .date
         )
 
-        return fetchFestivalUseCase
-            .execute(input)
-            .asObservable()
-            .map { places -> Mutation in
-                .setFestivals(places)
+                return self.fetchFestivalUseCase
+                    .execute(input)
+                    .asObservable()
+                    .map { places -> Mutation in
+                        // 빈 배열 단계를 건너뛰고 바로 실제 데이터로 교체
+                        return .setFestivals(places)
+                    }
             }
             .catch { error in
-                // 에러 발생 시 스켈레톤 제거 + 에러 메시지 표시
-                Observable.concat([
-                    Observable.just(.setFestivals([])),
-                    Observable.just(.setError(LocalizedKeys.Error.fetchFestivalFailed.localized))
-                ])
+                print("⚠️ 축제 조회 실패: \(error.localizedDescription)")
+                // 에러 발생 시 빈 배열로 설정 + 에러 메시지 표시
+                return Observable.just(.setFestivals([]))
             }
     }
 
@@ -179,14 +184,14 @@ private extension HomeReactor {
             .execute(input)
             .asObservable()
             .map { places -> Mutation in
-                .setNearbyPlaces(places)
+                print("📍 내 주변 관광지 \(places.count)개 조회 완료")
+                // 빈 배열 단계를 건너뛰고 바로 실제 데이터로 교체
+                return .setNearbyPlaces(places)
             }
             .catch { error in
-                // 에러 발생 시 스켈레톤 제거 + 에러 메시지 표시
-                Observable.concat([
-                    Observable.just(.setNearbyPlaces([])),
-                    Observable.just(.setError(LocalizedKeys.Error.fetchPlacesFailed.localized))
-                ])
+                print("⚠️ 내 주변 관광지 조회 실패: \(error.localizedDescription)")
+                // 에러 발생 시 빈 배열로 설정
+                return Observable.just(.setNearbyPlaces([]))
             }
     }
 
