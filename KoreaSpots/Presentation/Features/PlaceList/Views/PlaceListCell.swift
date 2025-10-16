@@ -140,7 +140,7 @@ final class PlaceListCell: BaseCollectionViewCell, SkeletonableCell {
         // 1. Theme12 매핑 (cat3 기반)
         if let cat3 = place.cat3,
            let theme = Theme12.allCases.first(where: {
-               $0.query.cat3Filters.map { $0.rawValue }.contains(cat3)
+               $0.query.cat3Filters.contains(cat3)
            }) {
             tagText = theme.displayName
         }

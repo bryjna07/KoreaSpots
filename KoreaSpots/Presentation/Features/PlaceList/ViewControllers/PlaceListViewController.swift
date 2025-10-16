@@ -74,7 +74,7 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
     // MARK: - Bind
     func bind(reactor: PlaceListReactor) {
         // Load sigungu data
-        SigunguStore.loadFromBundleAsync(fileName: "sigungu_codes") { success in
+        CodeBookStore.Sigungu.loadFromBundleAsync(fileName: "sigungu_codes") { success in
             if success {
                 print("✅ sigungu_codes.json loaded")
             }
@@ -339,14 +339,14 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
     }
 
     private func getSigungus(for areaCode: AreaCode) -> [(code: Int, name: String)] {
-        guard SigunguStore.isLoaded else {
-            print("⚠️ SigunguStore not loaded yet")
+        guard CodeBookStore.Sigungu.isLoaded else {
+            print("⚠️ CodeBookStore.Sigungu not loaded yet")
             return []
         }
 
         var sigungus: [(code: Int, name: String)] = []
         for code in 1...999 {
-            if let name = SigunguStore.name(areaCode: areaCode, sigunguCode: code, preferred: .ko) {
+            if let name = CodeBookStore.Sigungu.name(areaCode: areaCode.rawValue, sigunguCode: code, preferred: .ko) {
                 sigungus.append((code: code, name: name))
             }
         }
@@ -405,7 +405,7 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
             let cat3List = cat3.split(separator: ",").map { String($0.trimmingCharacters(in: .whitespaces)) }
             if let firstCat3 = cat3List.first,
                let theme = Theme12.allCases.first(where: {
-                   $0.query.cat3Filters.map { $0.rawValue }.contains(firstCat3)
+                   $0.query.cat3Filters.contains(firstCat3)
                }) {
                 categoryName = theme.displayName
             }

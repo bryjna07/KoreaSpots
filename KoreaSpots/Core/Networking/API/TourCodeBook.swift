@@ -288,209 +288,9 @@ public enum Cat2: String, CaseIterable {
     }
 }
 
-public enum Cat3: String, CaseIterable {
-    // A0101 자연관광지 상세
-    case A01010100 // 국립공원
-    case A01010200 // 도립공원
-    case A01010300 // 군립공원
-    case A01010400 // 산
-    case A01010500 // 자연생태관광지
-    case A01010600 // 자연휴양림
-    case A01010700 // 수목원
-    case A01010800 // 폭포
-    case A01010900 // 계곡
-    case A01011000 // 약수터
-    case A01011100 // 해안절경
-    case A01011200 // 해수욕장
-    case A01011300 // 섬
-    case A01011400 // 항구/포구
-    case A01011600 // 등대
-    case A01011700 // 호수
-    case A01011800 // 강
-    case A01011900 // 동굴
-
-    // A0102 관광자원 상세
-    case A01020100 // 희귀동.식물
-    case A01020200 // 기암괴석
-
-    // A0201 역사관광지 상세
-    case A02010100 // 고궁
-    case A02010200 // 성
-    case A02010300 // 문
-    case A02010400 // 고택
-    case A02010500 // 생가
-    case A02010600 // 민속마을
-    case A02010700 // 유적지/사적지
-    case A02010800 // 사찰
-    case A02010900 // 종교성지
-    case A02011000 // 안보관광
-
-    // A0202 휴양관광지 상세
-    case A02020200 // 관광단지
-    case A02020300 // 온천/욕장/스파
-    case A02020400 // 이색찜질방
-    case A02020500 // 헬스투어
-    case A02020600 // 테마공원
-    case A02020700 // 공원
-    case A02020800 // 유람선/잠수함관광
-
-    // A0203 체험관광지 상세
-    case A02030100 // 농,산,어촌 체험
-    case A02030200 // 전통체험
-    case A02030300 // 산사체험
-    case A02030400 // 이색체험
-    case A02030500 // 이색거리
-
-    // A0204 산업관광지 상세
-    case A02040400 // 발전소
-    case A02040600 // 식음료
-    case A02040800 // 기타
-    case A02040900 // 전자-반도체
-    case A02041000 // 자동차
-
-    // A0205 건축/조형물 상세
-    case A02050100 // 다리/대교
-    case A02050200 // 기념탑/기념비/전망대
-    case A02050300 // 분수
-    case A02050400 // 동상
-    case A02050500 // 터널
-    case A02050600 // 유명건물
-
-    // A0206 문화시설 상세 (문서 상 분기 존재)
-    case A02060100 // 박물관
-    case A02060200 // 기념관
-    case A02060300 // 전시관
-    case A02060400 // 컨벤션센터
-    case A02060500 // 미술관/화랑
-    case A02060600 // 공연장
-    case A02060700 // 문화원
-    case A02060800 // 외국문화원
-    case A02060900 // 도서관
-    case A02061000 // 대형서점
-    case A02061100 // 문화전수시설
-    case A02061200 // 영화관
-    case A02061300 // 어학당
-    case A02061400 // 학교
-
-    // A0207 축제 상세
-    case A02070100 // 문화관광축제
-    case A02070200 // 일반축제
-
-    // A0208 공연/행사 상세
-    case A02080100 // 전통공연
-    case A02080200 // 연극
-    case A02080300 // 뮤지컬
-    case A02080400 // 오페라
-    case A02080500 // 전시회
-    case A02080600 // 박람회
-    case A02080800 // 무용
-    case A02080900 // 클래식음악회
-    case A02081000 // 대중콘서트
-    case A02081100 // 영화
-    case A02081200 // 스포츠경기
-    case A02081300 // 기타행사
-    case A02081400 // 넌버벌
-    
-    // CO1 -> C0112 ~ C0117 은 소분류 각 1개씩 + 0001
-    // ex) C01120001
-
-    public var labelKo: String {
-        switch self {
-        // A0101 자연관광지
-        case .A01010100: return "국립공원"
-        case .A01010200: return "도립공원"
-        case .A01010300: return "군립공원"
-        case .A01010400: return "산"
-        case .A01010500: return "자연생태관광지"
-        case .A01010600: return "자연휴양림"
-        case .A01010700: return "수목원"
-        case .A01010800: return "폭포"
-        case .A01010900: return "계곡"
-        case .A01011000: return "약수터"
-        case .A01011100: return "해안절경"
-        case .A01011200: return "해수욕장"
-        case .A01011300: return "섬"
-        case .A01011400: return "항구/포구"
-        case .A01011600: return "등대"
-        case .A01011700: return "호수"
-        case .A01011800: return "강"
-        case .A01011900: return "동굴"
-        // A0102 관광자원
-        case .A01020100: return "희귀동·식물"
-        case .A01020200: return "기암괴석"
-        // A0201 역사관광지
-        case .A02010100: return "고궁"
-        case .A02010200: return "성"
-        case .A02010300: return "문"
-        case .A02010400: return "고택"
-        case .A02010500: return "생가"
-        case .A02010600: return "민속마을"
-        case .A02010700: return "유적지/사적지"
-        case .A02010800: return "사찰"
-        case .A02010900: return "종교성지"
-        case .A02011000: return "안보관광"
-        // A0202 휴양관광지
-        case .A02020200: return "관광단지"
-        case .A02020300: return "온천/욕장/스파"
-        case .A02020400: return "이색찜질방"
-        case .A02020500: return "헬스투어"
-        case .A02020600: return "테마공원"
-        case .A02020700: return "공원"
-        case .A02020800: return "유람선/잠수함관광"
-        // A0203 체험관광지
-        case .A02030100: return "농·산·어촌 체험"
-        case .A02030200: return "전통체험"
-        case .A02030300: return "산사체험"
-        case .A02030400: return "이색체험"
-        case .A02030500: return "이색거리"
-        // A0204 산업관광지
-        case .A02040400: return "발전소"
-        case .A02040600: return "식음료"
-        case .A02040800: return "기타"
-        case .A02040900: return "전자·반도체"
-        case .A02041000: return "자동차"
-        // A0205 건축/조형물
-        case .A02050100: return "다리/대교"
-        case .A02050200: return "기념탑/기념비/전망대"
-        case .A02050300: return "분수"
-        case .A02050400: return "동상"
-        case .A02050500: return "터널"
-        case .A02050600: return "유명건물"
-        // A0206 문화시설
-        case .A02060100: return "박물관"
-        case .A02060200: return "기념관"
-        case .A02060300: return "전시관"
-        case .A02060400: return "컨벤션센터"
-        case .A02060500: return "미술관/화랑"
-        case .A02060600: return "공연장"
-        case .A02060700: return "문화원"
-        case .A02060800: return "외국문화원"
-        case .A02060900: return "도서관"
-        case .A02061000: return "대형서점"
-        case .A02061100: return "문화전수시설"
-        case .A02061200: return "영화관"
-        case .A02061300: return "어학당"
-        case .A02061400: return "학교"
-        // A0207 축제
-        case .A02070100: return "문화관광축제"
-        case .A02070200: return "일반축제"
-        // A0208 공연/행사
-        case .A02080100: return "전통공연"
-        case .A02080200: return "연극"
-        case .A02080300: return "뮤지컬"
-        case .A02080400: return "오페라"
-        case .A02080500: return "전시회"
-        case .A02080600: return "박람회"
-        case .A02080800: return "무용"
-        case .A02080900: return "클래식음악회"
-        case .A02081000: return "대중콘서트"
-        case .A02081100: return "영화"
-        case .A02081200: return "스포츠경기"
-        case .A02081300: return "기타행사"
-        case .A02081400: return "넌버벌"
-        }
-    }
-}
+// MARK: - Cat3 코드는 JSON 리소스로 관리 (CodeBookStore.Cat3 사용)
+/// cat3_codes.json 파일 참조
+/// 사용법: CodeBookStore.Cat3.name(cat2Code: "A0101", cat3Code: "A01010100")
 
 // MARK: - 12개 사용자 테마 (앱 노출용)
 public enum Theme12: CaseIterable {
@@ -530,128 +330,47 @@ public enum Theme12: CaseIterable {
     public struct Query {
         public let cat1: Cat1
         public let cat2: Cat2
-        public let cat3Filters: Set<Cat3>
-        public init(cat1: Cat1, cat2: Cat2, cat3Filters: Set<Cat3>) {
+        public let cat3Filters: Set<String>
+        public init(cat1: Cat1, cat2: Cat2, cat3Filters: Set<String>) {
             self.cat1 = cat1; self.cat2 = cat2; self.cat3Filters = cat3Filters
         }
     }
-    
+
     public var query: Query {
         switch self {
         case .mountain:
             return .init(
                 cat1: .A01, cat2: .A0101,
-                cat3Filters: [.A01010400, .A01010100, .A01010200, .A01010300]
+                cat3Filters: ["A01010400", "A01010100", "A01010200", "A01010300"]
             )
         case .ocean:
             return .init(
                 cat1: .A01, cat2: .A0101,
-                cat3Filters: [.A01011200, .A01011100, .A01011600, .A01011400, .A01011300]
+                cat3Filters: ["A01011200", "A01011100", "A01011600", "A01011400", "A01011300"]
             )
         case .valley:
-            return .init(cat1: .A01, cat2: .A0101, cat3Filters: [.A01010900, .A01010800])
+            return .init(cat1: .A01, cat2: .A0101, cat3Filters: ["A01010900", "A01010800"])
         case .river:
-            return .init(cat1: .A01, cat2: .A0101, cat3Filters: [.A01011800, .A01011700])
+            return .init(cat1: .A01, cat2: .A0101, cat3Filters: ["A01011800", "A01011700"])
         case .forest:
-            return .init(cat1: .A01, cat2: .A0101, cat3Filters: [.A01010600, .A01010700])
+            return .init(cat1: .A01, cat2: .A0101, cat3Filters: ["A01010600", "A01010700"])
         case .cave:
-            return .init(cat1: .A01, cat2: .A0101, cat3Filters: [.A01011900])
+            return .init(cat1: .A01, cat2: .A0101, cat3Filters: ["A01011900"])
         case .park:
-            return .init(cat1: .A02, cat2: .A0202, cat3Filters: [.A02020700])
+            return .init(cat1: .A02, cat2: .A0202, cat3Filters: ["A02020700"])
         case .themePark:
-            return .init(cat1: .A02, cat2: .A0202, cat3Filters: [.A02020600])
+            return .init(cat1: .A02, cat2: .A0202, cat3Filters: ["A02020600"])
         case .spa:
-            return .init(cat1: .A02, cat2: .A0202, cat3Filters: [.A02020300])
+            return .init(cat1: .A02, cat2: .A0202, cat3Filters: ["A02020300"])
         case .tradition:
-            return .init(cat1: .A02, cat2: .A0203, cat3Filters: [.A02030100, .A02030200, .A02030300])
+            return .init(cat1: .A02, cat2: .A0203, cat3Filters: ["A02030100", "A02030200", "A02030300"])
         case .history:
-            return .init(cat1: .A02, cat2: .A0201, cat3Filters: [.A02010100, .A02010200, .A02010300, .A02010400, .A02010500, .A02010600, .A02010700, .A02010800, .A02010900, .A02011000])
+            return .init(cat1: .A02, cat2: .A0201, cat3Filters: ["A02010100", "A02010200", "A02010300", "A02010400", "A02010500", "A02010600", "A02010700", "A02010800", "A02010900", "A02011000"])
         case .etc:
-            return .init(cat1: .A01, cat2: .A0102, cat3Filters: [.A01020100, .A01020200])
+            return .init(cat1: .A01, cat2: .A0102, cat3Filters: ["A01020100", "A01020200"])
         }
     }
 }
-// MARK: - 시군구 코드 로딩 (토큰 절약: JSON 리소스로 번들링 권장)
-/// 방대한 시군구 테이블은 Swift 코드로 박아두기보다, 번들 JSON으로 두고 필요 시 메모리 캐시하는 방식을 권장합니다.
-/// /// JSON 스키마(양방향 라벨 지원):
-/// {
-///   "1": {                                  // AreaCode(rawValue)
-///     "110": { "ko": "강남구", "en": "Gangnam-gu" },
-///     "140": { "ko": "노원구", "en": "Nowon-gu" }
-///   },
-///   "6": {
-///     "210": { "ko": "중구", "en": "Jung-gu" }
-///   }
-/// }
-public struct SigunguNameRecord: Codable {
-    public let ko: String
-    public let en: String?
-}
-
-public enum LanguageTag: String {
-    case ko, en
-}
-
-public enum SigunguStore {
-    // cache: areaCode -> (sigunguCode -> name record)
-    private static var cache: [String: [String: SigunguNameRecord]] = [:]
-    private static let syncQueue = DispatchQueue(label: "kr.koreaspots.sigungu.store", attributes: .concurrent)
-
-    /// 동기 로딩 (이미 data를 확보한 경우)
-    public static func load(from data: Data) throws {
-        let decoded = try JSONDecoder().decode([String: [String: SigunguNameRecord]].self, from: data)
-        syncQueue.async(flags: .barrier) {
-            cache = decoded
-        }
-    }
-    
-    /// 번들 JSON에서 비동기 로딩
-    public static func loadFromBundleAsync(fileName: String = "sigungu_codes",
-                                           ext: String = "json",
-                                           in bundle: Bundle = .main,
-                                           completion: @escaping (Bool) -> Void) {
-        DispatchQueue.global(qos: .utility).async {
-            guard let url = bundle.url(forResource: fileName, withExtension: ext),
-                  let data = try? Data(contentsOf: url),
-                  let decoded = try? JSONDecoder().decode([String: [String: SigunguNameRecord]].self, from: data) else {
-                DispatchQueue.main.async { completion(false) }
-                return
-            }
-            syncQueue.async(flags: .barrier) { cache = decoded }
-            DispatchQueue.main.async { completion(true) }
-        }
-    }
-    
-    /// 현재 메모리 캐시에 데이터가 있는지
-    public static var isLoaded: Bool {
-        var result = false
-        syncQueue.sync { result = !cache.isEmpty }
-        return result
-    }
-
-    /// 조회: 언어 우선순위(ko → en)로 반환
-    public static func name(areaCode: AreaCode,
-                            sigunguCode: Int,
-                            preferred: LanguageTag = .ko) -> String? {
-        var record: SigunguNameRecord?
-        syncQueue.sync {
-            record = cache["\(areaCode.rawValue)"]?["\(sigunguCode)"]
-        }
-        guard let rec = record else { return nil }
-        switch preferred {
-        case .ko: return rec.ko
-        case .en: return rec.en ?? rec.ko
-        }
-    }
-
-    /// 외부에서 런타임 병합(디버그 하이드레이션 등)
-    public static func merge(areaCode: AreaCode, entries: [Int: SigunguNameRecord]) {
-        syncQueue.async(flags: .barrier) {
-            var areaMap = cache["\(areaCode.rawValue)"] ?? [:]
-            for (code, rec) in entries {
-                areaMap["\(code)"] = rec
-            }
-            cache["\(areaCode.rawValue)"] = areaMap
-        }
-    }
-}
+// MARK: - 시군구 코드는 JSON 리소스로 관리 (CodeBookStore.Sigungu 사용)
+/// sigungu_codes.json 파일 참조
+/// 사용법: CodeBookStore.Sigungu.name(areaCode: 1, sigunguCode: 1)

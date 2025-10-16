@@ -29,7 +29,7 @@ final class CategoryReactor: Reactor {
         case selectCat2(Cat2) // 왼쪽 사이드바 탭
         case scrollToCat2(Cat2) // 오른쪽 스크롤로 인한 사이드바 하이라이트
         case toggleExpandSection(Cat2) // 더보기 버튼
-        case selectCat3(Cat3)
+        case selectCat3(String)
         case selectArea(AreaCode?)
         case selectSigungu(Int?)
     }
@@ -69,7 +69,7 @@ final class CategoryReactor: Reactor {
             }
         }
 
-        func visibleCat3Items(for cat2: Cat2) -> [Cat3] {
+        func visibleCat3Items(for cat2: Cat2) -> [String] {
             guard let category = categories.first(where: { $0.cat2 == cat2 }) else {
                 return []
             }

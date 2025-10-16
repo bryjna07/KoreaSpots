@@ -25,10 +25,12 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
 
     struct GridItem: Hashable {
         let id: String
-        let cat3: Cat3
+        let cat2Code: String
+        let cat3: String
 
-        init(cat3: Cat3) {
-            self.id = cat3.rawValue
+        init(cat2Code: String, cat3: String) {
+            self.id = cat3
+            self.cat2Code = cat2Code
             self.cat3 = cat3
         }
     }
@@ -103,7 +105,7 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
         // Grid DataSource
         let gridCellRegistration = UICollectionView.CellRegistration<RectangleCell, GridItem> {
             cell, indexPath, item in
-            cell.configure(with: item.cat3)
+            cell.configure(with: item.cat3, cat2Code: item.cat2Code)
         }
 
         let headerRegistration = UICollectionView.SupplementaryRegistration<CategorySectionHeader>(
@@ -157,7 +159,7 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
 
         // Grid Selection - Navigate to PlaceList
         categoryView.gridCollectionView.rx.itemSelected
-            .compactMap { [weak self] indexPath -> (Cat2, Cat3)? in
+            .compactMap { [weak self] indexPath -> (Cat2, String)? in
                 guard let self = self,
                       let item = self.gridDataSource.itemIdentifier(for: indexPath) else {
                     return nil
@@ -280,7 +282,7 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
             snapshot.appendSections([section])
 
             let visibleItems = state.visibleCat3Items(for: categoryDetail.cat2)
-            let gridItems = visibleItems.map { GridItem(cat3: $0) }
+            let gridItems = visibleItems.map { GridItem(cat2Code: categoryDetail.cat2.rawValue, cat3: $0) }
             snapshot.appendItems(gridItems, toSection: section)
         }
 
@@ -336,17 +338,17 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
     }
 
     // MARK: - Navigation
-    private func navigateToPlaceList(cat2: Cat2, cat3: Cat3) {
+    private func navigateToPlaceList(cat2: Cat2, cat3: String) {
         let viewController = AppContainer.shared.makePlaceListViewController(
             initialArea: nil,
             contentTypeId: 12, // 관광지
             cat1: cat2.cat1,    // Cat2에서 Cat1 추출 (예: A0101 -> A01)
             cat2: cat2.rawValue,
-            cat3: cat3.rawValue
+            cat3: cat3
         )
 
-        // 타이틀 설정: cat3의 displayName 사용
-        viewController.title = cat3.labelKo
+        // 타이틀 설정: CodeBookStore에서 이름 조회
+        viewController.title = CodeBookStore.Cat3.name(cat2Code: cat2.rawValue, cat3Code: cat3) ?? cat3
 
         navigationController?.pushViewController(viewController, animated: true)
     }

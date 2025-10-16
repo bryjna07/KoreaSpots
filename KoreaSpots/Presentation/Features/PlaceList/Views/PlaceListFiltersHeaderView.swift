@@ -114,8 +114,8 @@ final class PlaceListFiltersHeaderView: BaseReusableView {
             $0.alignment = .center
         }
 
-        // Load sigungu_codes.json into SigunguStore
-        SigunguStore.loadFromBundleAsync(fileName: "sigungu_codes") { success in
+        // Load sigungu_codes.json into CodeBookStore
+        CodeBookStore.Sigungu.loadFromBundleAsync(fileName: "sigungu_codes") { success in
             if success {
                 print("✅ sigungu_codes.json loaded successfully")
             } else {
@@ -189,17 +189,17 @@ final class PlaceListFiltersHeaderView: BaseReusableView {
     }
 
     private func getSigungus(for areaCode: AreaCode) -> [(code: Int, name: String)] {
-        guard SigunguStore.isLoaded else {
-            print("⚠️ SigunguStore not loaded yet")
+        guard CodeBookStore.Sigungu.isLoaded else {
+            print("⚠️ CodeBookStore.Sigungu not loaded yet")
             return []
         }
 
-        // SigunguStore에서 시군구 목록 조회
+        // CodeBookStore에서 시군구 목록 조회
         var sigungus: [(code: Int, name: String)] = []
 
         // 모든 가능한 시군구 코드를 순회하며 이름 조회 (1~999)
         for code in 1...999 {
-            if let name = SigunguStore.name(areaCode: areaCode, sigunguCode: code, preferred: .ko) {
+            if let name = CodeBookStore.Sigungu.name(areaCode: areaCode.rawValue, sigunguCode: code, preferred: .ko) {
                 sigungus.append((code: code, name: name))
             }
         }

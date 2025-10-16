@@ -267,7 +267,6 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
 
         // Cat3 필터링을 위한 쿼리 문자열 생성
         let cat3Query = theme.theme12.query.cat3Filters
-            .map { $0.rawValue }
             .joined(separator: ",")
 
         let viewController = AppContainer.shared.makePlaceListViewController(
