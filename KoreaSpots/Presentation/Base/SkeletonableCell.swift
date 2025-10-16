@@ -46,10 +46,13 @@ extension SkeletonableCell {
 
     /// 스켈레톤 숨김
     func hideSkeletonView() {
-            // 숨겼던 뷰들 복원
-            viewsToHideOnSkeleton.forEach { $0.isHidden = false }
+        // 숨겼던 뷰들 복원
+        viewsToHideOnSkeleton.forEach { $0.isHidden = false }
 
-            stopSkeletonAnimation()
-            hideSkeleton(reloadDataAfter: false, transition: .crossDissolve(0.25))
+        // 터치 다시 활성화
+        isUserInteractionEnabled = true
+
+        stopSkeletonAnimation()
+        hideSkeleton(reloadDataAfter: false, transition: .crossDissolve(0.25))
     }
 }
