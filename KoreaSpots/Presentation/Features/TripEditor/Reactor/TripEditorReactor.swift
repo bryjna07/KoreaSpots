@@ -158,7 +158,7 @@ final class TripEditorReactor: Reactor {
         print("🔍 Loading places for IDs: \(placeIds)")
 
         let observables = placeIds.map { placeId in
-            tourRepository.getPlaceDetail(contentId: placeId, contentTypeId: nil)
+            tourRepository.getPlaceDetail(contentId: placeId)
                 .asObservable()
                 .catch { error in
                     print("❌ Failed to load place \(placeId): \(error)")

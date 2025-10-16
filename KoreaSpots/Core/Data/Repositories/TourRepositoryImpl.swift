@@ -183,11 +183,11 @@ final class TourRepositoryImpl: TourRepository {
     }
 
     // MARK: - Detail Operations
-    func getPlaceDetail(contentId: String, contentTypeId: Int?) -> Single<Place> {
+    func getPlaceDetail(contentId: String) -> Single<Place> {
         // Detail은 긴 TTL로 캐시 우선 확인
         return localDataSource.getPlaceDetail(contentId: contentId)
             .flatMap { [weak self] cachedPlace -> Single<Place> in
-                guard let self = self else { return Single.error(TourRepositoryError.unknown) }
+                guard let self else { return Single.error(TourRepositoryError.unknown) }
 
                 if let place = cachedPlace {
                     print("✅ Detail Cache Hit for contentId: \(contentId)")
@@ -196,7 +196,7 @@ final class TourRepositoryImpl: TourRepository {
 
                 // 캐시가 없으면 API 호출
                 return self.remoteDataSource
-                    .fetchDetailCommon(contentId: contentId, contentTypeId: contentTypeId)
+                    .fetchDetailCommon(contentId: contentId)
                     .do(onSuccess: { [weak self] place in
                         print("✅ Detail API Success for contentId: \(contentId)")
                         // 백그라운드에서 캐시 저장
@@ -213,17 +213,6 @@ final class TourRepositoryImpl: TourRepository {
         // detailIntro2 API에서 운영정보를 가져옴
         return remoteDataSource
             .fetchDetailIntro(contentId: contentId, contentTypeId: contentTypeId)
-            .flatMap { place -> Single<OperatingInfo> in
-                // TODO: TourAPI detailIntro2 응답을 OperatingInfo로 제대로 파싱 필요
-                // 현재는 임시로 고정 값 반환 (실제 API 응답 필드 매핑 필요)
-                let operatingInfo = OperatingInfo(
-                    useTime: "09:00~18:00 (하절기 09:00~18:30)",
-                    restDate: "화요일",
-                    useFee: "성인 3,000원, 청소년 1,500원, 어린이 1,500원",
-                    homepage: place.tel
-                )
-                return Single.just(operatingInfo)
-            }
             .do(onSuccess: { operatingInfo in
                 print("✅ OperatingInfo API Success for contentId: \(contentId)")
                 print("📋 UseTime: \(operatingInfo.useTime ?? "nil")")
@@ -234,13 +223,9 @@ final class TourRepositoryImpl: TourRepository {
             })
     }
 
-    func getPlaceImages(contentId: String, numOfRows: Int, pageNo: Int) -> Single<[PlaceImage]> {
+    func getPlaceImages(contentId: String) -> Single<[PlaceImage]> {
         return remoteDataSource
-            .fetchDetailImages(
-                contentId: contentId,
-                numOfRows: numOfRows,
-                pageNo: pageNo
-            )
+            .fetchDetailImages(contentId: contentId)
             .do(onSuccess: { images in
                 print("✅ Images API Success: \(images.count) images")
             }, onError: { error in

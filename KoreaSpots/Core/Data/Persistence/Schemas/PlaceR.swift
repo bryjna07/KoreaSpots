@@ -32,6 +32,9 @@ class PlaceR: Object {
     // 이벤트 메타 (축제, 공연, 전시 등)
     @Persisted var eventMeta: EventMetaE?
 
+    // 운영정보 (detailIntro2 캐시, TTL 7일)
+    @Persisted var operatingInfo: OperatingInfoE?
+
     // 즐겨찾기
     @Persisted var isFavorite: Bool = false
 

@@ -171,7 +171,7 @@ private extension PlaceDetailReactor {
         }
 
         return Observable.combineLatest(
-            tourRepository.getPlaceDetail(contentId: place.contentId, contentTypeId: contentTypeId).asObservable(),
+            tourRepository.getPlaceDetail(contentId: place.contentId).asObservable(),
             tourRepository.getPlaceOperatingInfo(contentId: place.contentId, contentTypeId: contentTypeId).asObservable()
         )
         .map { placeDetail, operatingInfo -> (place: Place, operatingInfo: OperatingInfo) in
@@ -181,7 +181,7 @@ private extension PlaceDetailReactor {
     }
 
     func fetchDetailImages() -> Observable<[PlaceImage]> {
-        return tourRepository.getPlaceImages(contentId: place.contentId, numOfRows: 10, pageNo: 1)
+        return tourRepository.getPlaceImages(contentId: place.contentId)
             .asObservable()
             .catch { _ in Observable.just([]) }
     }

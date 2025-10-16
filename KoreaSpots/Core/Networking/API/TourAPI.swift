@@ -19,11 +19,11 @@ enum TourAPI {
     /// 키워드 검색: keyword로 통합 검색
     case searchKeyword(keyword: String, areaCode: Int?, sigunguCode: Int?, contentTypeId: Int?, cat1: String?, cat2: String?, cat3: String?, numOfRows: Int, pageNo: Int, arrange: String)
     /// 상세정보 공통: contentId로 기본 상세정보 조회
-    case detailCommon(contentId: String, contentTypeId: Int?)
+    case detailCommon(contentId: String)
     /// 상세정보 소개: contentId로 운영정보 등 상세 소개정보 조회
     case detailIntro(contentId: String, contentTypeId: Int)
-    /// 상세이미지: contentId로 이미지 목록 조회
-    case detailImage(contentId: String, numOfRows: Int, pageNo: Int)
+    /// 상세이미지: contentId로 이미지 목록 조회 (모든 이미지 반환)
+    case detailImage(contentId: String)
 }
 
 extension TourAPI: TargetType {
@@ -149,14 +149,10 @@ extension TourAPI: TargetType {
             }
             return p
 
-        case let .detailCommon(contentId, contentTypeId):
-            var p: [String: Any] = [
+        case let .detailCommon(contentId):
+            return [
                 "contentId": contentId
             ]
-            if let c = contentTypeId {
-                p["contentTypeId"] = c
-            }
-            return p
 
         case let .detailIntro(contentId, contentTypeId):
             return [
@@ -164,12 +160,10 @@ extension TourAPI: TargetType {
                 "contentTypeId": contentTypeId
             ]
 
-        case let .detailImage(contentId, numOfRows, pageNo):
+        case let .detailImage(contentId):
             return [
                 "contentId": contentId,
-                "imageYN": "Y",
-                "numOfRows": numOfRows,
-                "pageNo": pageNo
+                "imageYN": "Y"
             ]
         }
     }

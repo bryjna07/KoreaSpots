@@ -22,10 +22,16 @@ struct PlaceImage {
 }
 
 struct OperatingInfo {
-    let useTime: String?
-    let restDate: String?
-    let useFee: String?
-    let homepage: String?
+    // 공통 정보 (빠른 UI 표시용, 모든 타입)
+    let useTime: String?        // 운영시간/이용시간
+    let restDate: String?       // 휴무일/쉬는날
+    let useFee: String?         // 이용요금/입장료
+    let homepage: String?       // 홈페이지/예약 URL
+    let infoCenter: String?     // 문의 및 안내 (전화번호 등)
+    let parking: String?        // 주차시설 정보
+
+    // contentTypeId별 특화 정보 (상세 정보)
+    let specificInfo: PlaceSpecificInfo?
 }
 
 extension PlaceDetail {

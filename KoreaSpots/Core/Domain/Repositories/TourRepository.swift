@@ -56,9 +56,9 @@ protocol TourRepository {
     ) -> Single<[Place]>
 
     // MARK: - Detail Operations
-    func getPlaceDetail(contentId: String, contentTypeId: Int?) -> Single<Place>
+    func getPlaceDetail(contentId: String) -> Single<Place>
     func getPlaceOperatingInfo(contentId: String, contentTypeId: Int) -> Single<OperatingInfo>
-    func getPlaceImages(contentId: String, numOfRows: Int, pageNo: Int) -> Single<[PlaceImage]>
+    func getPlaceImages(contentId: String) -> Single<[PlaceImage]>
 
     // MARK: - Favorites
     func getFavoritePlaces() -> Single<[Place]>

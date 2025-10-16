@@ -10,7 +10,7 @@ import Foundation
 struct TourAPIResponse: Decodable {
     let response: TourAPIResponseBody
 
-    var items: [TourAPIItem] {
+    var items: [TourAPIBaseItem] {
         return response.body?.items?.item ?? []
     }
 
