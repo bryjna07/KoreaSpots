@@ -20,19 +20,7 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
     // 스레드별 Realm 인스턴스 생성
     private func createRealm() throws -> Realm {
         let realm = try Realm()
-        //MARK: - realm 파일 위치 확인
-              #if DEBUG
-              if !Self.didLogRealmPath {
-                  Self.didLogRealmPath = true
-                  if let url = realm.configuration.fileURL {
-                      print("📁 Realm file: \(url.path)")
-                  } else {
-                      print("📁 Realm file: nil (inMemory or custom config)")
-                  }
-              }
-              #endif
-              return realm
-//        return try Realm()
+        return try Realm()
     }
 
     // MARK: - Place Cache
