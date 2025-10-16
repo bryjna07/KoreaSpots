@@ -18,14 +18,38 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
         FirebaseApp.configure()
-        
+
         IQKeyboardManager.shared.isEnabled = true
         IQKeyboardManager.shared.resignOnTouchOutside = true
-        
+
+        // CodeBook 데이터 미리 로드 (Cat3, Sigungu)
+        loadCodeBooks()
+
         // 앱 시작 시 만료된 캐시 정리 (백그라운드)
 //        clearExpiredCacheOnStartup()
 
         return true
+    }
+
+    // MARK: - CodeBook Loading
+    private func loadCodeBooks() {
+        // Cat3 코드 로드
+        CodeBookStore.Cat3.loadFromBundleAsync(fileName: "cat3_codes") { success in
+            if success {
+                print("✅ AppDelegate: cat3_codes.json loaded successfully")
+            } else {
+                print("⚠️ AppDelegate: cat3_codes.json load failed")
+            }
+        }
+
+        // Sigungu 코드 로드
+        CodeBookStore.Sigungu.loadFromBundleAsync(fileName: "sigungu_codes") { success in
+            if success {
+                print("✅ AppDelegate: sigungu_codes.json loaded successfully")
+            } else {
+                print("⚠️ AppDelegate: sigungu_codes.json load failed")
+            }
+        }
     }
 
     // MARK: - Cache Management
