@@ -104,6 +104,8 @@ extension Category {
 
         var cat2: Cat2? {
             switch self {
+            case .festival:
+                return .A0207  // 축제
             case .performance:
                 return .A0208  // 공연/행사
             default:

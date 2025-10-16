@@ -239,9 +239,15 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
     private func navigateToCategoryPlaceList(category: Category) {
         guard let contentTypeId = category.contentType.contentTypeId?.rawValue else { return }
 
+        // Cat2 파라미터 추출 (축제는 A0207, 공연/행사는 A0208)
+        let cat2 = category.contentType.cat2?.rawValue
+
         let viewController = AppContainer.shared.makePlaceListViewController(
             initialArea: nil,
-            contentTypeId: contentTypeId
+            contentTypeId: contentTypeId,
+            cat1: nil,
+            cat2: cat2,
+            cat3: nil
         )
         viewController.title = category.title
         navigationController?.pushViewController(viewController, animated: true)

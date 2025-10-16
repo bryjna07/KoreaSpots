@@ -104,8 +104,12 @@ final class TourRepositoryImpl: TourRepository {
         // 카테고리/테마 필터가 있으면 캐시 스킵
         let skipCache = cat1 != nil || cat2 != nil || cat3 != nil
 
+        // Cat3 필터 목록 파싱 (쉼표로 구분된 문자열)
+        let cat3Filters = parseCat3Filters(cat3)
+
         if skipCache {
             print("🔄 Skipping cache for category/theme filtering")
+            // Cat3는 API에서 지원하지 않으므로 nil로 전달하고 클라이언트에서 필터링
             return remoteDataSource
                 .fetchAreaBasedList(
                     areaCode: areaCode,
@@ -113,13 +117,17 @@ final class TourRepositoryImpl: TourRepository {
                     contentTypeId: contentTypeId,
                     cat1: cat1,
                     cat2: cat2,
-                    cat3: cat3,
-                    numOfRows: numOfRows,
+                    cat3: nil,  // API는 cat3 단일 값만 지원하므로 nil 전달
+                    numOfRows: numOfRows * 3,  // cat3 필터링으로 인한 손실 보완
                     pageNo: pageNo,
                     arrange: arrange
                 )
+                .map { places in
+                    // 클라이언트에서 cat3 필터링
+                    self.filterPlacesByCat3(places, cat3Filters: cat3Filters)
+                }
                 .do(onSuccess: { places in
-                    print("✅ Area API Success (no cache): \(places.count) places")
+                    print("✅ Area API Success (no cache, cat3 filtered): \(places.count) places")
                 }, onError: { error in
                     print("❌ Area API Error: \(error)")
                 })
@@ -136,13 +144,17 @@ final class TourRepositoryImpl: TourRepository {
                     contentTypeId: contentTypeId,
                     cat1: cat1,
                     cat2: cat2,
-                    cat3: cat3,
+                    cat3: nil,  // API는 cat3 단일 값만 지원
                     numOfRows: numOfRows,
                     pageNo: pageNo,
                     arrange: arrange
                 )
+                .map { places in
+                    // 클라이언트에서 cat3 필터링
+                    self.filterPlacesByCat3(places, cat3Filters: cat3Filters)
+                }
                 .do(onSuccess: { places in
-                    print("✅ Nationwide Area API Success: \(places.count) places")
+                    print("✅ Nationwide Area API Success (cat3 filtered): \(places.count) places")
                 }, onError: { error in
                     print("❌ Area API Error: \(error)")
                 })
@@ -165,13 +177,17 @@ final class TourRepositoryImpl: TourRepository {
                         contentTypeId: contentTypeId,
                         cat1: cat1,
                         cat2: cat2,
-                        cat3: cat3,
+                        cat3: nil,  // API는 cat3 단일 값만 지원
                         numOfRows: numOfRows,
                         pageNo: pageNo,
                         arrange: arrange
                     )
+                    .map { places in
+                        // 클라이언트에서 cat3 필터링
+                        self.filterPlacesByCat3(places, cat3Filters: cat3Filters)
+                    }
                     .do(onSuccess: { [weak self] places in
-                        print("✅ Area API Success: \(places.count) places")
+                        print("✅ Area API Success (cat3 filtered): \(places.count) places")
                         // 백그라운드에서 캐시 저장
                         self?.localDataSource.savePlaces(places, areaCode: areaCode, sigunguCode: sigunguCode, contentTypeId: contentTypeId)
                             .subscribe()
@@ -180,6 +196,30 @@ final class TourRepositoryImpl: TourRepository {
                         print("❌ Area API Error: \(error)")
                     })
             }
+    }
+
+    // MARK: - Helper Methods
+
+    /// Cat3 필터 문자열을 Set으로 파싱
+    /// - Parameter cat3: 쉼표로 구분된 cat3 문자열 (예: "A01010100,A01010200,A01010300")
+    /// - Returns: cat3 코드 Set (예: ["A01010100", "A01010200", "A01010300"])
+    private func parseCat3Filters(_ cat3: String?) -> Set<String> {
+        guard let cat3 = cat3, !cat3.isEmpty else { return [] }
+        return Set(cat3.split(separator: ",").map { String($0.trimmingCharacters(in: .whitespaces)) })
+    }
+
+    /// Places를 cat3 필터로 필터링
+    /// - Parameters:
+    ///   - places: 필터링할 Place 배열
+    ///   - cat3Filters: cat3 필터 Set (비어있으면 필터링 안 함)
+    /// - Returns: 필터링된 Place 배열
+    private func filterPlacesByCat3(_ places: [Place], cat3Filters: Set<String>) -> [Place] {
+        guard !cat3Filters.isEmpty else { return places }
+
+        return places.filter { place in
+            guard let cat3 = place.cat3, !cat3.isEmpty else { return false }
+            return cat3Filters.contains(cat3)
+        }
     }
 
     // MARK: - Detail Operations
