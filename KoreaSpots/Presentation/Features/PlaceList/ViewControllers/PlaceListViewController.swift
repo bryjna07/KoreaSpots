@@ -113,10 +113,10 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
-        // State: places + favorites
+        // State: places + favorites + isLoading
         reactor.state
-            .map { state -> (places: [Place], favorites: [String: Bool], area: AreaCode?, contentType: Int?, cat3: String?) in
-                return (state.places, state.favorites, state.selectedArea, state.contentTypeId, state.cat3)
+            .map { state -> (places: [Place], favorites: [String: Bool], area: AreaCode?, contentType: Int?, cat3: String?, isLoading: Bool) in
+                return (state.places, state.favorites, state.selectedArea, state.contentTypeId, state.cat3, state.isLoading)
             }
             .distinctUntilChanged { prev, curr in
                 let placesEqual = prev.places == curr.places
@@ -124,13 +124,15 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
                 let areaEqual = prev.area == curr.area
                 let contentTypeEqual = prev.contentType == curr.contentType
                 let cat3Equal = prev.cat3 == curr.cat3
-                return placesEqual && favoritesEqual && areaEqual && contentTypeEqual && cat3Equal
+                let loadingEqual = prev.isLoading == curr.isLoading
+                return placesEqual && favoritesEqual && areaEqual && contentTypeEqual && cat3Equal && loadingEqual
             }
-            .asDriver(onErrorJustReturn: (places: [], favorites: [:], area: nil, contentType: nil, cat3: nil))
+            .asDriver(onErrorJustReturn: (places: [], favorites: [:], area: nil, contentType: nil, cat3: nil, isLoading: false))
             .drive(with: self) { owner, data in
                 owner.applySnapshot(places: data.places)
                 owner.updateEmptyState(
                     isEmpty: data.places.isEmpty,
+                    isLoading: data.isLoading,
                     selectedArea: data.area,
                     contentTypeId: data.contentType,
                     cat3: data.cat3
@@ -393,9 +395,10 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 
-    private func updateEmptyState(isEmpty: Bool, selectedArea: AreaCode?, contentTypeId: Int?, cat3: String?) {
-        emptyStateView.isHidden = !isEmpty
-        guard isEmpty else { return }
+    private func updateEmptyState(isEmpty: Bool, isLoading: Bool, selectedArea: AreaCode?, contentTypeId: Int?, cat3: String?) {
+        // 로딩 중이거나 데이터가 있으면 Empty State 숨김
+        emptyStateView.isHidden = isLoading || !isEmpty
+        guard !isLoading && isEmpty else { return }
 
         // 카테고리명 결정
         var categoryName = ""

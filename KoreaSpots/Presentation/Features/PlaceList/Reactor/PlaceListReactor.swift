@@ -69,6 +69,10 @@ final class PlaceListReactor: Reactor {
         self.fetchAreaBasedPlacesUseCase = fetchAreaBasedPlacesUseCase
         self.checkFavoriteUseCase = checkFavoriteUseCase
         self.toggleFavoriteUseCase = toggleFavoriteUseCase
+
+        // 초기 로딩 상태: 스켈레톤 데이터 표시
+        let skeletonPlaces = SkeletonDataProvider.makeSkeletonPlaces(count: 10, type: .place)
+
         self.initialState = State(
             selectedArea: initialArea,
             selectedSigungu: nil,
@@ -76,9 +80,9 @@ final class PlaceListReactor: Reactor {
             cat1: cat1,
             cat2: cat2,
             cat3: cat3,
-            places: [],
+            places: skeletonPlaces,  // 스켈레톤 데이터로 초기화
             favorites: [:],
-            isLoading: false,
+            isLoading: true,  // 로딩 상태로 시작
             error: nil,
             currentPage: 1,
             hasMorePages: true
