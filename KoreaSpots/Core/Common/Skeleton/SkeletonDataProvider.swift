@@ -29,6 +29,7 @@ struct SkeletonDataProvider {
                 cat2: nil,
                 cat3: nil,
                 distance: nil,
+                modifiedTime: nil,
                 eventMeta: type.needsEventMeta ? EventMeta(eventStartDate: "", eventEndDate: "") : nil,
                 isCustom: false,
                 customPlaceId: nil,

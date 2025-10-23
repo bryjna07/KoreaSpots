@@ -24,6 +24,9 @@ struct Place {
     let cat3: String?
     let distance: Int? // 미터 단위
 
+    // MARK: - 캐싱 관련
+    let modifiedTime: String? // API modifiedtime (변경 감지용, areaBasedList2/detailCommon2/searchKeyword2에서 제공)
+
     // MARK: - 이벤트 메타 (축제, 공연, 전시 등)
     let eventMeta: EventMeta?
 
@@ -55,6 +58,7 @@ extension Place: Equatable {
             cat2: nil,
             cat3: nil,
             distance: nil,
+            modifiedTime: nil,
             eventMeta: nil,
             isCustom: false,
             customPlaceId: nil,

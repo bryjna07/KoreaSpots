@@ -81,6 +81,7 @@ extension PlaceR {
         self.areaCode = place.areaCode
         self.sigunguCode = place.sigunguCode
         self.cachedAt = Date()
+        self.modifiedTime = place.modifiedTime
         self.isCustom = place.isCustom
         self.customPlaceId = place.customPlaceId
         self.userProvidedImagePath = place.userProvidedImagePath
@@ -109,6 +110,7 @@ extension PlaceR {
         self.distance = place.distance
         self.areaCode = place.areaCode
         self.sigunguCode = place.sigunguCode
+        self.modifiedTime = place.modifiedTime
         self.isCustom = place.isCustom
         self.customPlaceId = place.customPlaceId
         self.userProvidedImagePath = place.userProvidedImagePath
@@ -142,11 +144,56 @@ extension PlaceR {
             cat2: cat2,
             cat3: cat3,
             distance: distance,
+            modifiedTime: modifiedTime,
             eventMeta: eventMeta?.toDomain(),
             isCustom: isCustom,
             customPlaceId: customPlaceId,
             userProvidedImagePath: userProvidedImagePath
         )
+    }
+}
+
+// MARK: - Cache Refresh Logic
+extension PlaceR {
+    /// AM 4:00 (KST) 기준으로 1일 1회 갱신 필요 여부 판단
+    func needsRefresh() -> Bool {
+        let now = Date()
+        let calendar = Calendar.current
+        guard let kst = TimeZone(identifier: "Asia/Seoul") else {
+            return true
+        }
+
+        // 현재 시간을 KST로 변환
+        var todayComponents = calendar.dateComponents(in: kst, from: now)
+        todayComponents.hour = 4
+        todayComponents.minute = 0
+        todayComponents.second = 0
+
+        guard let todayRefreshTime = calendar.date(from: todayComponents) else {
+            return true
+        }
+
+        // 현재 시간이 오늘 4시 이전이면 어제 4시를 기준점으로 사용
+        // 현재 시간이 오늘 4시 이후면 오늘 4시를 기준점으로 사용
+        let refreshThreshold = now < todayRefreshTime
+            ? calendar.date(byAdding: .day, value: -1, to: todayRefreshTime)!
+            : todayRefreshTime
+
+        return cachedAt < refreshThreshold
+    }
+
+    /// modifiedTime 기반 변경 감지 및 선택적 갱신
+    /// - Parameter apiModifiedTime: API 응답의 modifiedtime 값
+    /// - Returns: 실제 데이터가 변경되었는지 여부
+    func hasDataChanged(apiModifiedTime: String?) -> Bool {
+        guard let apiModifiedTime = apiModifiedTime else {
+            // modifiedTime이 없는 경우 (detailIntro2, detailImage2)
+            // 상위 데이터 변경 여부에 따라 판단해야 함
+            return true
+        }
+
+        // 기존 modifiedTime과 비교
+        return self.modifiedTime != apiModifiedTime
     }
 }
 

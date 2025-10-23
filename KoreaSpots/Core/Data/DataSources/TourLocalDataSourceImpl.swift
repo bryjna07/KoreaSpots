@@ -48,12 +48,12 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
                 }
 
                 let realm = try self.createRealm()
-                let ttlPredicate = NSPredicate(format: "cachedAt > %@", Date().addingTimeInterval(-3 * 60 * 60) as NSDate) // 3시간 TTL
-                predicates.append(ttlPredicate)
-
                 let finalPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
                 let cachedPlaces = realm.objects(PlaceR.self).filter(finalPredicate)
-                let places = Array(cachedPlaces).map { $0.toDomain() }
+
+                // AM 4:00 (KST) 기준으로 needsRefresh() 체크하여 유효한 캐시만 반환
+                let validPlaces = Array(cachedPlaces).filter { !$0.needsRefresh() }
+                let places = validPlaces.map { $0.toDomain() }
                 observer(.success(places))
             } catch {
                 observer(.failure(DataSourceError.cacheError))
@@ -108,13 +108,15 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
                 let radiusInDegrees = Double(radius) / 111000.0 // 대략적인 도 변환 (1도 ≈ 111km)
 
                 let realm = try self.createRealm()
-                let predicate = NSPredicate(format: "mapX BETWEEN {%f, %f} AND mapY BETWEEN {%f, %f} AND cachedAt > %@",
+                let predicate = NSPredicate(format: "mapX BETWEEN {%f, %f} AND mapY BETWEEN {%f, %f}",
                                           mapX - radiusInDegrees, mapX + radiusInDegrees,
-                                          mapY - radiusInDegrees, mapY + radiusInDegrees,
-                                          Date().addingTimeInterval(-1 * 60 * 60) as NSDate) // 1시간 TTL
+                                          mapY - radiusInDegrees, mapY + radiusInDegrees)
 
                 let cachedPlaces = realm.objects(PlaceR.self).filter(predicate)
-                let places = Array(cachedPlaces).map { $0.toDomain() }
+
+                // AM 4:00 (KST) 기준으로 needsRefresh() 체크하여 유효한 캐시만 반환
+                let validPlaces = Array(cachedPlaces).filter { !$0.needsRefresh() }
+                let places = validPlaces.map { $0.toDomain() }
                 observer(.success(places))
             } catch {
                 observer(.failure(DataSourceError.cacheError))
@@ -139,12 +141,15 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
 
             do {
                 let realm = try self.createRealm()
-                let predicate = NSPredicate(format: "contentId == %@ AND cachedAt > %@",
-                                          contentId,
-                                          Date().addingTimeInterval(-7 * 24 * 60 * 60) as NSDate) // 7일 TTL
+                let predicate = NSPredicate(format: "contentId == %@", contentId)
 
                 if let cachedPlace = realm.objects(PlaceR.self).filter(predicate).first {
-                    observer(.success(cachedPlace.toDomain()))
+                    // AM 4:00 (KST) 기준으로 needsRefresh() 체크
+                    if !cachedPlace.needsRefresh() {
+                        observer(.success(cachedPlace.toDomain()))
+                    } else {
+                        observer(.success(nil))
+                    }
                 } else {
                     observer(.success(nil))
                 }
