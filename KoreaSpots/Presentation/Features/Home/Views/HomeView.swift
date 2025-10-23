@@ -46,7 +46,7 @@ extension HomeView {
     override func configureHierarchy() {
         addSubviews(searchButton, collectionView)
     }
-    
+
     override func configureLayout() {
 
         searchButton.snp.makeConstraints {
@@ -63,7 +63,7 @@ extension HomeView {
     
     override func configureView() {
         super.configureView()
-        
+
         searchButton.do {
             var config = UIButton.Configuration.filled()
             config.baseBackgroundColor = .secondBackGround
@@ -96,6 +96,7 @@ extension HomeView {
             $0.register(cell: PlaceholderCardCell.self)
             $0.register(header: SectionHeaderView.self)
             $0.register(supplementary: FestivalPageIndicatorView.self)
+            $0.register(supplementary: AttributionFooterView.self)
             // Skeleton configuration
             $0.isSkeletonable = true
         }

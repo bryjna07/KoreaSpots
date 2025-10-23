@@ -10,7 +10,10 @@ import UIKit
 // MARK: - CollectionViewLayout
 extension HomeView {
     func createLayout() -> UICollectionViewCompositionalLayout {
-        return UICollectionViewCompositionalLayout { sectionIndex, environment in
+        let configuration = UICollectionViewCompositionalLayoutConfiguration()
+        configuration.boundarySupplementaryItems = [createGlobalFooter()]
+
+        return UICollectionViewCompositionalLayout(sectionProvider: { sectionIndex, environment in
             switch sectionIndex {
             case 0: // Festival Section
                 return self.createFestivalSection(environment: environment)
@@ -23,7 +26,7 @@ extension HomeView {
             default: // Placeholder Section
                 return self.createPlaceholderSection()
             }
-        }
+        }, configuration: configuration)
     }
 
     func createFestivalSection(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
@@ -215,6 +218,19 @@ extension HomeView {
             leading: 0,
             bottom: 0,
             trailing: 0
+        )
+        return footer
+    }
+
+    func createGlobalFooter() -> NSCollectionLayoutBoundarySupplementaryItem {
+        let footerSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .estimated(100) // 자동 높이 계산
+        )
+        let footer = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: footerSize,
+            elementKind: AttributionFooterView.elementKind,
+            alignment: .bottom
         )
         return footer
     }

@@ -135,6 +135,14 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
                     view.configure(currentPage: currentPage + 1, totalPages: totalPages)
                     return view
 
+                case AttributionFooterView.elementKind:
+                    let view = collectionView.dequeueReusableSupplementaryView(
+                        ofKind: kind,
+                        withReuseIdentifier: AttributionFooterView.reuseIdentifier,
+                        for: indexPath
+                    ) as! AttributionFooterView
+                    return view
+
                 case UICollectionView.elementKindSectionHeader:
                     return self.configureSupplementaryView(collectionView: collectionView, kind: kind, indexPath: indexPath, section: dataSource[indexPath.section])
 
