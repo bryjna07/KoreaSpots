@@ -32,6 +32,7 @@ final class TripEditorReactor: Reactor {
         case setLoading(Bool)
         case setError(String)
         case setSaveSuccess
+        case showAlert(String)  // Alert 표시용
     }
 
     struct State {
@@ -45,6 +46,7 @@ final class TripEditorReactor: Reactor {
         var errorMessage: String?
 
         @Pulse var saveSuccess: Void?
+        @Pulse var alertMessage: String?  // Alert 메시지
 
         var isValid: Bool {
             !title.isEmpty && !visitedPlaces.isEmpty && startDate <= endDate
@@ -143,6 +145,9 @@ final class TripEditorReactor: Reactor {
 
         case .setSaveSuccess:
             newState.saveSuccess = ()
+
+        case .showAlert(let message):
+            newState.alertMessage = message
         }
 
         return newState
@@ -204,6 +209,18 @@ final class TripEditorReactor: Reactor {
     private func saveTrip() -> Observable<Mutation> {
         guard currentState.isValid else {
             return .just(.setError("필수 항목을 입력해주세요"))
+        }
+
+        // Mock 모드 체크 - 쓰기 작업 차단
+        guard AppStateManager.shared.canPerformWriteOperation() else {
+            let message = """
+            현재 서버 오류로 인해
+            예시 데이터를 표시 중입니다.
+
+            예시 데이터 사용 중에는
+            이 기능을 사용할 수 없습니다.
+            """
+            return .just(.showAlert(message))
         }
 
         let visitedAreas = extractVisitedAreas()

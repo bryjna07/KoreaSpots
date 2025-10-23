@@ -32,6 +32,17 @@ struct OperatingInfo {
 
     // contentTypeId별 특화 정보 (상세 정보)
     let specificInfo: PlaceSpecificInfo?
+
+    // MARK: - Empty Instance
+    static let empty = OperatingInfo(
+        useTime: "준비 중",
+        restDate: "준비 중",
+        useFee: "준비 중",
+        homepage: "준비 중",
+        infoCenter: "준비 중",
+        parking: "준비 중",
+        specificInfo: nil
+    )
 }
 
 extension PlaceDetail {

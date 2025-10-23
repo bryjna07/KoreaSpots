@@ -194,7 +194,9 @@ final class PlaceListReactor: Reactor {
                 }
                 .catch { error in
                     print("❌ Toggle favorite error: \(error)")
-                    return .just(.setError("즐겨찾기 변경 중 오류가 발생했습니다."))
+                    // LocalizedError의 errorDescription 사용 (Mock 모드 메시지 포함)
+                    let errorMessage = (error as? LocalizedError)?.errorDescription ?? "즐겨찾기 변경 중 오류가 발생했습니다."
+                    return .just(.setError(errorMessage))
                 }
         }
     }

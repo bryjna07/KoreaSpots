@@ -17,6 +17,12 @@ final class FavoriteRepositoryImpl: FavoriteRepository {
     }
 
     func addFavorite(place: Place) -> Completable {
+        // Mock 모드에서는 쓰기 작업 차단
+        guard AppStateManager.shared.canPerformWriteOperation() else {
+            print("❌ addFavorite blocked - Mock mode active")
+            return .error(FavoriteRepositoryError.writeOperationBlocked)
+        }
+
         return Completable.create { single in
             do {
                 let realm = try Realm()
@@ -34,6 +40,12 @@ final class FavoriteRepositoryImpl: FavoriteRepository {
     }
 
     func removeFavorite(contentId: String) -> Completable {
+        // Mock 모드에서는 쓰기 작업 차단
+        guard AppStateManager.shared.canPerformWriteOperation() else {
+            print("❌ removeFavorite blocked - Mock mode active")
+            return .error(FavoriteRepositoryError.writeOperationBlocked)
+        }
+
         return Completable.create { single in
             do {
                 let realm = try Realm()
@@ -51,6 +63,12 @@ final class FavoriteRepositoryImpl: FavoriteRepository {
     }
 
     func toggleFavorite(place: Place, isFavorite: Bool) -> Completable {
+        // Mock 모드에서는 쓰기 작업 차단
+        guard AppStateManager.shared.canPerformWriteOperation() else {
+            print("❌ toggleFavorite blocked - Mock mode active")
+            return .error(FavoriteRepositoryError.writeOperationBlocked)
+        }
+
         if isFavorite {
             return removeFavorite(contentId: place.contentId)
         } else {
@@ -121,6 +139,18 @@ final class FavoriteRepositoryImpl: FavoriteRepository {
                 single(.failure(error))
             }
             return Disposables.create()
+        }
+    }
+}
+
+// MARK: - Repository Errors
+enum FavoriteRepositoryError: Error, LocalizedError {
+    case writeOperationBlocked  // Mock 모드에서 쓰기 작업 차단
+
+    var errorDescription: String? {
+        switch self {
+        case .writeOperationBlocked:
+            return "현재 서버 오류로 인해\n예시 데이터를 표시 중입니다.\n\n예시 데이터 사용 중에는\n이 기능을 사용할 수 없습니다."
         }
     }
 }
