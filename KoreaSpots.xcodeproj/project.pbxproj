@@ -373,6 +373,8 @@
 		};
 		17DDE69D2E851F2E00E6057A /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 17DDE6882E851F2D00E6057A /* KoreaSpots */;
+			baseConfigurationReferenceRelativePath = Resources/Config/Secrets/APIKey.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
