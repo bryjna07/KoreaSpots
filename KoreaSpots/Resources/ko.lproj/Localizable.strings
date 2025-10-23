@@ -80,3 +80,7 @@
 "theme_tradition" = "전통체험";
 "theme_history" = "역사";
 "theme_etc" = "기타";
+
+//error
+"common_error" = "서버 오류";
+"common_confirm" = "확인";

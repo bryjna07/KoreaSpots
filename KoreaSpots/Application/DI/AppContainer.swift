@@ -20,6 +20,10 @@ final class AppContainer {
         return RemoteTourDataSourceImpl(provider: provider)
     }()
 
+    private lazy var tourMockDataSource: TourRemoteDataSource = {
+        return MockTourRemoteDataSource()
+    }()
+
     private lazy var tourLocalDataSource: TourLocalDataSource = {
         TourLocalDataSourceImpl()
     }()
@@ -32,6 +36,7 @@ final class AppContainer {
     private lazy var tourRepository: TourRepository = {
         TourRepositoryImpl(
             remoteDataSource: tourRemoteDataSource,
+            mockDataSource: tourMockDataSource,
             localDataSource: tourLocalDataSource
         )
     }()
@@ -117,6 +122,11 @@ final class AppContainer {
     }()
 
     // MARK: - Factory Methods
+
+    // MARK: - Repositories (Public Access)
+    func makeTourRepository() -> TourRepository {
+        return tourRepository
+    }
 
     // MARK: TabBar
     func makeTabBarController() -> TabBarController {
