@@ -11,7 +11,7 @@ import Foundation
 extension TourAPI {
 
     static func makeAreaBasedList(
-        areaCode: AreaCode,
+        areaCode: AreaCode? = nil,
         sigunguCode: Int? = nil,
         contentTypeId: Int? = nil,
         cat1: String? = nil,
@@ -22,7 +22,7 @@ extension TourAPI {
         arrange: String = "A"
     ) -> TourAPI {
         return .areaBasedList(
-            areaCode: areaCode.rawValue,
+            areaCode: areaCode?.rawValue,
             sigunguCode: sigunguCode,
             contentTypeId: contentTypeId,
             cat1: cat1,
@@ -37,6 +37,7 @@ extension TourAPI {
     static func makeFestivalList(
         startDate: String,
         endDate: String,
+        areaCode: AreaCode? = nil,
         numOfRows: Int = 20,
         pageNo: Int = 1,
         arrange: String = "B"
@@ -44,6 +45,7 @@ extension TourAPI {
         return .searchFestival(
             eventStartDate: startDate,
             eventEndDate: endDate,
+            areaCode: areaCode?.rawValue,
             numOfRows: numOfRows,
             pageNo: pageNo,
             arrange: arrange
@@ -54,7 +56,8 @@ extension TourAPI {
         mapX: Double,
         mapY: Double,
         radius: Int = 1000,
-        numOfRows: Int = 20,
+        contentTypeId: Int? = nil,
+        numOfRows: Int = 10,
         pageNo: Int = 1,
         arrange: String = "E"
     ) -> TourAPI {
@@ -62,6 +65,7 @@ extension TourAPI {
             mapX: mapX,
             mapY: mapY,
             radius: radius,
+            contentTypeId: contentTypeId,
             numOfRows: numOfRows,
             pageNo: pageNo,
             arrange: arrange

@@ -19,7 +19,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
     }
 
     func fetchAreaBasedList(
-        areaCode: Int,
+        areaCode: Int?,
         sigunguCode: Int?,
         contentTypeId: Int?,
         cat1: String?,
@@ -50,6 +50,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
     func fetchFestivalList(
         eventStartDate: String,
         eventEndDate: String,
+        areaCode: Int?,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
@@ -58,6 +59,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
             .request(.searchFestival(
                 eventStartDate: eventStartDate,
                 eventEndDate: eventEndDate,
+                areaCode: areaCode,
                 numOfRows: numOfRows,
                 pageNo: pageNo,
                 arrange: arrange
@@ -72,6 +74,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
         mapX: Double,
         mapY: Double,
         radius: Int,
+        contentTypeId: Int?,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
@@ -81,6 +84,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
                 mapX: mapX,
                 mapY: mapY,
                 radius: radius,
+                contentTypeId: contentTypeId,
                 numOfRows: numOfRows,
                 pageNo: pageNo,
                 arrange: arrange
@@ -122,26 +126,18 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
             }
     }
 
-    func fetchDetailImages(contentId: String, numOfRows: Int, pageNo: Int) -> Single<[PlaceImage]> {
-        return provider.rx.request(.detailImage(
-            contentId: contentId,
-            numOfRows: numOfRows,
-            pageNo: pageNo
-        ))
-        .map(TourAPIImageResponse.self)
-        .map { response in
-            response.toPlaceImages()
-        }
+    func fetchDetailImages(contentId: String) -> Single<[PlaceImage]> {
+        return provider.rx.request(.detailImage(contentId: contentId))
+            .map(TourAPIImageResponse.self)
+            .map { response in
+                response.toPlaceImages()
+            }
     }
 
     func fetchDetailCommon(
-        contentId: String,
-        contentTypeId: Int?
+        contentId: String
     ) -> Single<Place> {
-        return provider.rx.request(.detailCommon(
-            contentId: contentId,
-            contentTypeId: contentTypeId
-        ))
+        return provider.rx.request(.detailCommon(contentId: contentId))
         .map(TourAPIResponse.self)
         .map { response in
             response.toPlaces().first ?? Place.empty
@@ -151,14 +147,14 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
     func fetchDetailIntro(
         contentId: String,
         contentTypeId: Int
-    ) -> Single<Place> {
+    ) -> Single<OperatingInfo> {
         return provider.rx.request(.detailIntro(
             contentId: contentId,
             contentTypeId: contentTypeId
         ))
-        .map(TourAPIResponse.self)
+        .map(TourAPIDetailIntroResponse.self)
         .map { response in
-            response.toPlaces().first ?? Place.empty
+            response.toOperatingInfo()
         }
     }
 }

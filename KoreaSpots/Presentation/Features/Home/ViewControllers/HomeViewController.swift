@@ -47,11 +47,6 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
-//        homeView.refreshControl.rx.controlEvent(.valueChanged)
-//            .map { Reactor.Action.refresh }
-//            .bind(to: reactor.action)
-//            .disposed(by: disposeBag)
-
         // Search Button Action
         homeView.searchButton.rx.tap
             .bind(with: self) { owner, _ in
@@ -59,23 +54,7 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             }
             .disposed(by: disposeBag)
 
-        // State
-//        reactor.state
-//            .map(\.isLoading)
-//            .distinctUntilChanged()
-//            .asDriver(onErrorJustReturn: false)
-//            .drive(with: self) { owner, isLoading in
-//                if isLoading {
-//                    // 뷰가 화면에 표시된 경우에만 beginRefreshing 호출
-//                    if owner.isViewLoaded && owner.view.window != nil {
-//                        owner.homeView.refreshControl.beginRefreshing()
-//                    }
-//                } else {
-//                    owner.homeView.refreshControl.endRefreshing()
-//                }
-//            }
-//            .disposed(by: disposeBag)
-
+        // State - 섹션 데이터 바인딩 (각 셀이 더미 데이터인지 확인하여 스켈레톤 제어)
         reactor.state
             .map(\.sections)
             .asDriver(onErrorJustReturn: [])
@@ -104,8 +83,13 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             }
             .disposed(by: disposeBag)
 
-        // Location Updates
+        // Location Updates (권한 허용 시)
         reactor.observeLocationUpdates()
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+
+        // Authorization Status (권한 거부 감지)
+        reactor.observeAuthorizationStatus()
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
@@ -136,6 +120,8 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
                 return self?.configureCell(collectionView: collectionView, indexPath: indexPath, item: item) ?? UICollectionViewCell()
             },
             configureSupplementaryView: { [weak self] dataSource, collectionView, kind, indexPath in
+                guard let self = self, let reactor = self.reactor else { return UICollectionReusableView() }
+
                 switch kind {
                 case FestivalPageIndicatorView.elementKind:
                     let view = collectionView.dequeueReusableSupplementaryView(
@@ -145,21 +131,26 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
                     ) as! FestivalPageIndicatorView
 
                     let totalPages = dataSource[indexPath.section].items.count
-                    let currentPage = self?.homeView.currentPage ?? 0
+                    let currentPage = self.homeView.currentPage
                     view.configure(currentPage: currentPage + 1, totalPages: totalPages)
                     return view
 
+                case AttributionFooterView.elementKind:
+                    let view = collectionView.dequeueReusableSupplementaryView(
+                        ofKind: kind,
+                        withReuseIdentifier: AttributionFooterView.reuseIdentifier,
+                        for: indexPath
+                    ) as! AttributionFooterView
+                    return view
+
                 case UICollectionView.elementKindSectionHeader:
-                    return self?.configureSupplementaryView(collectionView: collectionView, kind: kind, indexPath: indexPath, section: dataSource[indexPath.section]) ?? UICollectionReusableView()
+                    return self.configureSupplementaryView(collectionView: collectionView, kind: kind, indexPath: indexPath, section: dataSource[indexPath.section])
 
                 default:
                     return UICollectionReusableView()
                 }
             }
         )
-
-        // Setup skeleton compatibility
-        homeView.setupSkeletonCompatibility()
     }
 
     // MARK: - Data Source Configuration
@@ -168,13 +159,15 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
         case .festival(let festival):
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FestivalCardCell.reuseIdentifier, for: indexPath) as? FestivalCardCell else {  return UICollectionViewCell() }
             cell.configure(with: festival)
+            collectionView.configureSkeletonIfNeeded(for: cell, with: festival)
             return cell
 
         case .place(let place):
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PlaceCardCell.reuseIdentifier, for: indexPath) as? PlaceCardCell else { return UICollectionViewCell() }
             cell.configure(with: place)
+            collectionView.configureSkeletonIfNeeded(for: cell, with: place)
             return cell
-            
+
         case .category(let category):
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RectangleCell.reuseIdentifier, for: indexPath) as? RectangleCell else { return UICollectionViewCell() }
             cell.configure(with: category)
@@ -183,11 +176,6 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
         case .theme(let theme):
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RoundCell.reuseIdentifier, for: indexPath) as? RoundCell else { return UICollectionViewCell() }
             cell.configure(with: theme)
-            return cell
-
-        case .placeholder(let text, _):
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PlaceholderCardCell.reuseIdentifier, for: indexPath) as? PlaceholderCardCell else { return UICollectionViewCell() }
-            cell.configure(with: text)
             return cell
         }
     }
@@ -233,13 +221,9 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
 
         case .category(let category):
             navigateToCategoryPlaceList(category: category)
-            
+
         case .theme(let theme):
             navigateToThemePlaceList(theme: theme)
-
-        case .placeholder(_, _):
-            // TODO: Handle placeholder action
-            print("Placeholder tapped")
         }
     }
 
@@ -248,22 +232,14 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
         case .festival:
             // TODO: Navigate to festival list
             print("Navigate to festival list")
-            break
         case .nearby:
             navigateToNearbyPlaceList()
-            break
         case .category:
             // TODO: Navigate to category list
             print("Navigate to category list")
-            break
         case .theme:
             // TODO: Navigate to theme list
             print("Navigate to theme list")
-            break
-//        case .placeholder:
-//            // TODO: Handle placeholder action
-//            print("Handle placeholder action")
-//            break
         }
     }
 
@@ -271,41 +247,30 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
     private func navigateToCategoryPlaceList(category: Category) {
         guard let contentTypeId = category.contentType.contentTypeId?.rawValue else { return }
 
+        // Cat2 파라미터 추출 (축제는 A0207, 공연/행사는 A0208)
+        let cat2 = category.contentType.cat2?.rawValue
+
         let viewController = AppContainer.shared.makePlaceListViewController(
             initialArea: nil,
-            contentTypeId: contentTypeId
+            contentTypeId: contentTypeId,
+            cat1: nil,
+            cat2: cat2,
+            cat3: nil
         )
         viewController.title = category.title
         navigationController?.pushViewController(viewController, animated: true)
     }
 
     private func navigateToNearbyPlaceList() {
-        guard let reactor = reactor,
-              let location = reactor.currentState.userLocation else {
-            showLocationAlert()
-            return
-        }
+        guard let reactor = reactor else { return }
 
-        // Get AreaCode from location using LocationService
-        reactor.locationService.getCurrentAreaCode()
-            .subscribe(onSuccess: { [weak self] areaCode in
-                let viewController = AppContainer.shared.makePlaceListViewController(
-                    initialArea: areaCode,
-                    contentTypeId: nil
-                )
-                viewController.title = LocalizedKeys.Home.nearby.localized
-                self?.navigationController?.pushViewController(viewController, animated: true)
-            }, onFailure: { [weak self] error in
-                print("⚠️ Failed to get area code: \(error.localizedDescription)")
-                // Fallback: Navigate with Seoul as default
-                let viewController = AppContainer.shared.makePlaceListViewController(
-                    initialArea: .seoul,
-                    contentTypeId: nil
-                )
-                viewController.title = LocalizedKeys.Home.nearby.localized
-                self?.navigationController?.pushViewController(viewController, animated: true)
-            })
-            .disposed(by: disposeBag)
+        let areaCode = reactor.currentState.currentAreaCode
+        let viewController = AppContainer.shared.makePlaceListViewController(
+            initialArea: areaCode,
+            contentTypeId: nil
+        )
+        viewController.title = LocalizedKeys.Home.nearby.localized
+        navigationController?.pushViewController(viewController, animated: true)
     }
 
     private func navigateToThemePlaceList(theme: Theme) {
@@ -316,7 +281,6 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
 
         // Cat3 필터링을 위한 쿼리 문자열 생성
         let cat3Query = theme.theme12.query.cat3Filters
-            .map { $0.rawValue }
             .joined(separator: ",")
 
         let viewController = AppContainer.shared.makePlaceListViewController(
@@ -328,12 +292,5 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
         )
         viewController.title = theme.title
         navigationController?.pushViewController(viewController, animated: true)
-    }
-
-    private func showLocationAlert() {
-        showErrorAlert(
-            message: "위치 정보를 가져올 수 없습니다.",
-            title: LocalizedKeys.Common.error.localized
-        )
     }
 }

@@ -14,28 +14,14 @@ final class AppContainer {
     static let shared = AppContainer()
     private init() {}
 
-    // MARK: - Configuration
-    private var useMockData: Bool {
-        return AppEnvironment.shouldUseMockData
-    }
-
-    /// 런타임에서 Mock/Real 데이터 소스를 전환하는 메서드
-    /// 사용법: AppContainer.shared.setUseMockData(true) // Mock 데이터 사용
-    ///        AppContainer.shared.setUseMockData(false) // 실제 API 사용
-    func setUseMockData(_ useMock: Bool) {
-        AppEnvironment.forceMockData = useMock
-        print("🔄 DataSource switched to: \(useMock ? "Mock" : "Real API")")
-        print("ℹ️  앱을 재실행하면 새로운 설정이 적용됩니다.")
-    }
-
     // MARK: - DataSources
     private lazy var tourRemoteDataSource: TourRemoteDataSource = {
-        if useMockData {
-            return MockTourRemoteDataSource()
-        } else {
-            let provider = MoyaProviderFactory.makeTourProvider(useMock: false)
-            return RemoteTourDataSourceImpl(provider: provider)
-        }
+        let provider = MoyaProviderFactory.makeTourProvider()
+        return RemoteTourDataSourceImpl(provider: provider)
+    }()
+
+    private lazy var tourMockDataSource: TourRemoteDataSource = {
+        return MockTourRemoteDataSource()
     }()
 
     private lazy var tourLocalDataSource: TourLocalDataSource = {
@@ -50,8 +36,8 @@ final class AppContainer {
     private lazy var tourRepository: TourRepository = {
         TourRepositoryImpl(
             remoteDataSource: tourRemoteDataSource,
-            localDataSource: tourLocalDataSource,
-            useMockData: useMockData
+            mockDataSource: tourMockDataSource,
+            localDataSource: tourLocalDataSource
         )
     }()
 
@@ -136,6 +122,11 @@ final class AppContainer {
     }()
 
     // MARK: - Factory Methods
+
+    // MARK: - Repositories (Public Access)
+    func makeTourRepository() -> TourRepository {
+        return tourRepository
+    }
 
     // MARK: TabBar
     func makeTabBarController() -> TabBarController {

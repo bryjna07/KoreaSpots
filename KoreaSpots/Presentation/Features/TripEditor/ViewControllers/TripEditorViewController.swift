@@ -134,6 +134,26 @@ final class TripEditorViewController: BaseViewController, View {
                 owner.showToast(message: message)
             })
             .disposed(by: disposeBag)
+
+        // Alert 메시지 바인딩
+        reactor.pulse(\.$alertMessage)
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(with: self, onNext: { owner, message in
+                owner.showMockModeAlert(message: message)
+            })
+            .disposed(by: disposeBag)
+    }
+
+    // MARK: - Alert Helper
+    private func showMockModeAlert(message: String) {
+        let alert = UIAlertController(
+            title: "기능 사용 제한",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
 
     // MARK: - Actions

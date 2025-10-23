@@ -14,39 +14,14 @@ final class SearchView: BaseView {
     // MARK: - UI Components
 
     // Search Bar
-    let searchBar = UISearchBar().then {
-        $0.placeholder = "여행지, 지역명으로 검색"
-        $0.searchBarStyle = .minimal
-        $0.enablesReturnKeyAutomatically = true
-        $0.returnKeyType = .search
-    }
-
-    let searchButton = UIButton(type: .system).then {
-        $0.setTitle("검색", for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.backgroundColor = .textPrimary
-        $0.setTitleColor(.white, for: .normal)
-        $0.layer.cornerRadius = 8
-    }
+    let searchBar = UISearchBar()
+    let searchButton = UIButton(type: .system)
 
     // Recent Keywords Section
-    let recentKeywordsContainerView = UIView().then {
-        $0.backgroundColor = .backGround
-    }
-
+    let recentKeywordsContainerView = UIView()
     private let recentKeywordsHeaderView = UIView()
-
-    private let recentKeywordsLabel = UILabel().then {
-        $0.text = "최근 검색어"
-        $0.font = .systemFont(ofSize: 16, weight: .bold)
-        $0.textColor = .label
-    }
-
-    let clearAllButton = UIButton(type: .system).then {
-        $0.setTitle("전체 삭제", for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
-        $0.setTitleColor(.secondaryLabel, for: .normal)
-    }
+    private let recentKeywordsLabel = UILabel()
+    let clearAllButton = UIButton(type: .system)
 
     let recentKeywordsCollectionView: UICollectionView = {
         // Left-aligned layout using Compositional Layout
@@ -80,42 +55,20 @@ final class SearchView: BaseView {
     }()
 
     // Filter Section
-    let filterContainerView = UIView().then {
-        $0.backgroundColor = .backGround
-        $0.isHidden = true // Initially hidden until search is performed
-    }
-
-    let regionChipScrollView = UIScrollView().then {
-        $0.showsHorizontalScrollIndicator = false
-        $0.showsVerticalScrollIndicator = false
-    }
-
-    let regionChipStackView = UIStackView().then {
-        $0.axis = .horizontal
-        $0.spacing = 8
-        $0.distribution = .fill
-        $0.alignment = .center
-    }
-
-    let contentTypeChipScrollView = UIScrollView().then {
-        $0.showsHorizontalScrollIndicator = false
-        $0.showsVerticalScrollIndicator = false
-    }
-
-    let contentTypeChipStackView = UIStackView().then {
-        $0.axis = .horizontal
-        $0.spacing = 8
-        $0.distribution = .fill
-        $0.alignment = .center
-    }
+    let filterContainerView = UIView()
+    let regionChipScrollView = UIScrollView()
+    let regionChipStackView = UIStackView()
+    let contentTypeChipScrollView = UIScrollView()
+    let contentTypeChipStackView = UIStackView()
 
     // Results Collection View
     let resultsCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.minimumInteritemSpacing = 12
-        layout.minimumLineSpacing = 16
-        layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        // Compositional Layout with .list style
+        var configuration = UICollectionLayoutListConfiguration(appearance: .plain)
+        configuration.backgroundColor = .backGround
+        configuration.showsSeparators = false
+
+        let layout = UICollectionViewCompositionalLayout.list(using: configuration)
 
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .backGround
@@ -126,18 +79,8 @@ final class SearchView: BaseView {
     }()
 
     // Empty State
-    let emptyStateView = UIView().then {
-        $0.backgroundColor = .backGround
-        $0.isHidden = true
-    }
-
-    let emptyStateLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 16, weight: .medium)
-        $0.textColor = .secondaryLabel
-        $0.textAlignment = .center
-        $0.numberOfLines = 0
-        $0.text = "검색 결과가 없습니다."
-    }
+    let emptyStateView = UIView()
+    let emptyStateLabel = UILabel()
 
     // MARK: - Hierarchy & Layout
 
@@ -248,6 +191,79 @@ final class SearchView: BaseView {
     override func configureView() {
         super.configureView()
         backgroundColor = .backGround
+
+        searchBar.do {
+            $0.placeholder = "여행지, 지역명으로 검색"
+            $0.searchBarStyle = .minimal
+            $0.enablesReturnKeyAutomatically = true
+            $0.returnKeyType = .search
+        }
+
+        searchButton.do {
+            $0.setTitle("검색", for: .normal)
+            $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+            $0.backgroundColor = .textPrimary
+            $0.setTitleColor(.white, for: .normal)
+            $0.layer.cornerRadius = 8
+        }
+
+        recentKeywordsContainerView.do {
+            $0.backgroundColor = .backGround
+        }
+
+        recentKeywordsLabel.do {
+            $0.text = "최근 검색어"
+            $0.font = .systemFont(ofSize: 16, weight: .bold)
+            $0.textColor = .label
+        }
+
+        clearAllButton.do {
+            $0.setTitle("전체 삭제", for: .normal)
+            $0.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+            $0.setTitleColor(.secondaryLabel, for: .normal)
+        }
+
+        filterContainerView.do {
+            $0.backgroundColor = .backGround
+            $0.isHidden = true
+        }
+
+        regionChipScrollView.do {
+            $0.showsHorizontalScrollIndicator = false
+            $0.showsVerticalScrollIndicator = false
+        }
+
+        regionChipStackView.do {
+            $0.axis = .horizontal
+            $0.spacing = 8
+            $0.distribution = .fill
+            $0.alignment = .center
+        }
+
+        contentTypeChipScrollView.do {
+            $0.showsHorizontalScrollIndicator = false
+            $0.showsVerticalScrollIndicator = false
+        }
+
+        contentTypeChipStackView.do {
+            $0.axis = .horizontal
+            $0.spacing = 8
+            $0.distribution = .fill
+            $0.alignment = .center
+        }
+
+        emptyStateView.do {
+            $0.backgroundColor = .backGround
+            $0.isHidden = true
+        }
+
+        emptyStateLabel.do {
+            $0.font = .systemFont(ofSize: 16, weight: .medium)
+            $0.textColor = .secondaryLabel
+            $0.textAlignment = .center
+            $0.numberOfLines = 0
+            $0.text = "검색 결과가 없습니다."
+        }
     }
 
     // MARK: - Helper Methods

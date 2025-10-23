@@ -10,7 +10,10 @@ import UIKit
 // MARK: - CollectionViewLayout
 extension HomeView {
     func createLayout() -> UICollectionViewCompositionalLayout {
-        return UICollectionViewCompositionalLayout { sectionIndex, environment in
+        let configuration = UICollectionViewCompositionalLayoutConfiguration()
+        configuration.boundarySupplementaryItems = [createGlobalFooter()]
+
+        return UICollectionViewCompositionalLayout(sectionProvider: { sectionIndex, environment in
             switch sectionIndex {
             case 0: // Festival Section
                 return self.createFestivalSection(environment: environment)
@@ -23,7 +26,7 @@ extension HomeView {
             default: // Placeholder Section
                 return self.createPlaceholderSection()
             }
-        }
+        }, configuration: configuration)
     }
 
     func createFestivalSection(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
@@ -45,6 +48,22 @@ extension HomeView {
         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: Constants.UI.Spacing.medium, trailing: 0)
 
         section.boundarySupplementaryItems = [createPageIndicatorFooter()]
+
+        // Orthogonal scrolling 감지
+        section.visibleItemsInvalidationHandler = { [weak self] visibleItems, scrollOffset, environment in
+            guard let self = self else { return }
+
+            // 현재 페이지 계산
+            let containerWidth = environment.container.contentSize.width
+            guard containerWidth > 0 else { return }
+
+            let page = Int(round(scrollOffset.x / containerWidth))
+
+            // 페이지 업데이트 (내부에서 중복 체크)
+            DispatchQueue.main.async {
+                self.updateFestivalPageFromScroll(page)
+            }
+        }
 
         return section
     }
@@ -199,6 +218,19 @@ extension HomeView {
             leading: 0,
             bottom: 0,
             trailing: 0
+        )
+        return footer
+    }
+
+    func createGlobalFooter() -> NSCollectionLayoutBoundarySupplementaryItem {
+        let footerSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .estimated(100) // 자동 높이 계산
+        )
+        let footer = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: footerSize,
+            elementKind: AttributionFooterView.elementKind,
+            alignment: .bottom
         )
         return footer
     }

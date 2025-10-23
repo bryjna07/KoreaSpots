@@ -20,23 +20,11 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
     // 스레드별 Realm 인스턴스 생성
     private func createRealm() throws -> Realm {
         let realm = try Realm()
-        //MARK: - realm 파일 위치 확인
-              #if DEBUG
-              if !Self.didLogRealmPath {
-                  Self.didLogRealmPath = true
-                  if let url = realm.configuration.fileURL {
-                      print("📁 Realm file: \(url.path)")
-                  } else {
-                      print("📁 Realm file: nil (inMemory or custom config)")
-                  }
-              }
-              #endif
-              return realm
-//        return try Realm()
+        return try Realm()
     }
 
     // MARK: - Place Cache
-    func getPlaces(areaCode: Int, sigunguCode: Int?, contentTypeId: Int?) -> Single<[Place]> {
+    func getPlaces(areaCode: Int?, sigunguCode: Int?, contentTypeId: Int?) -> Single<[Place]> {
         return Single.create { [weak self] observer in
             guard let self = self else {
                 observer(.success([]))
@@ -44,24 +32,28 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
             }
 
             do {
-                var predicate = NSPredicate(format: "areaCode == %d", areaCode)
+                var predicates: [NSPredicate] = []
+
+                // areaCode가 nil이면 전국 데이터이므로 필터링하지 않음
+                if let areaCode = areaCode {
+                    predicates.append(NSPredicate(format: "areaCode == %d", areaCode))
+                }
 
                 if let sigunguCode = sigunguCode {
-                    let sigunguPredicate = NSPredicate(format: "sigunguCode == %d", sigunguCode)
-                    predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate, sigunguPredicate])
+                    predicates.append(NSPredicate(format: "sigunguCode == %d", sigunguCode))
                 }
 
                 if let contentTypeId = contentTypeId {
-                    let contentTypePredicate = NSPredicate(format: "contentTypeId == %d", contentTypeId)
-                    predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate, contentTypePredicate])
+                    predicates.append(NSPredicate(format: "contentTypeId == %d", contentTypeId))
                 }
 
                 let realm = try self.createRealm()
-                let ttlPredicate = NSPredicate(format: "cachedAt > %@", Date().addingTimeInterval(-3 * 60 * 60) as NSDate) // 3시간 TTL
-                predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate, ttlPredicate])
+                let finalPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+                let cachedPlaces = realm.objects(PlaceR.self).filter(finalPredicate)
 
-                let cachedPlaces = realm.objects(PlaceR.self).filter(predicate)
-                let places = Array(cachedPlaces).map { $0.toDomain() }
+                // AM 4:00 (KST) 기준으로 needsRefresh() 체크하여 유효한 캐시만 반환
+                let validPlaces = Array(cachedPlaces).filter { !$0.needsRefresh() }
+                let places = validPlaces.map { $0.toDomain() }
                 observer(.success(places))
             } catch {
                 observer(.failure(DataSourceError.cacheError))
@@ -72,7 +64,7 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
         .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
     }
 
-    func savePlaces(_ places: [Place], areaCode: Int, sigunguCode: Int?, contentTypeId: Int?) -> Completable {
+    func savePlaces(_ places: [Place], areaCode: Int?, sigunguCode: Int?, contentTypeId: Int?) -> Completable {
         return Completable.create { [weak self] observer in
             guard let self = self else {
                 observer(.completed)
@@ -116,13 +108,15 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
                 let radiusInDegrees = Double(radius) / 111000.0 // 대략적인 도 변환 (1도 ≈ 111km)
 
                 let realm = try self.createRealm()
-                let predicate = NSPredicate(format: "mapX BETWEEN {%f, %f} AND mapY BETWEEN {%f, %f} AND cachedAt > %@",
+                let predicate = NSPredicate(format: "mapX BETWEEN {%f, %f} AND mapY BETWEEN {%f, %f}",
                                           mapX - radiusInDegrees, mapX + radiusInDegrees,
-                                          mapY - radiusInDegrees, mapY + radiusInDegrees,
-                                          Date().addingTimeInterval(-1 * 60 * 60) as NSDate) // 1시간 TTL
+                                          mapY - radiusInDegrees, mapY + radiusInDegrees)
 
                 let cachedPlaces = realm.objects(PlaceR.self).filter(predicate)
-                let places = Array(cachedPlaces).map { $0.toDomain() }
+
+                // AM 4:00 (KST) 기준으로 needsRefresh() 체크하여 유효한 캐시만 반환
+                let validPlaces = Array(cachedPlaces).filter { !$0.needsRefresh() }
+                let places = validPlaces.map { $0.toDomain() }
                 observer(.success(places))
             } catch {
                 observer(.failure(DataSourceError.cacheError))
@@ -147,12 +141,15 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
 
             do {
                 let realm = try self.createRealm()
-                let predicate = NSPredicate(format: "contentId == %@ AND cachedAt > %@",
-                                          contentId,
-                                          Date().addingTimeInterval(-7 * 24 * 60 * 60) as NSDate) // 7일 TTL
+                let predicate = NSPredicate(format: "contentId == %@", contentId)
 
                 if let cachedPlace = realm.objects(PlaceR.self).filter(predicate).first {
-                    observer(.success(cachedPlace.toDomain()))
+                    // AM 4:00 (KST) 기준으로 needsRefresh() 체크
+                    if !cachedPlace.needsRefresh() {
+                        observer(.success(cachedPlace.toDomain()))
+                    } else {
+                        observer(.success(nil))
+                    }
                 } else {
                     observer(.success(nil))
                 }

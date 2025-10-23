@@ -93,7 +93,9 @@ final class PlaceDetailReactor: Reactor {
                 }
                 .catch { error in
                     print("❌ Toggle favorite error: \(error)")
-                    return .just(.setError("즐겨찾기 변경 중 오류가 발생했습니다."))
+                    // LocalizedError의 errorDescription 사용 (Mock 모드 메시지 포함)
+                    let errorMessage = (error as? LocalizedError)?.errorDescription ?? "즐겨찾기 변경 중 오류가 발생했습니다."
+                    return .just(.setError(errorMessage))
                 }
         }
     }
@@ -171,7 +173,7 @@ private extension PlaceDetailReactor {
         }
 
         return Observable.combineLatest(
-            tourRepository.getPlaceDetail(contentId: place.contentId, contentTypeId: contentTypeId).asObservable(),
+            tourRepository.getPlaceDetail(contentId: place.contentId).asObservable(),
             tourRepository.getPlaceOperatingInfo(contentId: place.contentId, contentTypeId: contentTypeId).asObservable()
         )
         .map { placeDetail, operatingInfo -> (place: Place, operatingInfo: OperatingInfo) in
@@ -181,7 +183,7 @@ private extension PlaceDetailReactor {
     }
 
     func fetchDetailImages() -> Observable<[PlaceImage]> {
-        return tourRepository.getPlaceImages(contentId: place.contentId, numOfRows: 10, pageNo: 1)
+        return tourRepository.getPlaceImages(contentId: place.contentId)
             .asObservable()
             .catch { _ in Observable.just([]) }
     }
@@ -195,6 +197,7 @@ private extension PlaceDetailReactor {
             latitude: latitude,
             longitude: longitude,
             radius: 1000,
+            contentTypeId: 12,
             maxCount: 10,
             sortOption: .distance
         )

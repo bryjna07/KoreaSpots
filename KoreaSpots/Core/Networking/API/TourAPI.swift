@@ -10,20 +10,20 @@ import Moya
 
 //MARK: - Moya TargetType
 enum TourAPI {
-    /// 지역기반 목록: areaCode=1(서울), sigunguCode/ contentTypeId는 옵셔널
-    case areaBasedList(areaCode: Int, sigunguCode: Int?, contentTypeId: Int?, cat1: String?, cat2: String?, cat3: String?, numOfRows: Int, pageNo: Int, arrange: String)
-    /// 축제 검색: eventStartDate/eventEndDate로 현재 진행중인 축제 조회
-    case searchFestival(eventStartDate: String, eventEndDate: String, numOfRows: Int, pageNo: Int, arrange: String)
-    /// 위치기반 관광지: mapX/mapY 좌표 기준 반경 내 관광지
-    case locationBasedList(mapX: Double, mapY: Double, radius: Int, numOfRows: Int, pageNo: Int, arrange: String)
+    /// 지역기반 목록: areaCode(옵셔널), sigunguCode/ contentTypeId는 옵셔널
+    case areaBasedList(areaCode: Int?, sigunguCode: Int?, contentTypeId: Int?, cat1: String?, cat2: String?, cat3: String?, numOfRows: Int, pageNo: Int, arrange: String)
+    /// 축제 검색: eventStartDate/eventEndDate로 현재 진행중인 축제 조회, areaCode로 지역 필터링 가능
+    case searchFestival(eventStartDate: String, eventEndDate: String, areaCode: Int?, numOfRows: Int, pageNo: Int, arrange: String)
+    /// 위치기반 관광지: mapX/mapY 좌표 기준 반경 내 관광지, contentTypeId로 타입 필터링 가능
+    case locationBasedList(mapX: Double, mapY: Double, radius: Int, contentTypeId: Int?, numOfRows: Int, pageNo: Int, arrange: String)
     /// 키워드 검색: keyword로 통합 검색
     case searchKeyword(keyword: String, areaCode: Int?, sigunguCode: Int?, contentTypeId: Int?, cat1: String?, cat2: String?, cat3: String?, numOfRows: Int, pageNo: Int, arrange: String)
     /// 상세정보 공통: contentId로 기본 상세정보 조회
-    case detailCommon(contentId: String, contentTypeId: Int?)
+    case detailCommon(contentId: String)
     /// 상세정보 소개: contentId로 운영정보 등 상세 소개정보 조회
     case detailIntro(contentId: String, contentTypeId: Int)
-    /// 상세이미지: contentId로 이미지 목록 조회
-    case detailImage(contentId: String, numOfRows: Int, pageNo: Int)
+    /// 상세이미지: contentId로 이미지 목록 조회 (모든 이미지 반환)
+    case detailImage(contentId: String)
 }
 
 extension TourAPI: TargetType {
@@ -71,11 +71,13 @@ extension TourAPI: TargetType {
         switch self {
         case let .areaBasedList(areaCode, sigunguCode, contentTypeId, cat1, cat2, cat3, numOfRows, pageNo, arrange):
             var p: [String: Any] = [
-                "areaCode": areaCode,
                 "numOfRows": numOfRows,
                 "pageNo": pageNo,
                 "arrange": arrange
             ]
+            if let a = areaCode {
+                p["areaCode"] = a
+            }
             if let s = sigunguCode {
                 p["sigunguCode"] = s
             }
@@ -93,17 +95,21 @@ extension TourAPI: TargetType {
             }
             return p
 
-        case let .searchFestival(eventStartDate, eventEndDate, numOfRows, pageNo, arrange):
-            return [
+        case let .searchFestival(eventStartDate, eventEndDate, areaCode, numOfRows, pageNo, arrange):
+            var p: [String: Any] = [
                 "eventStartDate": eventStartDate,
                 "eventEndDate": eventEndDate,
                 "numOfRows": numOfRows,
                 "pageNo": pageNo,
                 "arrange": arrange
             ]
+            if let a = areaCode {
+                p["areaCode"] = a
+            }
+            return p
 
-        case let .locationBasedList(mapX, mapY, radius, numOfRows, pageNo, arrange):
-            return [
+        case let .locationBasedList(mapX, mapY, radius, contentTypeId, numOfRows, pageNo, arrange):
+            var p: [String: Any] = [
                 "mapX": mapX,
                 "mapY": mapY,
                 "radius": radius,
@@ -111,6 +117,10 @@ extension TourAPI: TargetType {
                 "pageNo": pageNo,
                 "arrange": arrange
             ]
+            if let c = contentTypeId {
+                p["contentTypeId"] = c
+            }
+            return p
 
         case let .searchKeyword(keyword, areaCode, sigunguCode, contentTypeId, cat1, cat2, cat3, numOfRows, pageNo, arrange):
             var p: [String: Any] = [
@@ -139,14 +149,10 @@ extension TourAPI: TargetType {
             }
             return p
 
-        case let .detailCommon(contentId, contentTypeId):
-            var p: [String: Any] = [
+        case let .detailCommon(contentId):
+            return [
                 "contentId": contentId
             ]
-            if let c = contentTypeId {
-                p["contentTypeId"] = c
-            }
-            return p
 
         case let .detailIntro(contentId, contentTypeId):
             return [
@@ -154,12 +160,10 @@ extension TourAPI: TargetType {
                 "contentTypeId": contentTypeId
             ]
 
-        case let .detailImage(contentId, numOfRows, pageNo):
+        case let .detailImage(contentId):
             return [
                 "contentId": contentId,
-                "imageYN": "Y",
-                "numOfRows": numOfRows,
-                "pageNo": pageNo
+                "imageYN": "Y"
             ]
         }
     }

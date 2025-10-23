@@ -11,8 +11,40 @@ import RxSwift
 final class MockTourRemoteDataSource: TourRemoteDataSource {
     private let jsonDecoder = JSONDecoder()
 
+    // MARK: - Mock Data Prefix
+    /// Mock 데이터에 "[예시]" 접두사 추가 (배열)
+    private func addMockPrefix(to places: [Place]) -> [Place] {
+        return places.map { addMockPrefix(to: $0) }
+    }
+
+    /// Mock 데이터에 "[예시]" 접두사 추가 (단일 객체)
+    private func addMockPrefix(to place: Place) -> Place {
+        return Place(
+            contentId: place.contentId,
+            title: "[예시] \(place.title)",
+            address: place.address,
+            imageURL: place.imageURL,
+            mapX: place.mapX,
+            mapY: place.mapY,
+            tel: place.tel,
+            overview: place.overview,
+            contentTypeId: place.contentTypeId,
+            areaCode: place.areaCode,
+            sigunguCode: place.sigunguCode,
+            cat1: place.cat1,
+            cat2: place.cat2,
+            cat3: place.cat3,
+            distance: place.distance,
+            modifiedTime: place.modifiedTime,
+            eventMeta: place.eventMeta,
+            isCustom: place.isCustom,
+            customPlaceId: place.customPlaceId,
+            userProvidedImagePath: place.userProvidedImagePath
+        )
+    }
+
     func fetchAreaBasedList(
-        areaCode: Int,
+        areaCode: Int?,
         sigunguCode: Int?,
         contentTypeId: Int?,
         cat1: String?,
@@ -25,15 +57,15 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
         // 통합 Mock 파일 사용
         let filename = "areaBasedList2"
 
-        print("🏛️ Area-based search - areaCode: \(areaCode), sigunguCode: \(sigunguCode ?? 0), contentTypeId: \(contentTypeId ?? 0), cat1: \(cat1 ?? "nil"), cat2: \(cat2 ?? "nil"), cat3: \(cat3 ?? "nil")")
+        print("🏛️ Area-based search - areaCode: \(areaCode ?? 0), sigunguCode: \(sigunguCode ?? 0), contentTypeId: \(contentTypeId ?? 0), cat1: \(cat1 ?? "nil"), cat2: \(cat2 ?? "nil"), cat3: \(cat3 ?? "nil")")
         print("📂 Using mock file: \(filename)")
 
         return loadMockData(filename: filename)
             .map { response in
                 var places = response.toPlaces()
 
-                // 지역 필터링 (areaCode가 0이면 전국 검색)
-                if areaCode > 0 {
+                // 지역 필터링 (areaCode가 nil이면 전국 검색)
+                if let areaCode = areaCode, areaCode > 0 {
                     places = places.filter { $0.areaCode == areaCode }
                 }
 
@@ -72,7 +104,7 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
                 }
 
                 print("📊 Filtered results: \(places.count) places")
-                return places
+                return self.addMockPrefix(to: places)
             }
             .asSingle()
     }
@@ -80,25 +112,28 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
     func fetchFestivalList(
         eventStartDate: String,
         eventEndDate: String,
+        areaCode: Int?,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
     ) -> Single<[Place]> {
-        // 날짜에 따라 다른 축제 Mock 데이터 제공
-        let filename: String
-        // yyyyMMdd 형식에서 겨울철 (12월, 1월, 2월) 체크
-        if eventStartDate.hasPrefix("202512") || eventStartDate.hasPrefix("202601") || eventStartDate.hasPrefix("202602") {
-            filename = "searchFestival2_winter"
-        } else {
-            filename = "searchFestival2_2025-09-27_2025-10-27"
-        }
+        // Mock 데이터는 단일 파일 사용
+        let filename = "searchFestival2_2025-09-27_2025-10-27"
 
-        print("🗓️ Festival search - startDate: \(eventStartDate), endDate: \(eventEndDate)")
+        print("🗓️ Festival search - startDate: \(eventStartDate), endDate: \(eventEndDate), areaCode: \(areaCode ?? 0)")
         print("📂 Using mock file: \(filename)")
 
         return loadMockData(filename: filename)
             .map { response in
-                response.toFestivalPlaces()  // Festival → Place (eventMeta 포함)
+                var places = response.toFestivalPlaces()  // Festival → Place (eventMeta 포함)
+
+                // 지역 필터링 (areaCode가 nil이면 전국 축제)
+                if let areaCode = areaCode, areaCode > 0 {
+                    places = places.filter { $0.areaCode == areaCode }
+                    print("🔍 AreaCode filter applied: \(areaCode), results: \(places.count)")
+                }
+
+                return self.addMockPrefix(to: places)
             }
             .asSingle()
     }
@@ -176,7 +211,7 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
                 }
 
                 print("📊 Final search results: \(places.count) places")
-                return places
+                return self.addMockPrefix(to: places)
             }
             .asSingle()
     }
@@ -185,11 +220,12 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
         mapX: Double,
         mapY: Double,
         radius: Int,
+        contentTypeId: Int?,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
     ) -> Single<[Place]> {
-        print("📍 Location-based search - mapX: \(mapX), mapY: \(mapY), radius: \(radius)m")
+        print("📍 Location-based search - mapX: \(mapX), mapY: \(mapY), radius: \(radius)m, contentTypeId: \(contentTypeId ?? 0)")
 
         // 사용자 위치에 따라 다른 Mock 데이터 제공
         let filename = determineLocationMockFile(mapX: mapX, mapY: mapY)
@@ -197,7 +233,15 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
 
         return loadMockData(filename: filename)
             .map { response in
-                response.toPlaces()
+                var places = response.toPlaces()
+
+                // 콘텐츠 타입 필터링 (12: 관광지, 14: 문화시설, 15: 축제, 38: 쇼핑, 39: 음식점)
+                if let contentTypeId = contentTypeId {
+                    places = places.filter { $0.contentTypeId == contentTypeId }
+                    print("🔍 ContentTypeId filter applied: \(contentTypeId), results: \(places.count)")
+                }
+
+                return self.addMockPrefix(to: places)
             }
             .asSingle()
     }
@@ -208,16 +252,18 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
     }
 
     func fetchDetailCommon(
-        contentId: String,
-        contentTypeId: Int?
+        contentId: String
     ) -> Single<Place> {
         print("📋 Detail common - contentId: \(contentId)")
         return loadMockData(filename: "detailCommon2")
             .map { response in
                 let places = response.toPlaces()
-                let matchedPlace = places.first { $0.contentId == contentId }
-                print("✅ Found detailCommon for contentId \(contentId): \(matchedPlace != nil)")
-                return matchedPlace ?? Place.empty
+                guard let matchedPlace = places.first(where: { $0.contentId == contentId }) else {
+                    print("⚠️ No detailCommon found for contentId \(contentId), returning first place")
+                    return self.addMockPrefix(to: places.first ?? Place.empty)
+                }
+                print("✅ Found detailCommon for contentId \(contentId)")
+                return self.addMockPrefix(to: matchedPlace)
             }
             .asSingle()
     }
@@ -225,22 +271,19 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
     func fetchDetailIntro(
         contentId: String,
         contentTypeId: Int
-    ) -> Single<Place> {
+    ) -> Single<OperatingInfo> {
         print("🏢 Detail intro - contentId: \(contentId), contentTypeId: \(contentTypeId)")
-        return loadMockData(filename: "detailIntro2")
+        return loadMockDetailIntroData(filename: "detailIntro2")
             .map { response in
-                let places = response.toPlaces()
-                let matchedPlace = places.first { $0.contentId == contentId }
-                print("✅ Found detailIntro for contentId \(contentId): \(matchedPlace != nil)")
-                return matchedPlace ?? Place.empty
+                let operatingInfo = response.toOperatingInfo()
+                print("✅ Found detailIntro for contentId \(contentId)")
+                return operatingInfo
             }
             .asSingle()
     }
 
     func fetchDetailImages(
-        contentId: String,
-        numOfRows: Int,
-        pageNo: Int
+        contentId: String
     ) -> Single<[PlaceImage]> {
         print("🖼️ Detail images - contentId: \(contentId)")
 
@@ -461,6 +504,69 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
                 observer.onCompleted()
             } catch {
                 print("❌ Failed to decode mock image data from \(filename).json")
+                print("❌ Error details: \(error)")
+                if let decodingError = error as? DecodingError {
+                    print("❌ Decoding error details: \(decodingError)")
+                }
+                observer.onError(DataSourceError.parseError)
+            }
+
+            return Disposables.create()
+        }
+        .delay(.milliseconds(100), scheduler: MainScheduler.instance) // 실제 네트워크 지연 시뮬레이션
+    }
+
+    private func loadMockDetailIntroData(filename: String) -> Observable<TourAPIDetailIntroResponse> {
+        return Observable.create { [weak self] observer in
+            print("🔄 Loading mock detail intro data: \(filename).json")
+            guard let self = self else {
+                observer.onError(DataSourceError.cacheError)
+                return Disposables.create()
+            }
+
+            // 먼저 Bundle에서 Mock 디렉토리의 파일을 찾아보기
+            var url: URL?
+
+            // 1. Bundle의 Mock 하위 디렉토리에서 찾기
+            url = Bundle.main.url(forResource: filename, withExtension: "json", subdirectory: "Mock")
+            if url != nil {
+                print("📁 Found in Bundle Mock: \(filename).json")
+            }
+
+            // 2. Bundle의 Resources/Mock 하위 디렉토리에서 찾기
+            if url == nil {
+                url = Bundle.main.url(forResource: filename, withExtension: "json", subdirectory: "Resources/Mock")
+                if url != nil {
+                    print("📁 Found in Bundle Resources/Mock: \(filename).json")
+                }
+            }
+
+            // 3. 파일 시스템에서 직접 찾기 (개발 중에만 사용)
+            if url == nil {
+                let mockPath = "/Users/youngjin/Desktop/SaeSsac/KoreaSpots/KoreaSpots/Resources/Mock/\(filename).json"
+                if FileManager.default.fileExists(atPath: mockPath) {
+                    url = URL(fileURLWithPath: mockPath)
+                    print("📁 Using file system path: \(mockPath)")
+                }
+            }
+
+            guard let mockURL = url else {
+                let errorMessage = "Mock detail intro file not found: \(filename).json in Bundle or file system"
+                print("⚠️ \(errorMessage)")
+                observer.onError(DataSourceError.parseError)
+                return Disposables.create()
+            }
+
+            do {
+                let data = try Data(contentsOf: mockURL)
+                print("📄 Mock detail intro data size: \(data.count) bytes")
+                let response = try self.jsonDecoder.decode(TourAPIDetailIntroResponse.self, from: data)
+                print("✅ Successfully decoded mock detail intro data from: \(mockURL.lastPathComponent)")
+                print("📊 Items count: \(response.items.count)")
+                observer.onNext(response)
+                observer.onCompleted()
+            } catch {
+                print("❌ Failed to decode mock detail intro data from \(filename).json")
                 print("❌ Error details: \(error)")
                 if let decodingError = error as? DecodingError {
                     print("❌ Decoding error details: \(decodingError)")

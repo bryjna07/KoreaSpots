@@ -8,21 +8,17 @@
 import UIKit
 import SnapKit
 import Then
+import SkeletonView
 
-final class PlaceImageCell: BaseCollectionViewCell {
+final class PlaceImageCell: BaseCollectionViewCell, SkeletonableCell {
 
     // MARK: - UI Components
-    private let imageView = UIImageView().then {
-        $0.contentMode = .scaleAspectFill
-        $0.clipsToBounds = true
-        $0.backgroundColor = .systemGray5
-    }
+    private let imageView = UIImageView()
 
     // MARK: - Configuration
     func configure(with imageURL: String?) {
         imageView.loadImage(
             from: imageURL,
-            placeholder: UIImage(systemName: "photo"),
             size: .detail,
             cachePolicy: .diskAndMemory
         )
@@ -49,7 +45,18 @@ final class PlaceImageCell: BaseCollectionViewCell {
 
     override func configureView() {
         super.configureView()
-        contentView.layer.cornerRadius = Constants.UI.CornerRadius.medium
-        contentView.layer.masksToBounds = true
+
+        contentView.do {
+            $0.layer.cornerRadius = Constants.UI.CornerRadius.medium
+            $0.layer.masksToBounds = true
+            $0.isSkeletonable = true
+        }
+
+        imageView.do {
+            $0.contentMode = .scaleAspectFill
+            $0.clipsToBounds = true
+            $0.backgroundColor = .systemGray5
+            $0.isSkeletonable = true
+        }
     }
 }

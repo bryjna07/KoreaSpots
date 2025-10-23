@@ -13,6 +13,7 @@ struct FetchLocationBasedPlacesInput {
     let latitude: Double
     let longitude: Double
     let radius: Int?
+    let contentTypeId: Int?  // 12: 관광지, 14: 문화시설, 15: 축제, 38: 쇼핑, 39: 음식점
     let maxCount: Int?
     let sortOption: PlaceSortOption?
 }
@@ -66,6 +67,7 @@ final class FetchLocationBasedPlacesUseCaseImpl: FetchLocationBasedPlacesUseCase
                     latitude: normalizedInput.latitude,
                     longitude: normalizedInput.longitude,
                     initialRadius: normalizedInput.radius,
+                    contentTypeId: normalizedInput.contentTypeId,
                     maxCount: normalizedInput.maxCount,
                     sortOption: normalizedInput.sortOption
                 )
@@ -73,7 +75,7 @@ final class FetchLocationBasedPlacesUseCaseImpl: FetchLocationBasedPlacesUseCase
     }
 
     // MARK: - Private Business Logic
-    private func validateAndNormalize(_ input: FetchLocationBasedPlacesInput) -> Single<(latitude: Double, longitude: Double, radius: Int, maxCount: Int, sortOption: PlaceSortOption)> {
+    private func validateAndNormalize(_ input: FetchLocationBasedPlacesInput) -> Single<(latitude: Double, longitude: Double, radius: Int, contentTypeId: Int?, maxCount: Int, sortOption: PlaceSortOption)> {
         return Single.create { observer in
             // 좌표 검증 (한국 영역)
             let latitude = input.latitude
@@ -95,8 +97,9 @@ final class FetchLocationBasedPlacesUseCaseImpl: FetchLocationBasedPlacesUseCase
             }
 
             let sortOption = input.sortOption ?? .distance
+            let contentTypeId = input.contentTypeId
 
-            observer(.success((latitude: latitude, longitude: longitude, radius: radius, maxCount: maxCount, sortOption: sortOption)))
+            observer(.success((latitude: latitude, longitude: longitude, radius: radius, contentTypeId: contentTypeId, maxCount: maxCount, sortOption: sortOption)))
             return Disposables.create()
         }
     }
@@ -105,6 +108,7 @@ final class FetchLocationBasedPlacesUseCaseImpl: FetchLocationBasedPlacesUseCase
         latitude: Double,
         longitude: Double,
         initialRadius: Int,
+        contentTypeId: Int?,
         maxCount: Int,
         sortOption: PlaceSortOption
     ) -> Single<[Place]> {
@@ -113,6 +117,7 @@ final class FetchLocationBasedPlacesUseCaseImpl: FetchLocationBasedPlacesUseCase
             latitude: latitude,
             longitude: longitude,
             radius: initialRadius,
+            contentTypeId: contentTypeId,
             maxCount: maxCount,
             sortOption: sortOption,
             attempt: 1
@@ -123,6 +128,7 @@ final class FetchLocationBasedPlacesUseCaseImpl: FetchLocationBasedPlacesUseCase
         latitude: Double,
         longitude: Double,
         radius: Int,
+        contentTypeId: Int?,
         maxCount: Int,
         sortOption: PlaceSortOption,
         attempt: Int
@@ -133,6 +139,7 @@ final class FetchLocationBasedPlacesUseCaseImpl: FetchLocationBasedPlacesUseCase
                 mapX: longitude, // API에서 mapX는 경도
                 mapY: latitude,  // mapY는 위도
                 radius: radius,
+                contentTypeId: contentTypeId,
                 numOfRows: maxCount,
                 pageNo: 1,
                 arrange: sortOption.arrangeCode
@@ -156,6 +163,7 @@ final class FetchLocationBasedPlacesUseCaseImpl: FetchLocationBasedPlacesUseCase
                         latitude: latitude,
                         longitude: longitude,
                         radius: expandedRadius,
+                        contentTypeId: contentTypeId,
                         maxCount: maxCount,
                         sortOption: sortOption,
                         attempt: attempt + 1

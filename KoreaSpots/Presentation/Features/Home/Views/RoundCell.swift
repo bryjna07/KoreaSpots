@@ -27,7 +27,6 @@ final class RoundCell: BaseCollectionViewCell {
     func configure(with theme: Theme) {
         iconImageView.loadImage(
             from: theme.imageName,
-            placeholder: UIImage(systemName: "photo"),
             size: .thumbnail,
             cachePolicy: .aggressive
         )

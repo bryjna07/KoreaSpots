@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 protocol FetchAreaBasedPlacesUseCase {
-    func execute(areaCode: Int, sigunguCode: Int?, contentTypeId: Int?, cat1: String?, cat2: String?, cat3: String?, maxCount: Int) -> Single<[Place]>
+    func execute(areaCode: Int?, sigunguCode: Int?, contentTypeId: Int?, cat1: String?, cat2: String?, cat3: String?, maxCount: Int, pageNo: Int) -> Single<[Place]>
 }
 
 final class FetchAreaBasedPlacesUseCaseImpl: FetchAreaBasedPlacesUseCase {
@@ -20,7 +20,7 @@ final class FetchAreaBasedPlacesUseCaseImpl: FetchAreaBasedPlacesUseCase {
         self.tourRepository = tourRepository
     }
 
-    func execute(areaCode: Int, sigunguCode: Int?, contentTypeId: Int?, cat1: String?, cat2: String?, cat3: String?, maxCount: Int) -> Single<[Place]> {
+    func execute(areaCode: Int?, sigunguCode: Int?, contentTypeId: Int?, cat1: String?, cat2: String?, cat3: String?, maxCount: Int, pageNo: Int) -> Single<[Place]> {
         return tourRepository
             .getAreaBasedPlaces(
                 areaCode: areaCode,
@@ -30,8 +30,8 @@ final class FetchAreaBasedPlacesUseCaseImpl: FetchAreaBasedPlacesUseCase {
                 cat2: cat2,
                 cat3: cat3,
                 numOfRows: maxCount,
-                pageNo: 1,
-                arrange: "A" // 제목순
+                pageNo: pageNo,
+                arrange: "Q" // 대표이미지가 있는 데이터 - 제목순 "O" 수정일순 "Q" 생성일순 "R"
             )
     }
 }

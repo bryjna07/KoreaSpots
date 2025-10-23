@@ -52,7 +52,8 @@ enum HomeSectionItem: IdentifiableType, Equatable {
     case category(Category)
     case theme(Theme)
     case place(Place)
-    case placeholder(String, index: Int = 0)
+    /// TODO: - 주간날씨 섹션
+//    case placeholder(String, index: Int = 0)
 
     var identity: String {
         switch self {
@@ -64,8 +65,8 @@ enum HomeSectionItem: IdentifiableType, Equatable {
             return "theme_\(t.title)"
         case .place(let p):
             return "place_\(p.contentId)"
-        case .placeholder(let s, let index):
-            return "placeholder_\(s)_\(index)"
+//        case .placeholder(let s, let index):
+//            return "placeholder_\(s)_\(index)"
         }
     }
 

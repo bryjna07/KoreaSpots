@@ -30,11 +30,12 @@ final class FavoriteView: BaseView {
 
     // Collection View
     let collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-//        layout.minimumInteritemSpacing = 12
-//        layout.minimumLineSpacing = 16
-        layout.sectionInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        // Compositional Layout with .list style
+        var configuration = UICollectionLayoutListConfiguration(appearance: .plain)
+        configuration.backgroundColor = .backGround
+        configuration.showsSeparators = false
+
+        let layout = UICollectionViewCompositionalLayout.list(using: configuration)
 
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .backGround

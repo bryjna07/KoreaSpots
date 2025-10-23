@@ -26,16 +26,18 @@ final class CategoryReactor: Reactor {
     // MARK: - Action
     enum Action {
         case viewDidLoad
+        case reloadCategories // Cat3 데이터 로드 완료 후 재로드
         case selectCat2(Cat2) // 왼쪽 사이드바 탭
         case scrollToCat2(Cat2) // 오른쪽 스크롤로 인한 사이드바 하이라이트
         case toggleExpandSection(Cat2) // 더보기 버튼
-        case selectCat3(Cat3)
+        case selectCat3(String)
         case selectArea(AreaCode?)
         case selectSigungu(Int?)
     }
 
     // MARK: - Mutation
     enum Mutation {
+        case setDataLoaded(Bool)
         case setSelectedCat2(Cat2)
         case setHighlightedCat2(Cat2) // 스크롤로 인한 하이라이트
         case toggleSectionExpanded(Cat2)
@@ -47,6 +49,7 @@ final class CategoryReactor: Reactor {
 
     // MARK: - State
     struct State {
+        var isDataLoaded: Bool = false
         var selectedCat2: Cat2 = .A0101 // 기본: 자연관광지
         var highlightedCat2: Cat2 = .A0101 // 스크롤로 인한 하이라이트
         var expandedSections: Set<Cat2> = [] // 펼쳐진 섹션들
@@ -56,6 +59,8 @@ final class CategoryReactor: Reactor {
 
         // Computed
         var categories: [CategoryDetail] {
+            // Cat3 데이터가 로드되기 전에는 빈 배열 반환
+            guard CodeBookStore.Cat3.isLoaded else { return [] }
             return CategoryDetail.allCategories()
         }
 
@@ -69,7 +74,7 @@ final class CategoryReactor: Reactor {
             }
         }
 
-        func visibleCat3Items(for cat2: Cat2) -> [Cat3] {
+        func visibleCat3Items(for cat2: Cat2) -> [String] {
             guard let category = categories.first(where: { $0.cat2 == cat2 }) else {
                 return []
             }
@@ -100,7 +105,23 @@ final class CategoryReactor: Reactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
-            return .empty()
+            // Cat3 데이터가 이미 로드되어 있으면 바로 시작
+            if CodeBookStore.Cat3.isLoaded {
+                return .just(.setDataLoaded(true))
+            }
+            // 로드되지 않았으면 대기 후 재확인 (최대 1초)
+            return Observable<Int>.interval(.milliseconds(100), scheduler: MainScheduler.instance)
+                .take(10) // 최대 1초 (100ms * 10)
+                .flatMap { _ -> Observable<Mutation> in
+                    if CodeBookStore.Cat3.isLoaded {
+                        return .just(.setDataLoaded(true))
+                    }
+                    return .empty()
+                }
+                .take(1) // 첫 번째 성공만 받음
+
+        case .reloadCategories:
+            return .just(.setDataLoaded(true))
 
         case .selectCat2(let cat2):
             return .concat([
@@ -133,6 +154,9 @@ final class CategoryReactor: Reactor {
         var newState = state
 
         switch mutation {
+        case .setDataLoaded(let isLoaded):
+            newState.isDataLoaded = isLoaded
+
         case .setSelectedCat2(let cat2):
             newState.selectedCat2 = cat2
 

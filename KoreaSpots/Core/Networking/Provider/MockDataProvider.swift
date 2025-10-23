@@ -26,12 +26,12 @@ struct MockDataProvider {
         case .searchFestival:
             return "searchFestival2_2025-09-27_2025-10-27"
         case .locationBasedList:
-            return "locationBasedList2_sample"
+            return "locationBasedList2"
         case .detailCommon:
-            return "detailCommon2_sample"
+            return "detailCommon2"
         case .detailIntro:
-            return "detailIntro2_sample"
-        case .detailImage(let contentId, _, _):
+            return "detailIntro2"
+        case .detailImage(let contentId):
             return "detailImage2_\(contentId)"
         case .searchKeyword:
             return "areaBasedList2"

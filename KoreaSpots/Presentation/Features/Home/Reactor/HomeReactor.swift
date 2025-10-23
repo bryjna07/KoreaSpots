@@ -15,6 +15,7 @@ final class HomeReactor: Reactor {
         case viewDidLoad
         case refresh
         case locationPermissionGranted(latitude: Double, longitude: Double)
+        case locationPermissionDenied
     }
 
     enum Mutation {
@@ -23,6 +24,8 @@ final class HomeReactor: Reactor {
         case setNearbyPlaces([Place])
         case setError(String?)
         case setUserLocation(latitude: Double, longitude: Double)
+        case setCurrentAreaCode(AreaCode?)
+        case setShouldShowNearbySection(Bool)
     }
 
     struct State {
@@ -31,22 +34,31 @@ final class HomeReactor: Reactor {
         var nearbyPlaces: [Place] = []
         var error: String?
         var userLocation: (latitude: Double, longitude: Double)?
+        var currentAreaCode: AreaCode?
         var sections: [HomeSectionModel] = []
+        var shouldShowNearbySection: Bool = true
     }
 
     let initialState: State = {
-        let festivalItems = (0..<3).map { HomeSectionItem.placeholder("축제 정보를 불러오는 중...", index: $0) }
-        let nearbyItems = (0..<4).map { HomeSectionItem.placeholder("주변 관광지를 불러오는 중...", index: $0) }
+        // 스켈레톤뷰 표시를 위한 초기 상태 (더미 데이터)
         let categoryItems = Category.homeCategories.map { HomeSectionItem.category($0) }
 
+        // SkeletonDataProvider로 더미 데이터 생성
+        let skeletonFestivals = SkeletonDataProvider.makeSkeletonPlaces(count: 1, type: .festival)
+        let skeletonPlaces = SkeletonDataProvider.makeSkeletonPlaces(count: 3, type: .place)
+
         let initialSections = [
-            HomeSectionModel(section: .festival, items: festivalItems),
+            HomeSectionModel(section: .festival, items: skeletonFestivals.map { HomeSectionItem.festival($0) }),
             HomeSectionModel(section: .category, items: categoryItems),
             HomeSectionModel(section: .theme, items: Theme.staticThemes.map { HomeSectionItem.theme($0) }),
-            HomeSectionModel(section: .nearby, items: nearbyItems),
-//            HomeSectionModel(section: .placeholder, items: [HomeSectionItem.placeholder("추가 기능이 여기에 표시됩니다", index: 0)])
+            HomeSectionModel(section: .nearby, items: skeletonPlaces.map { HomeSectionItem.place($0) }),
         ]
-        return State(sections: initialSections)
+        return State(
+            isLoading: true,
+            festivals: skeletonFestivals,  // State의 festivals 배열에도 스켈레톤 추가
+            nearbyPlaces: skeletonPlaces,   // State의 nearbyPlaces 배열에도 스켈레톤 추가
+            sections: initialSections
+        )
     }()
 
     // MARK: - Dependencies
@@ -65,6 +77,7 @@ final class HomeReactor: Reactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
+            // Nearby는 observeLocationUpdates()를 통해 자동으로 로드됨
             return Observable.concat([
                 Observable.just(.setLoading(true)),
                 fetchCurrentFestivals(),
@@ -72,19 +85,40 @@ final class HomeReactor: Reactor {
             ])
 
         case .refresh:
+            // Nearby는 observeLocationUpdates()를 통해 자동으로 로드됨
             return Observable.concat([
                 Observable.just(.setLoading(true)),
                 fetchCurrentFestivals(),
-                fetchNearbyPlacesIfLocationAvailable(),
                 Observable.just(.setLoading(false))
             ])
 
         case let .locationPermissionGranted(latitude, longitude):
+            // 한국 내 위치인지 먼저 확인
+            let isInKorea = locationService.isCoordinateInKorea(latitude: latitude, longitude: longitude)
+
+            if !isInKorea {
+                // 한국 밖이면 Nearby 섹션 숨김
+                return Observable.concat([
+                    Observable.just(.setUserLocation(latitude: latitude, longitude: longitude)),
+                    Observable.just(.setShouldShowNearbySection(false)),
+                    Observable.just(.setNearbyPlaces([]))
+                ])
+            }
+
+            // 한국 내면 Nearby 섹션 표시 + 데이터 로드
             return Observable.concat([
                 Observable.just(.setUserLocation(latitude: latitude, longitude: longitude)),
+                Observable.just(.setShouldShowNearbySection(true)),
                 Observable.just(.setLoading(true)),
                 fetchNearbyPlaces(latitude: latitude, longitude: longitude),
                 Observable.just(.setLoading(false))
+            ])
+
+        case .locationPermissionDenied:
+            // 위치 권한 거부 시: 축제는 전국 데이터, Nearby 섹션 숨김
+            return Observable.concat([
+                Observable.just(.setShouldShowNearbySection(false)),
+                Observable.just(.setNearbyPlaces([]))
             ])
         }
     }
@@ -99,12 +133,20 @@ final class HomeReactor: Reactor {
         case let .setFestivals(festivals):
             newState.festivals = festivals
             newState.error = nil
-            newState.sections = buildSections(festivals: festivals, nearbyPlaces: newState.nearbyPlaces)
+            newState.sections = buildSections(
+                festivals: festivals,
+                nearbyPlaces: newState.nearbyPlaces,
+                shouldShowNearby: newState.shouldShowNearbySection
+            )
 
         case let .setNearbyPlaces(places):
             newState.nearbyPlaces = places
             newState.error = nil
-            newState.sections = buildSections(festivals: newState.festivals, nearbyPlaces: places)
+            newState.sections = buildSections(
+                festivals: newState.festivals,
+                nearbyPlaces: places,
+                shouldShowNearby: newState.shouldShowNearbySection
+            )
 
         case let .setError(error):
             newState.error = error
@@ -112,6 +154,12 @@ final class HomeReactor: Reactor {
         case let .setUserLocation(latitude, longitude):
             newState.userLocation = (latitude: latitude, longitude: longitude)
 
+        case let .setCurrentAreaCode(areaCode):
+            newState.currentAreaCode = areaCode
+
+        case let .setShouldShowNearbySection(shouldShow):
+            newState.shouldShowNearbySection = shouldShow
+            // buildSections는 setNearbyPlaces에서 호출될 예정이므로 여기서는 생략
         }
 
         return newState
@@ -123,31 +171,31 @@ private extension HomeReactor {
 
     func fetchCurrentFestivals() -> Observable<Mutation> {
         let today = DateFormatterUtil.yyyyMMdd.string(from: Date())
-        let endDate = DateFormatterUtil.yyyyMMdd.string(from: Date().addingTimeInterval(30 * 24 * 60 * 60)) // 30일 후
+        let endDate = DateFormatterUtil.yyyyMMdd.string(from: Date().addingTimeInterval(30 * 24 * 60 * 60))
 
-        let input = FetchFestivalInput(
-            startDate: today,
-            endDate: endDate,
-            maxCount: 10,
-            sortOption: .date
-        )
-
-        return fetchFestivalUseCase
-            .execute(input)
+        // 사용자 위치 기반 지역코드 조회 후 축제 요청
+        return locationService.getCurrentAreaCode()
             .asObservable()
-            .map { places -> Mutation in
-                .setFestivals(places)
-            }
-            .catch { error in
-                Observable.just(.setError(LocalizedKeys.Error.fetchFestivalFailed.localized))
-            }
-    }
+            .flatMap { [weak self] areaCode -> Observable<Mutation> in
+                guard let self else { return .empty() }
 
-    func fetchNearbyPlacesIfLocationAvailable() -> Observable<Mutation> {
-        guard let location = currentState.userLocation else {
-            return Observable.empty()
-        }
-        return fetchNearbyPlaces(latitude: location.latitude, longitude: location.longitude)
+                let input = FetchFestivalInput(
+                    startDate: today,
+                    endDate: endDate,
+                    areaCode: areaCode?.rawValue,
+                    maxCount: 10,
+                    sortOption: .date
+                )
+
+                return Observable.concat([
+                    .just(.setCurrentAreaCode(areaCode)),
+                    self.fetchFestivalUseCase
+                        .execute(input)
+                        .asObservable()
+                        .map(Mutation.setFestivals)
+                ])
+            }
+            .catch { _ in .just(.setFestivals([])) }
     }
 
     func fetchNearbyPlaces(latitude: Double, longitude: Double) -> Observable<Mutation> {
@@ -155,47 +203,38 @@ private extension HomeReactor {
             latitude: latitude,
             longitude: longitude,
             radius: 1000,
-            maxCount: 20,
+            contentTypeId: 12,  // 관광지만 필터링 (12: 관광지, 14: 문화시설, 15: 축제, 38: 쇼핑, 39: 음식점)
+            maxCount: 10,
             sortOption: .distance
         )
 
         return fetchLocationBasedPlacesUseCase
             .execute(input)
             .asObservable()
-            .map { places -> Mutation in
-                .setNearbyPlaces(places)
-            }
-            .catch { error in
-                Observable.just(.setError(LocalizedKeys.Error.fetchPlacesFailed.localized))
-            }
+            .map(Mutation.setNearbyPlaces)
+            .catch { _ in .just(.setNearbyPlaces([])) }
     }
 
-    private func buildSections(festivals: [Place], nearbyPlaces: [Place]) -> [HomeSectionModel] {
+    private func buildSections(festivals: [Place], nearbyPlaces: [Place], shouldShowNearby: Bool) -> [HomeSectionModel] {
         var sections: [HomeSectionModel] = []
 
-        // Festival Section (Always show - with placeholder if empty)
-        let festivalItems: [HomeSectionItem] = festivals.isEmpty
-            ? (0..<3).map { HomeSectionItem.placeholder("축제 정보를 불러오는 중...", index: $0) }
-            : festivals.map { HomeSectionItem.festival($0) }
+        // Festival Section
+        let festivalItems = festivals.map { HomeSectionItem.festival($0) }
         sections.append(HomeSectionModel(section: .festival, items: festivalItems))
 
-        // Category Section (Always show)
+        // Category Section (항상 표시)
         let categoryItems = Category.homeCategories.map { HomeSectionItem.category($0) }
         sections.append(HomeSectionModel(section: .category, items: categoryItems))
 
-        // Theme Section (Always show)
+        // Theme Section (항상 표시)
         let themeItems = Theme.staticThemes.map { HomeSectionItem.theme($0) }
         sections.append(HomeSectionModel(section: .theme, items: themeItems))
 
-        // Nearby Places Section (Show placeholder when empty)
-        let placeItems: [HomeSectionItem] = nearbyPlaces.isEmpty
-            ? (0..<4).map { HomeSectionItem.placeholder("주변 관광지를 불러오는 중...", index: $0) }
-            : nearbyPlaces.map { HomeSectionItem.place($0) }
-        sections.append(HomeSectionModel(section: .nearby, items: placeItems))
-
-        
-//        // Placeholder Section
-//        sections.append(HomeSectionModel(section: .placeholder, items: [.placeholder("추가 기능이 여기에 표시됩니다", index: 0)]))
+        // Nearby Places Section - 한국 내에서만 표시
+        if shouldShowNearby {
+            let nearbyItems = nearbyPlaces.map { HomeSectionItem.place($0) }
+            sections.append(HomeSectionModel(section: .nearby, items: nearbyItems))
+        }
 
         return sections
     }
@@ -212,6 +251,19 @@ extension HomeReactor {
     func observeLocationUpdates() -> Observable<Action> {
         return locationService.currentLocation
             .map { Action.locationPermissionGranted(latitude: $0.coordinate.latitude, longitude: $0.coordinate.longitude) }
+    }
+
+    func observeAuthorizationStatus() -> Observable<Action> {
+        return locationService.authorizationStatus
+            .distinctUntilChanged()
+            .compactMap { status -> Action? in
+                switch status {
+                case .denied, .restricted:
+                    return .locationPermissionDenied
+                default:
+                    return nil
+                }
+            }
     }
 }
 

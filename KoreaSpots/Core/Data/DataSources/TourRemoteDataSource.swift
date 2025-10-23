@@ -10,7 +10,7 @@ import RxSwift
 
 protocol TourRemoteDataSource {
     func fetchAreaBasedList(
-        areaCode: Int,
+        areaCode: Int?,
         sigunguCode: Int?,
         contentTypeId: Int?,
         cat1: String?,
@@ -24,6 +24,7 @@ protocol TourRemoteDataSource {
     func fetchFestivalList(
         eventStartDate: String,
         eventEndDate: String,
+        areaCode: Int?,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
@@ -33,6 +34,7 @@ protocol TourRemoteDataSource {
         mapX: Double,
         mapY: Double,
         radius: Int,
+        contentTypeId: Int?,
         numOfRows: Int,
         pageNo: Int,
         arrange: String
@@ -52,18 +54,15 @@ protocol TourRemoteDataSource {
     ) -> Single<[Place]>
 
     func fetchDetailCommon(
-        contentId: String,
-        contentTypeId: Int?
+        contentId: String
     ) -> Single<Place>
 
     func fetchDetailIntro(
         contentId: String,
         contentTypeId: Int
-    ) -> Single<Place>
+    ) -> Single<OperatingInfo>
 
     func fetchDetailImages(
-        contentId: String,
-        numOfRows: Int,
-        pageNo: Int
+        contentId: String
     ) -> Single<[PlaceImage]>
 }

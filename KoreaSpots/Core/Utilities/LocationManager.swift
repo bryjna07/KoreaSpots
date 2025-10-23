@@ -50,13 +50,6 @@ final class LocationManager: NSObject {
         return locationManager.location
     }
 
-    // MARK: - Mock Location (임시: 목데이터 테스트용)
-    /// 서울역 좌표 (37.5547, 126.9707)
-    private static let seoulStationLocation = CLLocation(
-        latitude: 37.5547,
-        longitude: 126.9707
-    )
-
     override init() {
         super.init()
         setupLocationManager()
@@ -88,29 +81,23 @@ final class LocationManager: NSObject {
     }
 
     func requestCurrentLocation() {
-        // TODO: 실제 출시 시 아래 주석 해제하고 임시 위치 제거
-        // guard isLocationAuthorized else {
-        //     requestLocationPermission()
-        //     return
-        // }
-        // locationManager.requestLocation()
-
-        // MARK: - 임시: 목데이터 테스트용 서울역 위치 반환
-        print("⚠️ [MOCK] 임시 위치 사용 중: 서울역 (37.5547, 126.9707)")
-        _currentLocation.accept(Self.seoulStationLocation)
+        guard isLocationAuthorized else {
+            print("⚠️ 위치 권한이 없습니다. 권한을 요청합니다.")
+            requestLocationPermission()
+            return
+        }
+        print("📍 현재 위치 요청 중...")
+        locationManager.requestLocation()
     }
 
     func startUpdatingLocation() {
-        // TODO: 실제 출시 시 아래 주석 해제하고 임시 위치 제거
-        // guard isLocationAuthorized else {
-        //     requestLocationPermission()
-        //     return
-        // }
-        // locationManager.startUpdatingLocation()
-
-        // MARK: - 임시: 목데이터 테스트용 서울역 위치 반환
-        print("⚠️ [MOCK] 임시 위치 사용 중: 서울역 (37.5547, 126.9707)")
-        _currentLocation.accept(Self.seoulStationLocation)
+        guard isLocationAuthorized else {
+            print("⚠️ 위치 권한이 없습니다. 권한을 요청합니다.")
+            requestLocationPermission()
+            return
+        }
+        print("📍 위치 업데이트 시작...")
+        locationManager.startUpdatingLocation()
     }
 
     func stopUpdatingLocation() {
@@ -123,10 +110,12 @@ extension LocationManager: CLLocationManagerDelegate {
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
+        print("✅ 위치 업데이트 성공: lat=\(location.coordinate.latitude), lon=\(location.coordinate.longitude)")
         _currentLocation.accept(location)
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("❌ 위치 업데이트 실패: \(error.localizedDescription)")
         _locationError.accept(error)
     }
 

@@ -74,7 +74,7 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
     // MARK: - Bind
     func bind(reactor: PlaceListReactor) {
         // Load sigungu data
-        SigunguStore.loadFromBundleAsync(fileName: "sigungu_codes") { success in
+        CodeBookStore.Sigungu.loadFromBundleAsync(fileName: "sigungu_codes") { success in
             if success {
                 print("✅ sigungu_codes.json loaded")
             }
@@ -90,22 +90,33 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
-        // Action: loadNextPage (infinite scroll)
-        placeListView.collectionView.rx.willDisplayCell
-            .filter { [weak self] _, indexPath in
-                guard let self = self,
-                      let reactor = self.reactor else { return false }
+        // Action: loadNextPage (무한 스크롤)
+        placeListView.collectionView.rx.prefetchItems
+            .compactMap { [weak self] indexPaths -> PlaceListReactor.Action? in
+                guard let self,
+                      let reactor = self.reactor else { return nil }
+
                 let itemCount = reactor.currentState.places.count
-                return indexPath.item >= itemCount - 5 && reactor.currentState.hasMorePages
+                let threshold = itemCount - 5
+
+                // prefetch된 indexPath 중 하나라도 threshold를 넘으면 다음 페이지 로드
+                let shouldLoadNextPage = indexPaths.contains { $0.item >= threshold }
+
+                guard shouldLoadNextPage,
+                      reactor.currentState.hasMorePages,
+                      !reactor.currentState.isLoading else {
+                    return nil
+                }
+
+                return .loadNextPage
             }
-            .map { _ in PlaceListReactor.Action.loadNextPage }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
-        // State: places + favorites
+        // State: places + favorites + isLoading
         reactor.state
-            .map { state -> (places: [Place], favorites: [String: Bool], area: AreaCode?, contentType: Int?, cat3: String?) in
-                return (state.places, state.favorites, state.selectedArea, state.contentTypeId, state.cat3)
+            .map { state -> (places: [Place], favorites: [String: Bool], area: AreaCode?, contentType: Int?, cat3: String?, isLoading: Bool) in
+                return (state.places, state.favorites, state.selectedArea, state.contentTypeId, state.cat3, state.isLoading)
             }
             .distinctUntilChanged { prev, curr in
                 let placesEqual = prev.places == curr.places
@@ -113,13 +124,15 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
                 let areaEqual = prev.area == curr.area
                 let contentTypeEqual = prev.contentType == curr.contentType
                 let cat3Equal = prev.cat3 == curr.cat3
-                return placesEqual && favoritesEqual && areaEqual && contentTypeEqual && cat3Equal
+                let loadingEqual = prev.isLoading == curr.isLoading
+                return placesEqual && favoritesEqual && areaEqual && contentTypeEqual && cat3Equal && loadingEqual
             }
-            .asDriver(onErrorJustReturn: (places: [], favorites: [:], area: nil, contentType: nil, cat3: nil))
+            .asDriver(onErrorJustReturn: (places: [], favorites: [:], area: nil, contentType: nil, cat3: nil, isLoading: false))
             .drive(with: self) { owner, data in
                 owner.applySnapshot(places: data.places)
                 owner.updateEmptyState(
                     isEmpty: data.places.isEmpty,
+                    isLoading: data.isLoading,
                     selectedArea: data.area,
                     contentTypeId: data.contentType,
                     cat3: data.cat3
@@ -328,14 +341,14 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
     }
 
     private func getSigungus(for areaCode: AreaCode) -> [(code: Int, name: String)] {
-        guard SigunguStore.isLoaded else {
-            print("⚠️ SigunguStore not loaded yet")
+        guard CodeBookStore.Sigungu.isLoaded else {
+            print("⚠️ CodeBookStore.Sigungu not loaded yet")
             return []
         }
 
         var sigungus: [(code: Int, name: String)] = []
         for code in 1...999 {
-            if let name = SigunguStore.name(areaCode: areaCode, sigunguCode: code, preferred: .ko) {
+            if let name = CodeBookStore.Sigungu.name(areaCode: areaCode.rawValue, sigunguCode: code, preferred: .ko) {
                 sigungus.append((code: code, name: name))
             }
         }
@@ -382,9 +395,10 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 
-    private func updateEmptyState(isEmpty: Bool, selectedArea: AreaCode?, contentTypeId: Int?, cat3: String?) {
-        emptyStateView.isHidden = !isEmpty
-        guard isEmpty else { return }
+    private func updateEmptyState(isEmpty: Bool, isLoading: Bool, selectedArea: AreaCode?, contentTypeId: Int?, cat3: String?) {
+        // 로딩 중이거나 데이터가 있으면 Empty State 숨김
+        emptyStateView.isHidden = isLoading || !isEmpty
+        guard !isLoading && isEmpty else { return }
 
         // 카테고리명 결정
         var categoryName = ""
@@ -394,7 +408,7 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
             let cat3List = cat3.split(separator: ",").map { String($0.trimmingCharacters(in: .whitespaces)) }
             if let firstCat3 = cat3List.first,
                let theme = Theme12.allCases.first(where: {
-                   $0.query.cat3Filters.map { $0.rawValue }.contains(firstCat3)
+                   $0.query.cat3Filters.contains(firstCat3)
                }) {
                 categoryName = theme.displayName
             }

@@ -34,13 +34,13 @@ struct TourAPIBody: Decodable {
 }
 
 struct TourAPIItems: Decodable {
-    let item: [TourAPIItem]
+    let item: [TourAPIBaseItem]
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         // MARK: - 방어적 디코딩: 실패 시 빈 배열 반환
-        if let itemArray = try? container.decode([TourAPIItem].self, forKey: .item) {
+        if let itemArray = try? container.decode([TourAPIBaseItem].self, forKey: .item) {
             item = itemArray
         } else {
             // API에서 item이 없거나 잘못된 형식일 때 빈 배열로 처리
