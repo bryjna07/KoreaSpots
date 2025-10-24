@@ -341,8 +341,8 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
     private func navigateToPlaceList(cat2: Cat2, cat3: String) {
         let viewController = AppContainer.shared.makePlaceListViewController(
             initialArea: nil,
-            contentTypeId: 12, // 관광지
-            cat1: cat2.cat1,    // Cat2에서 Cat1 추출 (예: A0101 -> A01)
+            contentTypeId: cat2.contentTypeId,  // Cat2에 맞는 contentTypeId 전달
+            cat1: cat2.cat1,                    // Cat2에서 Cat1 추출 (예: A0101 -> A01)
             cat2: cat2.rawValue,
             cat3: cat3
         )
