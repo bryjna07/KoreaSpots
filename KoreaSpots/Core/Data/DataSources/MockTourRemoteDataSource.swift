@@ -104,7 +104,20 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
                 }
 
                 print("📊 Filtered results: \(places.count) places")
-                return self.addMockPrefix(to: places)
+
+                // 페이징 처리
+                let startIndex = (pageNo - 1) * numOfRows
+                let endIndex = min(startIndex + numOfRows, places.count)
+
+                guard startIndex < places.count else {
+                    print("📄 Page \(pageNo) is out of range, returning empty")
+                    return []
+                }
+
+                let pagedPlaces = Array(places[startIndex..<endIndex])
+                print("📄 Paging: page=\(pageNo), numOfRows=\(numOfRows), returning \(pagedPlaces.count) places (startIndex: \(startIndex), endIndex: \(endIndex))")
+
+                return self.addMockPrefix(to: pagedPlaces)
             }
             .asSingle()
     }

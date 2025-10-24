@@ -38,39 +38,64 @@ final class TourRepositoryImpl: TourRepository {
         pageNo: Int,
         arrange: String
     ) -> Single<[Place]> {
-        // 축제는 contentTypeId=15, 캐시 없이 항상 API 호출
-        return remoteDataSource
-            .fetchFestivalList(
-                eventStartDate: eventStartDate,
-                eventEndDate: eventEndDate,
-                areaCode: areaCode,
-                numOfRows: numOfRows,
-                pageNo: pageNo,
-                arrange: arrange
-            )
-            .do(onSuccess: { places in
-                let areaInfo = areaCode != nil ? "지역코드 \(areaCode!)" : "전국"
-                print("✅ Festival API Success: \(places.count) festivals (\(areaInfo))")
-            }, onError: { error in
-                print("❌ Festival API Error: \(error)")
-            })
-            .catchError { [weak self] apiError in
+        // 축제는 contentTypeId=15
+        // 캐시 우선 전략: 같은 지역 + 같은 날짜 범위의 축제 캐시 확인
+        return localDataSource.getPlaces(areaCode: areaCode, sigunguCode: nil, contentTypeId: 15)
+            .flatMap { [weak self] cachedPlaces -> Single<[Place]> in
                 guard let self else { return .just([]) }
 
-                return self.handleAPIError(
-                    apiError,
-                    mockFallback: {
-                        self.mockDataSource.fetchFestivalList(
-                            eventStartDate: eventStartDate,
-                            eventEndDate: eventEndDate,
-                            areaCode: areaCode,
-                            numOfRows: numOfRows,
-                            pageNo: pageNo,
-                            arrange: arrange
+                // 캐시된 축제를 날짜로 필터링
+                let filteredPlaces = cachedPlaces.filter { place in
+                    guard let eventMeta = place.eventMeta else { return false }
+                    // 이벤트 기간이 요청한 날짜 범위와 겹치는지 확인
+                    return eventMeta.eventStartDate <= eventEndDate && eventMeta.eventEndDate >= eventStartDate
+                }
+
+                // 캐시가 충분한지 확인: 요청한 개수만큼 있어야 캐시 히트
+                if filteredPlaces.count >= numOfRows {
+                    print("✅ Festival Cache Hit: \(filteredPlaces.count) festivals (areaCode: \(areaCode?.description ?? "전국"))")
+                    return .just(Array(filteredPlaces.prefix(numOfRows)))
+                }
+
+                // 캐시가 부족하면 API 호출
+                return self.remoteDataSource
+                    .fetchFestivalList(
+                        eventStartDate: eventStartDate,
+                        eventEndDate: eventEndDate,
+                        areaCode: areaCode,
+                        numOfRows: numOfRows,
+                        pageNo: pageNo,
+                        arrange: arrange
+                    )
+                    .do(onSuccess: { [weak self] places in
+                        let areaInfo = areaCode != nil ? "지역코드 \(areaCode!)" : "전국"
+                        print("✅ Festival API Success: \(places.count) festivals (\(areaInfo))")
+
+                        // 백그라운드에서 캐시 저장 (contentTypeId=15 축제)
+                        self?.localDataSource.savePlaces(places, areaCode: areaCode, sigunguCode: nil, contentTypeId: 15)
+                            .subscribe()
+                            .disposed(by: self?.disposeBag ?? DisposeBag())
+                    }, onError: { error in
+                        print("❌ Festival API Error: \(error)")
+                    })
+                    .catchError { [weak self] apiError in
+                        guard let self else { return .just([]) }
+
+                        return self.handleAPIError(
+                            apiError,
+                            mockFallback: {
+                                self.mockDataSource.fetchFestivalList(
+                                    eventStartDate: eventStartDate,
+                                    eventEndDate: eventEndDate,
+                                    areaCode: areaCode,
+                                    numOfRows: numOfRows,
+                                    pageNo: pageNo,
+                                    arrange: arrange
+                                )
+                            },
+                            emptyValue: []
                         )
-                    },
-                    emptyValue: []
-                )
+                    }
             }
     }
 
@@ -173,193 +198,99 @@ final class TourRepositoryImpl: TourRepository {
         pageNo: Int,
         arrange: String
     ) -> Single<[Place]> {
-        // Mock 모드에서는 캐시 무시하고 Mock 데이터 반환
+        // Mock 모드에서는 Mock 데이터 반환
         if AppStateManager.shared.currentMode == .mockFallback {
-            print("🔄 Mock mode active - skipping cache, using mock data")
+            print("🔄 Mock mode active - using mock data")
             let cat3Filters = parseCat3Filters(cat3)
+
+            // cat3가 1개인 경우 API에 직접 전달, 2개 이상이면 nil로 전달 후 클라이언트 필터링
+            let apiCat3: String?
+            let needsClientFiltering: Bool
+            if cat3Filters.count == 1 {
+                apiCat3 = cat3Filters.first
+                needsClientFiltering = false
+            } else {
+                apiCat3 = nil
+                needsClientFiltering = !cat3Filters.isEmpty
+            }
+
             return mockDataSource.fetchAreaBasedList(
                 areaCode: areaCode,
                 sigunguCode: sigunguCode,
                 contentTypeId: contentTypeId,
                 cat1: cat1,
                 cat2: cat2,
-                cat3: nil,
+                cat3: apiCat3,
                 numOfRows: numOfRows,
                 pageNo: pageNo,
                 arrange: arrange
             )
             .map { places in
-                self.filterPlacesByCat3(places, cat3Filters: cat3Filters)
+                return needsClientFiltering ? self.filterPlacesByCat3(places, cat3Filters: cat3Filters) : places
             }
         }
-
-        // 카테고리/테마 필터가 있으면 캐시 스킵
-        let skipCache = cat1 != nil || cat2 != nil || cat3 != nil
 
         // Cat3 필터 목록 파싱 (쉼표로 구분된 문자열)
         let cat3Filters = parseCat3Filters(cat3)
 
-        if skipCache {
-            print("🔄 Skipping cache for category/theme filtering")
-            // Cat3는 API에서 지원하지 않으므로 nil로 전달하고 클라이언트에서 필터링
-            return remoteDataSource
-                .fetchAreaBasedList(
-                    areaCode: areaCode,
-                    sigunguCode: sigunguCode,
-                    contentTypeId: contentTypeId,
-                    cat1: cat1,
-                    cat2: cat2,
-                    cat3: nil,  // API는 cat3 단일 값만 지원하므로 nil 전달
-                    numOfRows: numOfRows * 3,  // cat3 필터링으로 인한 손실 보완
-                    pageNo: pageNo,
-                    arrange: arrange
-                )
-                .map { places in
-                    // 클라이언트에서 cat3 필터링
-                    self.filterPlacesByCat3(places, cat3Filters: cat3Filters)
-                }
-                .do(onSuccess: { places in
-                    print("✅ Area API Success (no cache, cat3 filtered): \(places.count) places")
-                }, onError: { error in
-                    print("❌ Area API Error: \(error)")
-                })
-                .catchError { [weak self] apiError in
-                    guard let self else { return .just([]) }
-                    print("⚠️ Area API (skipCache) failed, using fallback Mock Data")
+        // cat3가 1개인 경우 API에 직접 전달, 2개 이상이면 nil로 전달 후 클라이언트 필터링
+        let apiCat3: String?
+        let needsClientFiltering: Bool
+        if cat3Filters.count == 1 {
+            apiCat3 = cat3Filters.first
+            needsClientFiltering = false
+        } else {
+            apiCat3 = nil
+            needsClientFiltering = !cat3Filters.isEmpty
+        }
 
-                    return self.mockDataSource
-                        .fetchAreaBasedList(
+        // PlaceList는 페이징이 있으므로 캐시 없이 항상 API 호출
+        print("🔄 Fetching area-based places (no cache, paging active)")
+        return remoteDataSource
+            .fetchAreaBasedList(
+                areaCode: areaCode,
+                sigunguCode: sigunguCode,
+                contentTypeId: contentTypeId,
+                cat1: cat1,
+                cat2: cat2,
+                cat3: apiCat3,  // cat3가 1개면 API에 전달, 아니면 nil
+                numOfRows: needsClientFiltering ? numOfRows * 3 : numOfRows,  // 클라이언트 필터링 시 손실 보완
+                pageNo: pageNo,
+                arrange: arrange
+            )
+            .map { places in
+                // cat3가 2개 이상인 경우만 클라이언트에서 필터링
+                return needsClientFiltering ? self.filterPlacesByCat3(places, cat3Filters: cat3Filters) : places
+            }
+            .do(onSuccess: { places in
+                let areaInfo = areaCode != nil ? "지역코드 \(areaCode!)" : "전국"
+                print("✅ Area API Success: \(places.count) places (\(areaInfo), page: \(pageNo))")
+            }, onError: { error in
+                print("❌ Area API Error: \(error)")
+            })
+            .catchError { [weak self] apiError in
+                guard let self else { return .just([]) }
+
+                return self.handleAPIError(
+                    apiError,
+                    mockFallback: {
+                        self.mockDataSource.fetchAreaBasedList(
                             areaCode: areaCode,
                             sigunguCode: sigunguCode,
                             contentTypeId: contentTypeId,
                             cat1: cat1,
                             cat2: cat2,
-                            cat3: nil,
-                            numOfRows: numOfRows * 3,
+                            cat3: apiCat3,  // cat3가 1개면 API에 전달, 아니면 nil
+                            numOfRows: needsClientFiltering ? numOfRows * 3 : numOfRows,
                             pageNo: pageNo,
                             arrange: arrange
                         )
                         .map { places in
-                            self.filterPlacesByCat3(places, cat3Filters: cat3Filters)
+                            return needsClientFiltering ? self.filterPlacesByCat3(places, cat3Filters: cat3Filters) : places
                         }
-                        .do(onSuccess: { places in
-                            print("✅ Mock Fallback Success (cat3 filtered): \(places.count) places")
-                        })
-                }
-        }
-
-        // Cache-first 전략 (Real API + 단순 쿼리일 때만)
-        // areaCode가 nil이면 캐시 조회 스킵 (전국 데이터)
-        if areaCode == nil {
-            print("🔄 Fetching nationwide data (no cache)")
-            return remoteDataSource
-                .fetchAreaBasedList(
-                    areaCode: areaCode,
-                    sigunguCode: sigunguCode,
-                    contentTypeId: contentTypeId,
-                    cat1: cat1,
-                    cat2: cat2,
-                    cat3: nil,  // API는 cat3 단일 값만 지원
-                    numOfRows: numOfRows,
-                    pageNo: pageNo,
-                    arrange: arrange
+                    },
+                    emptyValue: []
                 )
-                .map { places in
-                    // 클라이언트에서 cat3 필터링
-                    self.filterPlacesByCat3(places, cat3Filters: cat3Filters)
-                }
-                .do(onSuccess: { places in
-                    print("✅ Nationwide Area API Success (cat3 filtered): \(places.count) places")
-                }, onError: { error in
-                    print("❌ Area API Error: \(error)")
-                })
-                .catchError { [weak self] apiError in
-                    guard let self else { return .just([]) }
-                    print("⚠️ Nationwide Area API failed, using fallback Mock Data")
-
-                    return self.mockDataSource
-                        .fetchAreaBasedList(
-                            areaCode: areaCode,
-                            sigunguCode: sigunguCode,
-                            contentTypeId: contentTypeId,
-                            cat1: cat1,
-                            cat2: cat2,
-                            cat3: nil,
-                            numOfRows: numOfRows,
-                            pageNo: pageNo,
-                            arrange: arrange
-                        )
-                        .map { places in
-                            self.filterPlacesByCat3(places, cat3Filters: cat3Filters)
-                        }
-                        .do(onSuccess: { places in
-                            print("✅ Mock Fallback Success: \(places.count) places")
-                        })
-                }
-        }
-
-        return localDataSource.getPlaces(areaCode: areaCode, sigunguCode: sigunguCode, contentTypeId: contentTypeId)
-            .flatMap { [weak self] cachedPlaces -> Single<[Place]> in
-                guard let self = self else { return .just([]) }
-
-                if !cachedPlaces.isEmpty {
-                    print("✅ Area Cache Hit: \(cachedPlaces.count) places")
-                    return .just(cachedPlaces)
-                }
-
-                // 캐시가 없으면 API 호출
-                return self.remoteDataSource
-                    .fetchAreaBasedList(
-                        areaCode: areaCode,
-                        sigunguCode: sigunguCode,
-                        contentTypeId: contentTypeId,
-                        cat1: cat1,
-                        cat2: cat2,
-                        cat3: nil,  // API는 cat3 단일 값만 지원
-                        numOfRows: numOfRows,
-                        pageNo: pageNo,
-                        arrange: arrange
-                    )
-                    .map { places in
-                        // 클라이언트에서 cat3 필터링
-                        self.filterPlacesByCat3(places, cat3Filters: cat3Filters)
-                    }
-                    .do(onSuccess: { [weak self] places in
-                        print("✅ Area API Success (cat3 filtered): \(places.count) places")
-                        // 백그라운드에서 캐시 저장
-                        self?.localDataSource.savePlaces(places, areaCode: areaCode, sigunguCode: sigunguCode, contentTypeId: contentTypeId)
-                            .subscribe()
-                            .disposed(by: self?.disposeBag ?? DisposeBag())
-                    }, onError: { error in
-                        print("❌ Area API Error: \(error)")
-                    })
-                    .catchError { [weak self] apiError in
-                        guard let self else { return .just([]) }
-                        print("⚠️ Area API failed, using fallback Mock Data")
-
-                        return self.mockDataSource
-                            .fetchAreaBasedList(
-                                areaCode: areaCode,
-                                sigunguCode: sigunguCode,
-                                contentTypeId: contentTypeId,
-                                cat1: cat1,
-                                cat2: cat2,
-                                cat3: nil,
-                                numOfRows: numOfRows,
-                                pageNo: pageNo,
-                                arrange: arrange
-                            )
-                            .map { places in
-                                self.filterPlacesByCat3(places, cat3Filters: cat3Filters)
-                            }
-                            .do(onSuccess: { [weak self] places in
-                                print("✅ Mock Fallback Success: \(places.count) places")
-                                // Mock 데이터도 캐싱
-                                self?.localDataSource.savePlaces(places, areaCode: areaCode, sigunguCode: sigunguCode, contentTypeId: contentTypeId)
-                                    .subscribe()
-                                    .disposed(by: self?.disposeBag ?? DisposeBag())
-                            })
-                    }
             }
     }
 
@@ -441,21 +372,37 @@ final class TourRepositoryImpl: TourRepository {
             return .just(OperatingInfo.empty)
         }
 
-        // detailIntro2 API에서 운영정보를 가져옴
-        return remoteDataSource
-            .fetchDetailIntro(contentId: contentId, contentTypeId: contentTypeId)
-            .do(onSuccess: { operatingInfo in
-                print("✅ OperatingInfo API Success for contentId: \(contentId)")
-                print("📋 UseTime: \(operatingInfo.useTime ?? "nil")")
-                print("📋 RestDate: \(operatingInfo.restDate ?? "nil")")
-                print("📋 UseFee: \(operatingInfo.useFee ?? "nil")")
-            }, onError: { error in
-                print("❌ OperatingInfo API Error for contentId \(contentId): \(error)")
-            })
-            .catchError { apiError in
-                print("⚠️ OperatingInfo API failed, returning empty info")
-                // 운영정보는 선택사항이므로 빈 값 반환
-                return .just(OperatingInfo.empty)
+        // 캐시 확인
+        return localDataSource.getOperatingInfo(contentId: contentId)
+            .flatMap { [weak self] cachedOperatingInfo -> Single<OperatingInfo> in
+                guard let self else { return .error(TourRepositoryError.unknown) }
+
+                if let operatingInfo = cachedOperatingInfo {
+                    print("✅ OperatingInfo Cache Hit for contentId: \(contentId)")
+                    return .just(operatingInfo)
+                }
+
+                // 캐시가 없으면 API 호출
+                return self.remoteDataSource
+                    .fetchDetailIntro(contentId: contentId, contentTypeId: contentTypeId)
+                    .do(onSuccess: { [weak self] operatingInfo in
+                        print("✅ OperatingInfo API Success for contentId: \(contentId)")
+                        print("📋 UseTime: \(operatingInfo.useTime ?? "nil")")
+                        print("📋 RestDate: \(operatingInfo.restDate ?? "nil")")
+                        print("📋 UseFee: \(operatingInfo.useFee ?? "nil")")
+
+                        // 백그라운드에서 캐시 저장
+                        self?.localDataSource.saveOperatingInfo(operatingInfo, contentId: contentId, contentTypeId: contentTypeId)
+                            .subscribe()
+                            .disposed(by: self?.disposeBag ?? DisposeBag())
+                    }, onError: { error in
+                        print("❌ OperatingInfo API Error for contentId \(contentId): \(error)")
+                    })
+                    .catchError { apiError in
+                        print("⚠️ OperatingInfo API failed, returning empty info")
+                        // 운영정보는 선택사항이므로 빈 값 반환
+                        return .just(OperatingInfo.empty)
+                    }
             }
     }
 

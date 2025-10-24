@@ -286,6 +286,51 @@ public enum Cat2: String, CaseIterable {
     public var cat1: String {
         return String(rawValue.prefix(3))
     }
+
+    /// Cat2에 해당하는 ContentTypeID 반환
+    /// 관광지(A01, A02 일부): contentTypeId=12
+    /// 문화시설(A0206): contentTypeId=14
+    /// 축제/공연(A0207, A0208): contentTypeId=15
+    /// 레포츠(A03): contentTypeId=28
+    /// 쇼핑(A04): contentTypeId=38
+    /// 음식점(A05): contentTypeId=39
+    /// 숙박(B02): contentTypeId=32
+    /// 추천코스(C01): contentTypeId=25
+    public var contentTypeId: Int {
+        switch self {
+        // A01 자연 → 관광지(12)
+        case .A0101, .A0102:
+            return ContentTypeID.attraction.rawValue
+
+        // A02 인문 → 일부는 관광지(12), 문화시설(A0206)=14, 축제/공연=15
+        case .A0201, .A0202, .A0203, .A0204, .A0205:
+            return ContentTypeID.attraction.rawValue
+        case .A0206:
+            return ContentTypeID.culture.rawValue
+        case .A0207, .A0208:
+            return ContentTypeID.festival.rawValue
+
+        // A03 레포츠 → 레포츠(28)
+        case .A0301, .A0302, .A0303, .A0304, .A0305:
+            return ContentTypeID.leisure.rawValue
+
+        // A04 쇼핑 → 쇼핑(38)
+        case .A0401:
+            return ContentTypeID.shopping.rawValue
+
+        // A05 음식점 → 음식점(39)
+        case .A0502:
+            return ContentTypeID.food.rawValue
+
+        // B02 숙박 → 숙박(32)
+        case .B0201:
+            return ContentTypeID.lodging.rawValue
+
+        // C01 추천코스 → 여행코스(25)
+        case .C0112, .C0113, .C0114, .C0115, .C0116, .C0117:
+            return ContentTypeID.course.rawValue
+        }
+    }
 }
 
 // MARK: - Cat3 코드는 JSON 리소스로 관리 (CodeBookStore.Cat3 사용)
@@ -365,7 +410,7 @@ public enum Theme12: CaseIterable {
         case .tradition:
             return .init(cat1: .A02, cat2: .A0203, cat3Filters: ["A02030100", "A02030200", "A02030300"])
         case .history:
-            return .init(cat1: .A02, cat2: .A0201, cat3Filters: ["A02010100", "A02010200", "A02010300", "A02010400", "A02010500", "A02010600", "A02010700", "A02010800", "A02010900", "A02011000"])
+            return .init(cat1: .A02, cat2: .A0201, cat3Filters: [])
         case .etc:
             return .init(cat1: .A01, cat2: .A0102, cat3Filters: ["A01020100", "A01020200"])
         }

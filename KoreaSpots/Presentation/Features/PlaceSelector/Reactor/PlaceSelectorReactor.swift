@@ -100,7 +100,7 @@ final class PlaceSelectorReactor: Reactor {
                     cat3: nil,
                     numOfRows: 20,
                     pageNo: 1,
-                    arrange: "A"
+                    arrange: "O"
                 )
                 .asObservable()
                 .map { Mutation.setSearchResults($0) }

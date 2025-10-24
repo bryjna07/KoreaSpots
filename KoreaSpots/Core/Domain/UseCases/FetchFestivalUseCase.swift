@@ -20,13 +20,11 @@ struct FetchFestivalInput {
 enum FestivalSortOption {
     case title      // 제목순
     case date       // 날짜순
-    case popularity // 인기순
 
     var arrangeCode: String {
         switch self {
-        case .title: return "A"
-        case .date: return "B"
-        case .popularity: return "C"
+        case .title: return "O"
+        case .date: return "R"
         }
     }
 }

@@ -222,7 +222,9 @@ private extension PlaceDetailReactor {
         }
 
         // 기본 정보 섹션
-        sections.append(PlaceDetailSectionModel(section: .basicInfo, items: [.basicInfo(placeDetail.place)]))
+        // tel이 비어있으면 operatingInfo.infoCenter에서 전화번호 추출
+        let placeWithPhone = enrichPlaceWithPhone(place: placeDetail.place, operatingInfo: placeDetail.operatingInfo)
+        sections.append(PlaceDetailSectionModel(section: .basicInfo, items: [.basicInfo(placeWithPhone)]))
 
         // 설명 섹션 (overview가 있는 경우)
         if let overview = placeDetail.place.overview, !overview.isEmpty {
@@ -246,5 +248,65 @@ private extension PlaceDetailReactor {
         }
 
         return sections
+    }
+
+    /// Place의 tel이 비어있으면 OperatingInfo의 infoCenter에서 전화번호 추출
+    private func enrichPlaceWithPhone(place: Place, operatingInfo: OperatingInfo?) -> Place {
+        // tel이 이미 있으면 그대로 반환
+        if let tel = place.tel, !tel.isEmpty {
+            return place
+        }
+
+        // operatingInfo.infoCenter에서 전화번호 추출
+        guard let infoCenter = operatingInfo?.infoCenter, !infoCenter.isEmpty else {
+            return place
+        }
+
+        // infoCenter에서 전화번호 패턴 추출 (예: "문의 및 안내 : 02-1234-5678" → "02-1234-5678")
+        let phoneNumber = extractPhoneNumber(from: infoCenter)
+
+        // Place는 struct이므로 새로운 인스턴스 생성
+        return Place(
+            contentId: place.contentId,
+            title: place.title,
+            address: place.address,
+            imageURL: place.imageURL,
+            mapX: place.mapX,
+            mapY: place.mapY,
+            tel: phoneNumber,  // infoCenter에서 추출한 전화번호
+            overview: place.overview,
+            contentTypeId: place.contentTypeId,
+            areaCode: place.areaCode,
+            sigunguCode: place.sigunguCode,
+            cat1: place.cat1,
+            cat2: place.cat2,
+            cat3: place.cat3,
+            distance: place.distance,
+            modifiedTime: place.modifiedTime,
+            eventMeta: place.eventMeta,
+            isCustom: place.isCustom,
+            customPlaceId: place.customPlaceId,
+            userProvidedImagePath: place.userProvidedImagePath
+        )
+    }
+
+    /// 문자열에서 전화번호 패턴 추출
+    private func extractPhoneNumber(from text: String) -> String? {
+        // 전화번호 패턴: 02-1234-5678, 031-123-4567, 010-1234-5678 등
+        let patterns = [
+            #"0\d{1,2}-\d{3,4}-\d{4}"#,  // 일반 전화번호
+            #"1\d{3}-\d{4}"#,             // 단축번호 (1588-1234 등)
+            #"\d{3}-\d{4}-\d{4}"#         // 휴대폰 번호
+        ]
+
+        for pattern in patterns {
+            if let regex = try? NSRegularExpression(pattern: pattern, options: []),
+               let match = regex.firstMatch(in: text, options: [], range: NSRange(location: 0, length: text.utf16.count)),
+               let range = Range(match.range, in: text) {
+                return String(text[range])
+            }
+        }
+
+        return nil
     }
 }

@@ -14,6 +14,7 @@ protocol LocationService {
     var locationUpdates: Observable<CLLocationCoordinate2D> { get }
     var currentLocation: Observable<CLLocation> { get }
     var authorizationStatus: Observable<CLAuthorizationStatus> { get }
+    var lastKnownLocation: CLLocation? { get }
     func requestLocationPermission()
 
     /// Reverse Geocoding: 좌표 → 지역코드 추출
@@ -21,6 +22,9 @@ protocol LocationService {
 
     /// 사용자 위치 기반 지역코드 조회 (실패 시 nil 반환)
     func getCurrentAreaCode() -> Single<AreaCode?>
+
+    /// 마지막으로 알려진 위치 기반 지역코드 조회 (실패 시 nil 반환)
+    func getAreaCodeFromLastKnownLocation() -> Single<AreaCode?>
 
     /// 위치가 한국 내인지 확인
     func isCoordinateInKorea(latitude: Double, longitude: Double) -> Bool
@@ -63,7 +67,6 @@ extension LocationManager: LocationService {
         return authorizationStatus
             .filter { $0 != .notDetermined }
             .take(1)
-            .timeout(.seconds(10), scheduler: MainScheduler.asyncInstance)
             .asSingle()
             .flatMap { [unowned self] status -> Single<AreaCode?> in
                 // 권한이 거부되었으면 즉시 nil 반환 (전국 조회)
@@ -75,7 +78,6 @@ extension LocationManager: LocationService {
                 // 권한이 허용됨 → 위치 기반 지역코드 조회
                 return self.currentLocation
                     .take(1)
-                    .timeout(.seconds(5), scheduler: MainScheduler.asyncInstance)
                     .asSingle()
                     .flatMap { [unowned self] location -> Single<AreaCode?> in
                         // 한국 내 위치인지 확인
@@ -99,9 +101,28 @@ extension LocationManager: LocationService {
                         return .just(nil)
                     }
             }
+    }
+
+    /// 마지막으로 알려진 위치 기반 지역코드 조회 (실패 시 nil 반환)
+    func getAreaCodeFromLastKnownLocation() -> Single<AreaCode?> {
+        guard let location = lastKnownLocation else {
+            print("⚠️ 마지막 위치 정보 없음 - 전국 조회")
+            return .just(nil)
+        }
+
+        // 한국 내 위치인지 확인
+        guard isCoordinateInKorea(
+            latitude: location.coordinate.latitude,
+            longitude: location.coordinate.longitude
+        ) else {
+            print("⚠️ 마지막 위치가 한국이 아닙니다 - 전국 조회")
+            return .just(nil)
+        }
+
+        return getAreaCode(from: location)
+            .map(Optional.some)
             .catch { error in
-                // timeout 등의 에러 발생 시 전국 조회
-                print("⚠️ 권한 대기 timeout - 전국 조회")
+                print("⚠️ 지역코드 추출 실패: \(error.localizedDescription)")
                 return .just(nil)
             }
     }

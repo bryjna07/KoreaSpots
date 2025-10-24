@@ -19,7 +19,7 @@ extension TourAPI {
         cat3: String? = nil,
         numOfRows: Int = 20,
         pageNo: Int = 1,
-        arrange: String = "A"
+        arrange: String = "Q" // 제목순
     ) -> TourAPI {
         return .areaBasedList(
             areaCode: areaCode?.rawValue,
@@ -40,7 +40,7 @@ extension TourAPI {
         areaCode: AreaCode? = nil,
         numOfRows: Int = 20,
         pageNo: Int = 1,
-        arrange: String = "B"
+        arrange: String = "R"
     ) -> TourAPI {
         return .searchFestival(
             eventStartDate: startDate,
@@ -59,7 +59,7 @@ extension TourAPI {
         contentTypeId: Int? = nil,
         numOfRows: Int = 10,
         pageNo: Int = 1,
-        arrange: String = "E"
+        arrange: String = "S"
     ) -> TourAPI {
         return .locationBasedList(
             mapX: mapX,

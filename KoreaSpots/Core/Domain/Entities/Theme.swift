@@ -78,9 +78,9 @@ private extension Theme12 {
         case .spa:
             return 12 // 관광지
         case .tradition, .history:
-            return 14 // 문화시설
+            return 12 // 관광지
         case .etc:
-            return nil
+            return 12
         }
     }
     

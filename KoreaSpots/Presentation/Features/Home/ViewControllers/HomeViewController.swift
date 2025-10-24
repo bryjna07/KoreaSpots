@@ -280,8 +280,14 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
         }
 
         // Cat3 필터링을 위한 쿼리 문자열 생성
-        let cat3Query = theme.theme12.query.cat3Filters
-            .joined(separator: ",")
+        // - cat3가 1개인 경우: API에 직접 전달 (예: 동굴)
+        // - cat3가 2개 이상인 경우: cat2로 넓게 조회 후 클라이언트 필터링
+        let cat3Query: String?
+        if theme.theme12.query.cat3Filters.count == 1 {
+            cat3Query = theme.theme12.query.cat3Filters.first
+        } else {
+            cat3Query = nil
+        }
 
         let viewController = AppContainer.shared.makePlaceListViewController(
             initialArea: nil,

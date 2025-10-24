@@ -163,6 +163,8 @@ final class PlaceListReactor: Reactor {
             let sigungu = currentState.selectedSigungu
             let contentTypeId = currentState.contentTypeId
 
+            print("📄 loadNextPage - page: \(nextPage), contentTypeId: \(contentTypeId?.description ?? "nil"), cat1: \(currentState.cat1 ?? "nil"), cat2: \(currentState.cat2 ?? "nil"), cat3: \(currentState.cat3 ?? "nil")")
+
             return Observable.concat([
                 Observable.just(.setLoading(true)),
                 Observable.just(.setCurrentPage(nextPage)),
@@ -242,8 +244,11 @@ final class PlaceListReactor: Reactor {
     }
 
     func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        // mutation을 공유하여 중복 구독 방지
+        let sharedMutation = mutation.share()
+
         // Places가 변경될 때마다 즐겨찾기 상태 체크
-        let favoritesUpdate = mutation
+        let favoritesUpdate = sharedMutation
             .compactMap { mutation -> [Place]? in
                 switch mutation {
                 case .setPlaces(let places), .appendPlaces(let places):
@@ -257,7 +262,7 @@ final class PlaceListReactor: Reactor {
                 return self.checkFavoritesStatus(contentIds: contentIds)
             }
 
-        return Observable.merge(mutation, favoritesUpdate)
+        return Observable.merge(sharedMutation, favoritesUpdate)
     }
 
     // MARK: - Private Methods
@@ -321,7 +326,7 @@ final class PlaceListReactor: Reactor {
             return Observable.just([])
         }
 
-        print("🌐 API 요청: page=\(page), areaCode=\(areaCode?.description ?? "nil"), contentTypeId=\(contentTypeId?.description ?? "nil")")
+        print("🌐 API 요청: page=\(page), areaCode=\(areaCode?.description ?? "nil"), contentTypeId=\(contentTypeId?.description ?? "nil"), cat1=\(currentState.cat1 ?? "nil"), cat2=\(currentState.cat2 ?? "nil"), cat3=\(currentState.cat3 ?? "nil")")
 
         return fetchAreaBasedPlacesUseCase
             .execute(
