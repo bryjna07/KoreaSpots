@@ -20,6 +20,10 @@ protocol TourLocalDataSource {
     func getPlaceDetail(contentId: String) -> Single<Place?>
     func savePlaceDetail(_ place: Place) -> Completable
 
+    // MARK: - Operating Info Cache
+    func getOperatingInfo(contentId: String) -> Single<OperatingInfo?>
+    func saveOperatingInfo(_ operatingInfo: OperatingInfo, contentId: String, contentTypeId: Int) -> Completable
+
     // MARK: - Favorites
     func getFavoritePlaces() -> Single<[Place]>
     func toggleFavorite(contentId: String) -> Completable

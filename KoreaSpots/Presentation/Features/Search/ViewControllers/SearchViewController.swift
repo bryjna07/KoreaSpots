@@ -160,19 +160,7 @@ final class SearchViewController: BaseViewController, View, ScreenNavigatable {
         }
         .disposed(by: disposeBag)
 
-        // State: isSearching
-        reactor.state
-            .map { $0.isSearching }
-            .distinctUntilChanged()
-            .asDriver(onErrorJustReturn: false)
-            .drive(with: self) { owner, isSearching in
-                if isSearching {
-                    // TODO: Show loading indicator
-                } else {
-                    // TODO: Hide loading indicator
-                }
-            }
-            .disposed(by: disposeBag)
+        // State: isSearching (removed - skeleton views are handled per cell in setupDataSources)
 
         // State: error (한번만 표시)
         reactor.state

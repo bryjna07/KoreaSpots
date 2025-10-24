@@ -183,52 +183,52 @@ extension DetailIntroItem {
         switch self {
         case let festival as FestivalDetailIntro:
             return OperatingInfo(
-                useTime: nil,
+                useTime: festival.usetimefestival?.decodedHTML,
                 restDate: nil,
-                useFee: festival.usetimefestival?.isEmpty == true ? nil : festival.usetimefestival,
-                homepage: festival.eventhomepage?.isEmpty == true ? nil : festival.eventhomepage,
-                infoCenter: festival.sponsor1tel?.isEmpty == true ? nil : festival.sponsor1tel,
+                useFee: nil,
+                homepage: festival.eventhomepage?.extractedURL,
+                infoCenter: festival.sponsor1tel?.decodedHTML,
                 parking: nil,
                 specificInfo: specificInfo
             )
 
         case let touristSpot as TouristSpotDetailIntro:
             return OperatingInfo(
-                useTime: touristSpot.usetime?.isEmpty == true ? nil : touristSpot.usetime,
-                restDate: touristSpot.restdate?.isEmpty == true ? nil : touristSpot.restdate,
+                useTime: touristSpot.usetime?.decodedHTML,
+                restDate: touristSpot.restdate?.decodedHTML,
                 useFee: nil,
                 homepage: nil,
-                infoCenter: touristSpot.infocenter?.isEmpty == true ? nil : touristSpot.infocenter,
-                parking: touristSpot.parking?.isEmpty == true ? nil : touristSpot.parking,
+                infoCenter: touristSpot.infocenter?.decodedHTML,
+                parking: touristSpot.parking?.decodedHTML,
                 specificInfo: specificInfo
             )
 
         case let culturalFacility as CulturalFacilityDetailIntro:
             return OperatingInfo(
-                useTime: culturalFacility.usetimeculture?.isEmpty == true ? nil : culturalFacility.usetimeculture,
-                restDate: culturalFacility.restdateculture?.isEmpty == true ? nil : culturalFacility.restdateculture,
-                useFee: culturalFacility.usefee?.isEmpty == true ? nil : culturalFacility.usefee,
+                useTime: culturalFacility.usetimeculture?.decodedHTML,
+                restDate: culturalFacility.restdateculture?.decodedHTML,
+                useFee: culturalFacility.usefee?.decodedHTML,
                 homepage: nil,
-                infoCenter: culturalFacility.infocenterculture?.isEmpty == true ? nil : culturalFacility.infocenterculture,
-                parking: culturalFacility.parkingculture?.isEmpty == true ? nil : culturalFacility.parkingculture,
+                infoCenter: culturalFacility.infocenterculture?.decodedHTML,
+                parking: culturalFacility.parkingculture?.decodedHTML,
                 specificInfo: specificInfo
             )
 
         case let leisureSports as LeisureSportsDetailIntro:
             return OperatingInfo(
-                useTime: leisureSports.usetimeleports?.isEmpty == true ? nil : leisureSports.usetimeleports,
-                restDate: leisureSports.restdateleports?.isEmpty == true ? nil : leisureSports.restdateleports,
-                useFee: leisureSports.usefeeleports?.isEmpty == true ? nil : leisureSports.usefeeleports,
+                useTime: leisureSports.usetimeleports?.decodedHTML,
+                restDate: leisureSports.restdateleports?.decodedHTML,
+                useFee: leisureSports.usefeeleports?.decodedHTML,
                 homepage: nil,
-                infoCenter: leisureSports.infocenterleports?.isEmpty == true ? nil : leisureSports.infocenterleports,
-                parking: leisureSports.parkingleports?.isEmpty == true ? nil : leisureSports.parkingleports,
+                infoCenter: leisureSports.infocenterleports?.decodedHTML,
+                parking: leisureSports.parkingleports?.decodedHTML,
                 specificInfo: specificInfo
             )
 
         case let accommodation as AccommodationDetailIntro:
             let useTime: String? = {
-                let checkin = accommodation.checkintime?.isEmpty == false ? accommodation.checkintime : nil
-                let checkout = accommodation.checkouttime?.isEmpty == false ? accommodation.checkouttime : nil
+                let checkin = accommodation.checkintime?.decodedHTML
+                let checkout = accommodation.checkouttime?.decodedHTML
                 if let checkin = checkin, let checkout = checkout {
                     return "\(checkin) ~ \(checkout)"
                 }
@@ -239,37 +239,37 @@ extension DetailIntroItem {
                 useTime: useTime,
                 restDate: nil,
                 useFee: nil,
-                homepage: accommodation.reservationurl?.isEmpty == true ? nil : accommodation.reservationurl,
-                infoCenter: accommodation.infocenterlodging?.isEmpty == true ? nil : accommodation.infocenterlodging,
-                parking: accommodation.parkinglodging?.isEmpty == true ? nil : accommodation.parkinglodging,
+                homepage: accommodation.reservationurl?.extractedURL,
+                infoCenter: accommodation.infocenterlodging?.decodedHTML,
+                parking: accommodation.parkinglodging?.decodedHTML,
                 specificInfo: specificInfo
             )
 
         case let shopping as ShoppingDetailIntro:
             return OperatingInfo(
-                useTime: shopping.opentime?.isEmpty == true ? nil : shopping.opentime,
-                restDate: shopping.restdateshopping?.isEmpty == true ? nil : shopping.restdateshopping,
+                useTime: shopping.opentime?.decodedHTML,
+                restDate: shopping.restdateshopping?.decodedHTML,
                 useFee: nil,
                 homepage: nil,
-                infoCenter: shopping.infocentershopping?.isEmpty == true ? nil : shopping.infocentershopping,
-                parking: shopping.parkingshopping?.isEmpty == true ? nil : shopping.parkingshopping,
+                infoCenter: shopping.infocentershopping?.decodedHTML,
+                parking: shopping.parkingshopping?.decodedHTML,
                 specificInfo: specificInfo
             )
 
         case let restaurant as RestaurantDetailIntro:
             return OperatingInfo(
-                useTime: restaurant.opentimefood?.isEmpty == true ? nil : restaurant.opentimefood,
-                restDate: restaurant.restdatefood?.isEmpty == true ? nil : restaurant.restdatefood,
+                useTime: restaurant.opentimefood?.decodedHTML,
+                restDate: restaurant.restdatefood?.decodedHTML,
                 useFee: nil,
                 homepage: nil,
-                infoCenter: restaurant.infocenterfood?.isEmpty == true ? nil : restaurant.infocenterfood,
-                parking: restaurant.parkingfood?.isEmpty == true ? nil : restaurant.parkingfood,
+                infoCenter: restaurant.infocenterfood?.decodedHTML,
+                parking: restaurant.parkingfood?.decodedHTML,
                 specificInfo: specificInfo
             )
 
         case let travelCourse as TravelCourseDetailIntro:
             return OperatingInfo(
-                useTime: travelCourse.taketime?.isEmpty == true ? nil : travelCourse.taketime,
+                useTime: travelCourse.taketime?.decodedHTML,
                 restDate: nil,
                 useFee: nil,
                 homepage: nil,

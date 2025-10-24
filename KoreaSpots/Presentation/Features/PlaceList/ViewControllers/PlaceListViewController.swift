@@ -140,19 +140,7 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
             }
             .disposed(by: disposeBag)
 
-        // State: isLoading
-        reactor.state
-            .map { $0.isLoading }
-            .distinctUntilChanged()
-            .asDriver(onErrorJustReturn: false)
-            .drive(with: self) { owner, isLoading in
-                if isLoading {
-                    // TODO: Show loading indicator
-                } else {
-                    // TODO: Hide loading indicator
-                }
-            }
-            .disposed(by: disposeBag)
+        // State: isLoading (removed - skeleton views are handled per cell in setupDataSource)
 
         // State: error
         reactor.state
@@ -228,6 +216,9 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
             guard let self = self else { return }
 
             cell.configure(with: item.place, showTag: false, isFavorite: item.isFavorite)
+
+            // 스켈레톤 적용
+            self.placeListView.collectionView.configureSkeletonIfNeeded(for: cell, with: item.place)
 
             // Favorite button tap with alert for removal
             cell.favoriteButton.rx.tap
@@ -366,16 +357,8 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
     }
 
     private func updateSigunguChipSelection(selectedSigungu: Int?) {
-        placeListView.sigunguChipStackView.arrangedSubviews.enumerated().forEach { index, view in
-            guard let button = view as? UIButton, var config = button.configuration else { return }
-
-            let isSelected = (index == 0 && selectedSigungu == nil) || (index > 0 && selectedSigungu != nil)
-            config.baseForegroundColor = isSelected ? .white : .label
-            config.baseBackgroundColor = isSelected ? .textPrimary : .clear
-            config.background.strokeColor = isSelected ? .textPrimary : .separator
-
-            button.configuration = config
-        }
+        // updateSigunguChips에서 칩을 재생성하므로 이 메서드는 사용되지 않음
+        // State 변경 시 updateSigunguChips가 호출되어 올바른 선택 상태로 칩이 생성됨
     }
 
     private func applySnapshot(places: [Place]) {
