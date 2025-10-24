@@ -365,7 +365,7 @@ public enum Theme12: CaseIterable {
         case .tradition:
             return .init(cat1: .A02, cat2: .A0203, cat3Filters: ["A02030100", "A02030200", "A02030300"])
         case .history:
-            return .init(cat1: .A02, cat2: .A0201, cat3Filters: ["A02010100", "A02010200", "A02010300", "A02010400", "A02010500", "A02010600", "A02010700", "A02010800", "A02010900", "A02011000"])
+            return .init(cat1: .A02, cat2: .A0201, cat3Filters: [])
         case .etc:
             return .init(cat1: .A01, cat2: .A0102, cat3Filters: ["A01020100", "A01020200"])
         }

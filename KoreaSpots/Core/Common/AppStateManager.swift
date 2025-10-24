@@ -2,7 +2,7 @@
 //  AppStateManager.swift
 //  KoreaSpots
 //
-//  Created by Claude on 10/20/25.
+//  Created by YoungJin on 10/20/25.
 //
 
 import Foundation

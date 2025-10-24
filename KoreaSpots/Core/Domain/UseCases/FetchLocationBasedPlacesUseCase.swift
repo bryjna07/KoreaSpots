@@ -21,15 +21,11 @@ struct FetchLocationBasedPlacesInput {
 enum PlaceSortOption {
     case distance    // 거리순
     case title       // 제목순
-    case rating      // 평점순
-    case popularity  // 인기순
 
     var arrangeCode: String {
         switch self {
-        case .distance: return "E"
-        case .title: return "A"
-        case .rating: return "O"
-        case .popularity: return "P"
+        case .distance: return "S"
+        case .title: return "O"
         }
     }
 }

@@ -31,7 +31,7 @@ final class FetchAreaBasedPlacesUseCaseImpl: FetchAreaBasedPlacesUseCase {
                 cat3: cat3,
                 numOfRows: maxCount,
                 pageNo: pageNo,
-                arrange: "Q" // 대표이미지가 있는 데이터 - 제목순 "O" 수정일순 "Q" 생성일순 "R"
+                arrange: "R" // 대표이미지가 있는 데이터 - 제목순 "O" 수정일순 "Q" 생성일순 "R"
             )
     }
 }
