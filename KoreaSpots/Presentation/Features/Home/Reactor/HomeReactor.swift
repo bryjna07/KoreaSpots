@@ -97,28 +97,36 @@ final class HomeReactor: Reactor {
             let isInKorea = locationService.isCoordinateInKorea(latitude: latitude, longitude: longitude)
 
             if !isInKorea {
-                // 한국 밖이면 Nearby 섹션 숨김
+                // 한국 밖이면 Nearby 섹션 숨김 + 전국 축제 데이터 로드
                 return Observable.concat([
                     Observable.just(.setUserLocation(latitude: latitude, longitude: longitude)),
                     Observable.just(.setShouldShowNearbySection(false)),
-                    Observable.just(.setNearbyPlaces([]))
+                    Observable.just(.setNearbyPlaces([])),
+                    Observable.just(.setLoading(true)),
+                    fetchCurrentFestivals(),  // 전국 축제 데이터 로드 (areaCode=nil)
+                    Observable.just(.setLoading(false))
                 ])
             }
 
-            // 한국 내면 Nearby 섹션 표시 + 데이터 로드
+            // 한국 내면 Nearby 섹션 표시 + 지역 기반 축제 + 주변 장소 로드
             return Observable.concat([
                 Observable.just(.setUserLocation(latitude: latitude, longitude: longitude)),
                 Observable.just(.setShouldShowNearbySection(true)),
                 Observable.just(.setLoading(true)),
+                fetchFestivalsFromLastKnownLocation(),  // 마지막 위치 기반 지역 축제 로드
                 fetchNearbyPlaces(latitude: latitude, longitude: longitude),
                 Observable.just(.setLoading(false))
             ])
 
         case .locationPermissionDenied:
-            // 위치 권한 거부 시: 축제는 전국 데이터, Nearby 섹션 숨김
+            // 위치 권한 거부 시: 전국 축제 데이터 로드, Nearby 섹션 숨김
             return Observable.concat([
+                Observable.just(.setCurrentAreaCode(nil)),  // 지역코드 초기화
                 Observable.just(.setShouldShowNearbySection(false)),
-                Observable.just(.setNearbyPlaces([]))
+                Observable.just(.setNearbyPlaces([])),
+                Observable.just(.setLoading(true)),
+                fetchCurrentFestivals(),  // 전국 축제 데이터 로드 (areaCode=nil)
+                Observable.just(.setLoading(false))
             ])
         }
     }
@@ -175,6 +183,36 @@ private extension HomeReactor {
 
         // 사용자 위치 기반 지역코드 조회 후 축제 요청
         return locationService.getCurrentAreaCode()
+            .asObservable()
+            .flatMap { [weak self] areaCode -> Observable<Mutation> in
+                guard let self else { return .empty() }
+
+                let input = FetchFestivalInput(
+                    startDate: today,
+                    endDate: endDate,
+                    areaCode: areaCode?.rawValue,
+                    maxCount: 20,
+                    sortOption: .date
+                )
+
+                return Observable.concat([
+                    .just(.setCurrentAreaCode(areaCode)),
+                    self.fetchFestivalUseCase
+                        .execute(input)
+                        .asObservable()
+                        .map(Mutation.setFestivals)
+                ])
+            }
+            .catch { _ in .just(.setFestivals([])) }
+    }
+
+    /// 마지막으로 알려진 위치 기반 축제 데이터 로드
+    func fetchFestivalsFromLastKnownLocation() -> Observable<Mutation> {
+        let today = DateFormatterUtil.yyyyMMdd.string(from: Date())
+        let endDate = DateFormatterUtil.yyyyMMdd.string(from: Date().addingTimeInterval(30 * 24 * 60 * 60))
+
+        // 마지막 위치 기반 지역코드 조회 후 축제 요청
+        return locationService.getAreaCodeFromLastKnownLocation()
             .asObservable()
             .flatMap { [weak self] areaCode -> Observable<Mutation> in
                 guard let self else { return .empty() }

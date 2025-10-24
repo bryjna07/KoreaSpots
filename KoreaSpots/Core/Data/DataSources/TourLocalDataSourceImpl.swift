@@ -34,9 +34,11 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
             do {
                 var predicates: [NSPredicate] = []
 
-                // areaCode가 nil이면 전국 데이터이므로 필터링하지 않음
+                // areaCode 필터링: nil이면 areaCode가 nil인 데이터만 조회 (전국 데이터)
                 if let areaCode = areaCode {
                     predicates.append(NSPredicate(format: "areaCode == %d", areaCode))
+                } else {
+                    predicates.append(NSPredicate(format: "areaCode == nil"))
                 }
 
                 if let sigunguCode = sigunguCode {
@@ -182,6 +184,77 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
                 }
                 observer(.completed)
             } catch {
+                observer(.error(DataSourceError.cacheError))
+            }
+
+            return Disposables.create()
+        }
+        .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
+    }
+
+    // MARK: - Operating Info Cache
+    func getOperatingInfo(contentId: String) -> Single<OperatingInfo?> {
+        return Single.create { [weak self] observer in
+            guard let self = self else {
+                observer(.success(nil))
+                return Disposables.create()
+            }
+
+            do {
+                let realm = try self.createRealm()
+
+                if let cachedPlace = realm.object(ofType: PlaceR.self, forPrimaryKey: contentId),
+                   let operatingInfoE = cachedPlace.operatingInfo {
+
+                    // TTL 체크 (7일)
+                    if operatingInfoE.isValid() {
+                        observer(.success(operatingInfoE.toDomain()))
+                    } else {
+                        observer(.success(nil))
+                    }
+                } else {
+                    observer(.success(nil))
+                }
+            } catch {
+                observer(.failure(DataSourceError.cacheError))
+            }
+
+            return Disposables.create()
+        }
+        .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
+    }
+
+    func saveOperatingInfo(_ operatingInfo: OperatingInfo, contentId: String, contentTypeId: Int) -> Completable {
+        return Completable.create { [weak self] observer in
+            guard let self = self else {
+                observer(.completed)
+                return Disposables.create()
+            }
+
+            do {
+                let realm = try self.createRealm()
+                try realm.write {
+                    if let existing = realm.object(ofType: PlaceR.self, forPrimaryKey: contentId) {
+                        // 기존 Place가 있으면 operatingInfo 업데이트
+                        let operatingInfoE = OperatingInfoE(from: operatingInfo, contentTypeId: contentTypeId)
+                        existing.operatingInfo = operatingInfoE
+                        print("✅ OperatingInfo saved for contentId: \(contentId)")
+                    } else {
+                        // Place가 없으면 새로 생성
+                        let newPlace = PlaceR()
+                        newPlace.contentId = contentId
+                        newPlace.contentTypeId = contentTypeId
+
+                        let operatingInfoE = OperatingInfoE(from: operatingInfo, contentTypeId: contentTypeId)
+                        newPlace.operatingInfo = operatingInfoE
+
+                        realm.add(newPlace, update: .modified)
+                        print("✅ New Place with OperatingInfo created for contentId: \(contentId)")
+                    }
+                }
+                observer(.completed)
+            } catch {
+                print("❌ Failed to save OperatingInfo: \(error)")
                 observer(.error(DataSourceError.cacheError))
             }
 
