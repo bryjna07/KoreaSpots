@@ -177,7 +177,7 @@ private extension LeisureSportsOperatingInfoCell {
         }
 
         titleLabel.snp.makeConstraints {
-            $0.top.leading.bottom.equalToSuperview()
+            $0.top.leading.equalToSuperview()
             $0.width.equalTo(80)
         }
 
