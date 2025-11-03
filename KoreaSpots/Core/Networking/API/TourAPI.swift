@@ -24,6 +24,8 @@ enum TourAPI {
     case detailIntro(contentId: String, contentTypeId: Int)
     /// 상세이미지: contentId로 이미지 목록 조회 (모든 이미지 반환)
     case detailImage(contentId: String)
+    /// 상세정보 반복: contentId로 반복정보 조회 (여행코스: 코스 목록)
+    case detailInfo(contentId: String, contentTypeId: Int)
 }
 
 extension TourAPI: TargetType {
@@ -51,6 +53,8 @@ extension TourAPI: TargetType {
             return "/B551011/KorService2/detailIntro2"
         case .detailImage:
             return "/B551011/KorService2/detailImage2"
+        case .detailInfo:
+            return "/B551011/KorService2/detailInfo2"
         }
     }
 
@@ -164,6 +168,12 @@ extension TourAPI: TargetType {
             return [
                 "contentId": contentId,
                 "imageYN": "Y"
+            ]
+
+        case let .detailInfo(contentId, contentTypeId):
+            return [
+                "contentId": contentId,
+                "contentTypeId": contentTypeId
             ]
         }
     }

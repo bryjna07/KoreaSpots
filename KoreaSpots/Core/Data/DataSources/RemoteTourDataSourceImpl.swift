@@ -157,6 +157,20 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
             response.toOperatingInfo()
         }
     }
+
+    func fetchDetailInfo(
+        contentId: String,
+        contentTypeId: Int
+    ) -> Single<[TravelCourseDetailItem]> {
+        return provider.rx.request(.detailInfo(
+            contentId: contentId,
+            contentTypeId: contentTypeId
+        ))
+        .map(TravelCourseDetailResponse.self)
+        .map { response in
+            response.items
+        }
+    }
 }
 
 // MARK: - DataSource Errors

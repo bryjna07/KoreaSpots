@@ -136,6 +136,41 @@ extension UIImageView: ImageLoadable {
         }
     }
 
+    // MARK: - noImage placeholder를 지원하는 이미지 로딩
+    func loadImageWithNoImagePlaceholder(
+        from urlString: String?,
+        size: ImageLoader.ImageSize = .listItem,
+        cachePolicy: ImageLoader.CachePolicy = .diskAndMemory,
+        completion: ((Result<UIImage, Error>) -> Void)? = nil
+    ) {
+        guard let urlString = urlString,
+              !urlString.isEmpty,
+              let url = URL(string: urlString) else {
+            // URL이 없으면 noImage 표시
+            image = UIImage(named: "noImage")
+            completion?(.failure(ImageLoaderError.noImage))
+            return
+        }
+
+        let options = ImageLoader.makeOptions(for: size, cachePolicy: cachePolicy)
+        kf.indicatorType = .none
+
+        kf.setImage(
+            with: url,
+            placeholder: nil,
+            options: options
+        ) { [weak self] result in
+            switch result {
+            case .success(let imageResult):
+                completion?(.success(imageResult.image))
+            case .failure(let error):
+                // 로딩 실패 시 noImage 표시
+                self?.image = UIImage(named: "noImage")
+                completion?(.failure(error))
+            }
+        }
+    }
+
     // MARK: - Protocol 구현
     func loadImage(
         from url: String?,
@@ -169,6 +204,19 @@ extension UIImageView: ImageLoadable {
         )
     }
 
+    /// noImage placeholder를 지원하는 관광지 이미지 로딩
+    func loadTourismImageWithNoImagePlaceholder(
+        from urlString: String?,
+        type: TourismImageType = .attraction
+    ) {
+        let (size, cachePolicy) = type.imageConfiguration
+        loadImageWithNoImagePlaceholder(
+            from: urlString,
+            size: size,
+            cachePolicy: cachePolicy
+        )
+    }
+
     func loadFestivalBanner(from urlString: String?) {
         loadImage(
             from: urlString,
@@ -182,6 +230,15 @@ extension UIImageView: ImageLoadable {
         loadImage(
             from: urlString,
             placeholder: nil,
+            size: .thumbnail,
+            cachePolicy: .memoryOnly
+        )
+    }
+
+    /// noImage placeholder를 지원하는 썸네일 이미지 로딩
+    func loadPlaceThumbnailWithNoImagePlaceholder(from urlString: String?) {
+        loadImageWithNoImagePlaceholder(
+            from: urlString,
             size: .thumbnail,
             cachePolicy: .memoryOnly
         )

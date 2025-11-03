@@ -15,10 +15,23 @@ extension TourAPIBaseItem {
             return nil
         }
 
+        // 주소가 비어있으면 areacode로 지역명 표시
+        let displayAddress: String
+        if addr1.isEmpty {
+            if let areaCodeInt = parseInt(areacode),
+               let areaCode = AreaCode(rawValue: areaCodeInt) {
+                displayAddress = areaCode.displayName
+            } else {
+                displayAddress = "주소 정보 없음"
+            }
+        } else {
+            displayAddress = addr1.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
         return Place(
             contentId: contentid,
             title: title.trimmingCharacters(in: .whitespacesAndNewlines),
-            address: addr1.isEmpty ? "주소 정보 없음" : addr1.trimmingCharacters(in: .whitespacesAndNewlines),
+            address: displayAddress,
             imageURL: processImageURL(firstimage),
             mapX: parseCoordinate(mapx),
             mapY: parseCoordinate(mapy),
@@ -57,10 +70,23 @@ extension TourAPIBaseItem {
             eventMeta = nil
         }
 
+        // 주소가 비어있으면 areacode로 지역명 표시
+        let displayAddress: String
+        if addr1.isEmpty {
+            if let areaCodeInt = parseInt(areacode),
+               let areaCode = AreaCode(rawValue: areaCodeInt) {
+                displayAddress = areaCode.displayName
+            } else {
+                displayAddress = "주소 정보 없음"
+            }
+        } else {
+            displayAddress = addr1.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
         return Place(
             contentId: contentid,
             title: title.trimmingCharacters(in: .whitespacesAndNewlines),
-            address: addr1.isEmpty ? "주소 정보 없음" : addr1.trimmingCharacters(in: .whitespacesAndNewlines),
+            address: displayAddress,
             imageURL: processImageURL(firstimage),
             mapX: parseCoordinate(mapx),
             mapY: parseCoordinate(mapy),

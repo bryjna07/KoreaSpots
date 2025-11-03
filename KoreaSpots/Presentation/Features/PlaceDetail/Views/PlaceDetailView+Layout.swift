@@ -49,6 +49,8 @@ extension PlaceDetailView {
                     return self.createLocationSection()
                 case .nearbyPlaces:
                     return self.createNearbyPlacesSection()
+                case .coursePlaces:
+                    return self.createCoursePlacesSection()
                 }
             },
             configuration: configuration
@@ -203,6 +205,34 @@ extension PlaceDetailView {
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .continuous
         section.interGroupSpacing = Constants.UI.CollectionView.PlaceDetail.NearbyPlaces.itemSpacing
+        section.contentInsets = NSDirectionalEdgeInsets(
+            top: 0,
+            leading: Constants.UI.CollectionView.PlaceDetail.ContentInsets.standard,
+            bottom: 0,
+            trailing: Constants.UI.CollectionView.PlaceDetail.ContentInsets.standard
+        )
+
+        // Header 추가
+        section.boundarySupplementaryItems = [createSectionHeader()]
+
+        return section
+    }
+
+    func createCoursePlacesSection() -> NSCollectionLayoutSection {
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .absolute(84)
+        )
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .absolute(84)
+        )
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = 8
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 0,
             leading: Constants.UI.CollectionView.PlaceDetail.ContentInsets.standard,

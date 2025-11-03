@@ -65,4 +65,9 @@ protocol TourRemoteDataSource {
     func fetchDetailImages(
         contentId: String
     ) -> Single<[PlaceImage]>
+
+    func fetchDetailInfo(
+        contentId: String,
+        contentTypeId: Int
+    ) -> Single<[TravelCourseDetailItem]>
 }

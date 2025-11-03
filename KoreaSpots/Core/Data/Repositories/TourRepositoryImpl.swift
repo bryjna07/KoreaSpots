@@ -426,6 +426,50 @@ final class TourRepositoryImpl: TourRepository {
             }
     }
 
+    func getTravelCourseDetails(contentId: String, contentTypeId: Int) -> Single<[CourseDetail]> {
+        return remoteDataSource
+            .fetchDetailInfo(contentId: contentId, contentTypeId: contentTypeId)
+            .map { items in
+                items.map { item in
+                    CourseDetail(
+                        subNum: item.subNum,
+                        subContentId: item.subContentId,
+                        subName: item.subName,
+                        subDetailOverview: item.subDetailOverview,
+                        subDetailImg: item.subDetailImg,
+                        subDetailAlt: item.subDetailAlt
+                    )
+                }
+            }
+            .do(onSuccess: { details in
+                print("✅ Travel Course Details API Success: \(details.count) course items")
+            }, onError: { error in
+                print("❌ Travel Course Details API Error: \(error)")
+            })
+            .catchError { [weak self] apiError in
+                guard let self else { return .just([]) }
+                print("⚠️ Travel Course Details API failed, using fallback Mock Data")
+
+                return self.mockDataSource
+                    .fetchDetailInfo(contentId: contentId, contentTypeId: contentTypeId)
+                    .map { items in
+                        items.map { item in
+                            CourseDetail(
+                                subNum: item.subNum,
+                                subContentId: item.subContentId,
+                                subName: item.subName,
+                                subDetailOverview: item.subDetailOverview,
+                                subDetailImg: item.subDetailImg,
+                                subDetailAlt: item.subDetailAlt
+                            )
+                        }
+                    }
+                    .do(onSuccess: { details in
+                        print("✅ Mock Fallback Success: \(details.count) course items")
+                    })
+            }
+    }
+
     // MARK: - Search Operations
     func searchPlacesByKeyword(
         keyword: String,
