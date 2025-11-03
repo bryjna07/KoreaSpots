@@ -32,4 +32,9 @@ struct EventMeta: Equatable {
         let todayString = DateFormatterUtil.yyyyMMdd.string(from: today)
         return eventStartDate > todayString
     }
+
+    /// 날짜 범위를 yy.MM.dd ~ yy.MM.dd 형식으로 반환 (상세정보용)
+    var formattedDateRange: String {
+        return DateFormatterUtil.formatPeriodWithYear(start: eventStartDate, end: eventEndDate)
+    }
 }
