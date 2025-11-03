@@ -143,25 +143,90 @@ private extension PlaceDetailReactor {
     }
 
     func fetchPlaceDetail() -> Observable<Mutation> {
-        return Observable.combineLatest(
-            fetchDetailInfo(),
-            fetchDetailImages(),
-            fetchNearbyPlaces()
-        )
-        .map { detailInfo, images, nearbyPlaces -> PlaceDetail in
-            let operatingInfo = detailInfo.operatingInfo
-            return PlaceDetail(
-                place: self.place,
-                images: images,
-                operatingInfo: operatingInfo,
-                nearbyPlaces: nearbyPlaces
+        // 여행코스인 경우 코스 상세 정보도 함께 가져옴
+        let isTravelCourse = place.contentTypeId == 25
+
+        if isTravelCourse {
+            return Observable.zip(
+                fetchDetailInfo(),
+                fetchTravelCourseDetails()
+            ) { detailInfo, courseDetails -> PlaceDetail in
+                let operatingInfo = detailInfo.operatingInfo
+                print("🗺️ PlaceDetailReactor: Travel course details count: \(courseDetails.count)")
+
+                // 여행코스의 경우 detailImage2 대신 detailCommon2의 firstimage 사용
+                var images: [PlaceImage] = []
+                if let imageURL = detailInfo.place.imageURL {
+                    let placeImage = PlaceImage(
+                        contentId: detailInfo.place.contentId,
+                        originImageURL: imageURL,
+                        imageName: nil,
+                        smallImageURL: nil
+                    )
+                    images.append(placeImage)
+                }
+
+                // 여행코스의 경우 operatingInfo에 코스 상세 정보 추가
+                let updatedOperatingInfo: OperatingInfo
+                if case .travelCourse(let travelCourseInfo) = operatingInfo.specificInfo {
+                    print("✅ PlaceDetailReactor: Travel course specific info found")
+                    let updatedInfo = TravelCourseSpecificInfo(
+                        distance: travelCourseInfo.distance,
+                        schedule: travelCourseInfo.schedule,
+                        taketime: travelCourseInfo.taketime,
+                        theme: travelCourseInfo.theme,
+                        courseDetails: courseDetails
+                    )
+                    print("✅ PlaceDetailReactor: Updated course details: \(updatedInfo.courseDetails?.count ?? 0)")
+                    updatedOperatingInfo = OperatingInfo(
+                        useTime: operatingInfo.useTime,
+                        restDate: operatingInfo.restDate,
+                        useFee: operatingInfo.useFee,
+                        homepage: operatingInfo.homepage,
+                        infoCenter: operatingInfo.infoCenter,
+                        parking: operatingInfo.parking,
+                        specificInfo: .travelCourse(updatedInfo)
+                    )
+                } else {
+                    print("⚠️ PlaceDetailReactor: Not a travel course")
+                    updatedOperatingInfo = operatingInfo
+                }
+
+                return PlaceDetail(
+                    place: detailInfo.place,
+                    images: images,
+                    operatingInfo: updatedOperatingInfo,
+                    nearbyPlaces: []  // 여행코스는 주변 명소 대신 코스 장소 표시
+                )
+            }
+            .map { placeDetail -> Mutation in
+                .setPlaceDetail(placeDetail)
+            }
+            .catch { error in
+                Observable.just(.setError(LocalizedKeys.Error.fetchPlaceDetailFailed.localized))
+            }
+        } else {
+            return Observable.combineLatest(
+                fetchDetailInfo(),
+                fetchDetailImages(),
+                fetchNearbyPlaces()
             )
-        }
-        .map { placeDetail -> Mutation in
-            .setPlaceDetail(placeDetail)
-        }
-        .catch { error in
-            Observable.just(.setError(LocalizedKeys.Error.fetchPlaceDetailFailed.localized))
+            .map { detailInfo, images, nearbyPlaces -> PlaceDetail in
+                let operatingInfo = detailInfo.operatingInfo
+                // detailInfo.place를 사용하여 overview 등 상세 정보 포함
+                return PlaceDetail(
+                    place: detailInfo.place,
+                    images: images,
+                    operatingInfo: operatingInfo,
+                    nearbyPlaces: nearbyPlaces
+                )
+            }
+            .map { placeDetail -> Mutation in
+                .setPlaceDetail(placeDetail)
+            }
+            .catch { error in
+                Observable.just(.setError(LocalizedKeys.Error.fetchPlaceDetailFailed.localized))
+            }
         }
     }
 
@@ -212,6 +277,16 @@ private extension PlaceDetailReactor {
             .catch { _ in Observable.just([]) }
     }
 
+    func fetchTravelCourseDetails() -> Observable<[CourseDetail]> {
+        guard let contentTypeId = place.contentTypeId else {
+            return Observable.just([])
+        }
+
+        return tourRepository.getTravelCourseDetails(contentId: place.contentId, contentTypeId: contentTypeId)
+            .asObservable()
+            .catch { _ in Observable.just([]) }
+    }
+
     func buildSections(placeDetail: PlaceDetail) -> [PlaceDetailSectionModel] {
         var sections: [PlaceDetailSectionModel] = []
 
@@ -231,6 +306,23 @@ private extension PlaceDetailReactor {
             sections.append(PlaceDetailSectionModel(section: .description, items: [.description(overview)]))
         }
 
+        // 여행코스인 경우 코스 장소 섹션을 description 다음에 추가
+        let isTravelCourse = placeDetail.place.contentTypeId == 25
+        if isTravelCourse {
+            if let operatingInfo = placeDetail.operatingInfo,
+               case .travelCourse(let travelCourseInfo) = operatingInfo.specificInfo,
+               let courseDetails = travelCourseInfo.courseDetails,
+               !courseDetails.isEmpty {
+                print("✅ BuildSections: Adding course places section with \(courseDetails.count) items")
+                let courseItems = courseDetails.enumerated().map { index, course in
+                    PlaceDetailSectionItem.coursePlace(course, index + 1)
+                }
+                sections.append(PlaceDetailSectionModel(section: .coursePlaces, items: courseItems))
+            } else {
+                print("⚠️ BuildSections: No course details found - operatingInfo=\(placeDetail.operatingInfo != nil), specificInfo type=\(String(describing: placeDetail.operatingInfo?.specificInfo))")
+            }
+        }
+
         // 운영 정보 섹션
         if placeDetail.hasOperatingInfo {
             sections.append(PlaceDetailSectionModel(section: .operatingInfo, items: [.operatingInfo(placeDetail.operatingInfo!)]))
@@ -241,10 +333,12 @@ private extension PlaceDetailReactor {
             sections.append(PlaceDetailSectionModel(section: .location, items: [.location(placeDetail.place)]))
         }
 
-        // 주변 명소 섹션
-        if placeDetail.hasNearbyPlaces {
-            let nearbyItems = placeDetail.nearbyPlaces.map { PlaceDetailSectionItem.nearbyPlace($0) }
-            sections.append(PlaceDetailSectionModel(section: .nearbyPlaces, items: nearbyItems))
+        // 여행코스가 아닌 경우 주변 명소 섹션
+        if !isTravelCourse {
+            if placeDetail.hasNearbyPlaces {
+                let nearbyItems = placeDetail.nearbyPlaces.map { PlaceDetailSectionItem.nearbyPlace($0) }
+                sections.append(PlaceDetailSectionModel(section: .nearbyPlaces, items: nearbyItems))
+            }
         }
 
         return sections

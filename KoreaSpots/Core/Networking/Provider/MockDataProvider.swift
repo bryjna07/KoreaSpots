@@ -35,6 +35,8 @@ struct MockDataProvider {
             return "detailImage2_\(contentId)"
         case .searchKeyword:
             return "areaBasedList2"
+        case .detailInfo:
+            return "" // 빈 파일명 (Mock 데이터 없음)
         }
     }
 }

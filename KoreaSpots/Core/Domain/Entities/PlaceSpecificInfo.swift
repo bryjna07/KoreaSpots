@@ -247,4 +247,16 @@ struct TravelCourseSpecificInfo: Codable {
     let schedule: String?  // 일정
     let taketime: String?  // 소요시간
     let theme: String?  // 테마
+    let courseDetails: [CourseDetail]?  // 코스 상세 정보 (반복정보)
+}
+
+// MARK: - 코스 상세 정보
+
+struct CourseDetail: Codable {
+    let subNum: String?             // 코스 순서
+    let subContentId: String?       // 하위 콘텐츠 ID
+    let subName: String?            // 코스 이름
+    let subDetailOverview: String?  // 코스 설명
+    let subDetailImg: String?       // 코스 이미지
+    let subDetailAlt: String?       // 이미지 설명
 }

@@ -529,6 +529,15 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
         .delay(.milliseconds(100), scheduler: MainScheduler.instance) // 실제 네트워크 지연 시뮬레이션
     }
 
+    func fetchDetailInfo(
+        contentId: String,
+        contentTypeId: Int
+    ) -> Single<[TravelCourseDetailItem]> {
+        print("🗺️ Detail info - contentId: \(contentId), contentTypeId: \(contentTypeId)")
+        // 여행코스 상세 정보는 빈 배열 반환 (Mock 데이터 없음)
+        return Single.just([])
+    }
+
     private func loadMockDetailIntroData(filename: String) -> Observable<TourAPIDetailIntroResponse> {
         return Observable.create { [weak self] observer in
             print("🔄 Loading mock detail intro data: \(filename).json")
