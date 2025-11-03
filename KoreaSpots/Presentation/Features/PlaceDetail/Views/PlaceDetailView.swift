@@ -65,12 +65,23 @@ extension PlaceDetailView {
     }
 
     private func registerCells() {
-        collectionView.register(cell: PlaceImageCell.self, forCellWithReuseIdentifier: "ImageCarouselCell")
-        collectionView.register(cell: PlaceBasicInfoCell.self, forCellWithReuseIdentifier: "PlaceBasicInfoCell")
-        collectionView.register(cell: PlaceDescriptionCell.self, forCellWithReuseIdentifier: "PlaceDescriptionCell")
-        collectionView.register(cell: PlaceOperatingInfoCell.self, forCellWithReuseIdentifier: "PlaceOperatingInfoCell")
-        collectionView.register(cell: PlaceLocationCell.self, forCellWithReuseIdentifier: "PlaceLocationCell")
-        collectionView.register(cell: PlaceCardCell.self, forCellWithReuseIdentifier: "NearbyPlaceCell")
+        collectionView.register(cell: PlaceImageCell.self, forCellWithReuseIdentifier: PlaceImageCell.reuseIdentifier)
+        collectionView.register(cell: PlaceBasicInfoCell.self, forCellWithReuseIdentifier: PlaceBasicInfoCell.reuseIdentifier)
+        collectionView.register(cell: PlaceDescriptionCell.self, forCellWithReuseIdentifier: PlaceDescriptionCell.reuseIdentifier)
+        collectionView.register(cell: PlaceOperatingInfoCell.self, forCellWithReuseIdentifier: PlaceOperatingInfoCell.reuseIdentifier)
+        collectionView.register(cell: PlaceLocationCell.self, forCellWithReuseIdentifier: PlaceLocationCell.reuseIdentifier)
+        collectionView.register(cell: PlaceCardCell.self, forCellWithReuseIdentifier: PlaceCardCell.reuseIdentifier)
+        collectionView.register(cell: CoursePlaceCell.self, forCellWithReuseIdentifier: CoursePlaceCell.reuseIdentifier)
+
+        // ContentTypeId별 운영정보 Cell 등록
+        collectionView.register(cell: FestivalOperatingInfoCell.self, forCellWithReuseIdentifier: FestivalOperatingInfoCell.reuseIdentifier)
+        collectionView.register(cell: TouristSpotOperatingInfoCell.self, forCellWithReuseIdentifier: TouristSpotOperatingInfoCell.reuseIdentifier)
+        collectionView.register(cell: CulturalFacilityOperatingInfoCell.self, forCellWithReuseIdentifier: CulturalFacilityOperatingInfoCell.reuseIdentifier)
+        collectionView.register(cell: LeisureSportsOperatingInfoCell.self, forCellWithReuseIdentifier: LeisureSportsOperatingInfoCell.reuseIdentifier)
+        collectionView.register(cell: AccommodationOperatingInfoCell.self, forCellWithReuseIdentifier: AccommodationOperatingInfoCell.reuseIdentifier)
+        collectionView.register(cell: ShoppingOperatingInfoCell.self, forCellWithReuseIdentifier: ShoppingOperatingInfoCell.reuseIdentifier)
+        collectionView.register(cell: RestaurantOperatingInfoCell.self, forCellWithReuseIdentifier: RestaurantOperatingInfoCell.reuseIdentifier)
+        collectionView.register(cell: TravelCourseOperatingInfoCell.self, forCellWithReuseIdentifier: TravelCourseOperatingInfoCell.reuseIdentifier)
     }
 
     private func registerHeaderFooter() {

@@ -54,6 +54,9 @@ extension PlaceDetailView {
 
         case .nearbyPlace(let place):
             return configureNearbyPlaceCell(collectionView: collectionView, indexPath: indexPath, place: place)
+
+        case .coursePlace(let courseDetail, let index):
+            return configureCoursePlaceCell(collectionView: collectionView, indexPath: indexPath, courseDetail: courseDetail, index: index)
         }
     }
 
@@ -64,7 +67,7 @@ extension PlaceDetailView {
         indexPath: IndexPath,
         placeImage: PlaceImage
     ) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageCarouselCell", for: indexPath) as! PlaceImageCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PlaceImageCell.reuseIdentifier, for: indexPath) as! PlaceImageCell
         cell.configure(with: placeImage.originImageURL)
         return cell
     }
@@ -74,7 +77,7 @@ extension PlaceDetailView {
         indexPath: IndexPath,
         place: Place
     ) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PlaceBasicInfoCell", for: indexPath) as! PlaceBasicInfoCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PlaceBasicInfoCell.reuseIdentifier, for: indexPath) as! PlaceBasicInfoCell
         cell.configure(with: place)
         return cell
     }
@@ -84,7 +87,7 @@ extension PlaceDetailView {
         indexPath: IndexPath,
         text: String
     ) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PlaceDescriptionCell", for: indexPath) as! PlaceDescriptionCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PlaceDescriptionCell.reuseIdentifier, for: indexPath) as! PlaceDescriptionCell
         cell.configure(with: text)
 
         // 더보기 버튼 콜백: 셀 높이 재계산
@@ -100,9 +103,55 @@ extension PlaceDetailView {
         indexPath: IndexPath,
         operatingInfo: OperatingInfo
     ) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PlaceOperatingInfoCell", for: indexPath) as! PlaceOperatingInfoCell
-        cell.configure(with: operatingInfo)
-        return cell
+        // specificInfo의 타입에 따라 적절한 Cell 반환
+        guard let specificInfo = operatingInfo.specificInfo else {
+            // specificInfo가 없으면 기본 PlaceOperatingInfoCell 사용
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PlaceOperatingInfoCell.reuseIdentifier, for: indexPath) as! PlaceOperatingInfoCell
+            cell.configure(with: operatingInfo)
+            return cell
+        }
+
+        switch specificInfo {
+        case .festival:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FestivalOperatingInfoCell.reuseIdentifier, for: indexPath) as! FestivalOperatingInfoCell
+            cell.configure(with: operatingInfo)
+            return cell
+
+        case .touristSpot:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TouristSpotOperatingInfoCell.reuseIdentifier, for: indexPath) as! TouristSpotOperatingInfoCell
+            cell.configure(with: operatingInfo)
+            return cell
+
+        case .culturalFacility:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CulturalFacilityOperatingInfoCell.reuseIdentifier, for: indexPath) as! CulturalFacilityOperatingInfoCell
+            cell.configure(with: operatingInfo)
+            return cell
+
+        case .leisureSports:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: LeisureSportsOperatingInfoCell.reuseIdentifier, for: indexPath) as! LeisureSportsOperatingInfoCell
+            cell.configure(with: operatingInfo)
+            return cell
+
+        case .accommodation:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AccommodationOperatingInfoCell.reuseIdentifier, for: indexPath) as! AccommodationOperatingInfoCell
+            cell.configure(with: operatingInfo)
+            return cell
+
+        case .shopping:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ShoppingOperatingInfoCell.reuseIdentifier, for: indexPath) as! ShoppingOperatingInfoCell
+            cell.configure(with: operatingInfo)
+            return cell
+
+        case .restaurant:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RestaurantOperatingInfoCell.reuseIdentifier, for: indexPath) as! RestaurantOperatingInfoCell
+            cell.configure(with: operatingInfo)
+            return cell
+
+        case .travelCourse:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TravelCourseOperatingInfoCell.reuseIdentifier, for: indexPath) as! TravelCourseOperatingInfoCell
+            cell.configure(with: operatingInfo)
+            return cell
+        }
     }
 
     private func configureLocationCell(
@@ -110,7 +159,7 @@ extension PlaceDetailView {
         indexPath: IndexPath,
         place: Place
     ) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PlaceLocationCell", for: indexPath) as! PlaceLocationCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PlaceLocationCell.reuseIdentifier, for: indexPath) as! PlaceLocationCell
         cell.configure(with: place)
         return cell
     }
@@ -120,8 +169,19 @@ extension PlaceDetailView {
         indexPath: IndexPath,
         place: Place
     ) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "NearbyPlaceCell", for: indexPath) as! PlaceCardCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PlaceCardCell.reuseIdentifier, for: indexPath) as! PlaceCardCell
         cell.configure(with: place)
+        return cell
+    }
+
+    private func configureCoursePlaceCell(
+        collectionView: UICollectionView,
+        indexPath: IndexPath,
+        courseDetail: CourseDetail,
+        index: Int
+    ) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CoursePlaceCell.reuseIdentifier, for: indexPath) as! CoursePlaceCell
+        cell.configure(with: courseDetail, index: index)
         return cell
     }
 

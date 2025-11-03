@@ -25,6 +25,7 @@ extension PlaceDetailSectionModel {
         case operatingInfo
         case location
         case nearbyPlaces
+        case coursePlaces
 
         var headerTitle: String? {
             switch self {
@@ -36,6 +37,8 @@ extension PlaceDetailSectionModel {
                 return LocalizedKeys.Section.location.localized
             case .nearbyPlaces:
                 return LocalizedKeys.Section.nearbyPlaces.localized
+            case .coursePlaces:
+                return "코스 안내"
             }
         }
 
@@ -52,6 +55,7 @@ enum PlaceDetailSectionItem: IdentifiableType, Equatable {
     case operatingInfo(OperatingInfo)
     case location(Place)
     case nearbyPlace(Place)
+    case coursePlace(CourseDetail, Int)  // CourseDetail과 순서 번호
 
     var identity: String {
         switch self {
@@ -67,6 +71,8 @@ enum PlaceDetailSectionItem: IdentifiableType, Equatable {
             return "location_\(place.contentId)"
         case .nearbyPlace(let place):
             return "nearbyPlace_\(place.contentId)"
+        case .coursePlace(let courseDetail, let index):
+            return "coursePlace_\(courseDetail.subContentId ?? "unknown")_\(index)"
         }
     }
 
