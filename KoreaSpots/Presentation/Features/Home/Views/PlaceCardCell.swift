@@ -40,8 +40,8 @@ final class PlaceCardCell: BaseCollectionViewCell, SkeletonableCell {
             distanceLabel.isHidden = true
         }
 
-        // ImageLoader를 사용한 관광지 이미지 로딩 (placeholder는 ImageLoader 내부에서 처리)
-        imageView.loadTourismImage(from: place.imageURL, placeholder: nil, type: .attraction)
+        // ImageLoader를 사용한 관광지 이미지 로딩 (이미지 없으면 noImage 표시)
+        imageView.loadTourismImageWithNoImagePlaceholder(from: place.imageURL, type: .attraction)
     }
 
     override func prepareForReuse() {

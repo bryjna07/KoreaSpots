@@ -123,8 +123,8 @@ final class PlaceListCell: BaseCollectionViewCell, SkeletonableCell {
         subtitleLabel.text = place.address
         favoriteButton.isSelected = isFavorite
 
-        // Load thumbnail image
-        thumbnail.loadPlaceThumbnail(from: place.imageURL)
+        // Load thumbnail image (이미지 없으면 noImage 표시)
+        thumbnail.loadPlaceThumbnailWithNoImagePlaceholder(from: place.imageURL)
 
         // Configure tag
         if showTag {

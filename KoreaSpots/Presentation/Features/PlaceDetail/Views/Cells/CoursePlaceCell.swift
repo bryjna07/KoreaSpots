@@ -22,13 +22,8 @@ final class CoursePlaceCell: BaseCollectionViewCell {
         courseNumberLabel.text = "\(index)"
         titleLabel.text = courseDetail.subName ?? "코스 \(index)"
 
-        // 코스 이미지 설정 (ImageLoader 사용, 썸네일 크기)
-        courseImageView.loadImage(
-            from: courseDetail.subDetailImg,
-            placeholder: nil,
-            size: .thumbnail,
-            cachePolicy: .diskAndMemory
-        )
+        // 코스 이미지 설정 (ImageLoader 사용, 썸네일 크기, 이미지 없으면 noImage 표시)
+        courseImageView.loadPlaceThumbnailWithNoImagePlaceholder(from: courseDetail.subDetailImg)
     }
 
     override func prepareForReuse() {
