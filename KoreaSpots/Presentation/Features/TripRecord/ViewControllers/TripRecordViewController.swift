@@ -21,9 +21,12 @@ final class TripRecordViewController: BaseViewController, View {
     // MARK: - Properties
 
     var disposeBag = DisposeBag()
-    private let tripRecordView = TripRecordView()
+    let tripRecordView = TripRecordView()
     private var dataSource: UICollectionViewDiffableDataSource<Section, Trip>!
     private var isFirstAppear = true
+
+    // 여행별 트랙 할당 맵 (Reactor state에서 받아옴)
+    var tripTracks: [String: Int] = [:]
 
     private let addButton = UIBarButtonItem(
         image: UIImage(systemName: "plus"),
@@ -31,6 +34,12 @@ final class TripRecordViewController: BaseViewController, View {
         target: nil,
         action: nil
     )
+
+    // 년도 목록 (과거 10년 ~ 현재)
+    private var availableYears: [Int] {
+        let currentYear = Calendar.current.component(.year, from: Date())
+        return Array((currentYear - 10)...currentYear).reversed()
+    }
 
     // MARK: - Lifecycle
 
@@ -41,6 +50,7 @@ final class TripRecordViewController: BaseViewController, View {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupDataSource()
+        setupYearTableView()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -73,14 +83,77 @@ final class TripRecordViewController: BaseViewController, View {
             }
             .disposed(by: disposeBag)
 
-        // State: Trips
+        // Action: Previous month button
+        tripRecordView.calendarView.previousMonthButton.rx.tap
+            .bind(with: self) { owner, _ in
+                let calendar = Calendar.current
+                if let previousMonth = calendar.date(byAdding: .month, value: -1, to: owner.tripRecordView.calendarView.currentMonth) {
+                    owner.tripRecordView.calendarView.moveCalendar(to: previousMonth)
+                    owner.reactor?.action.onNext(.selectMonth(previousMonth))
+                }
+            }
+            .disposed(by: disposeBag)
+
+        // Action: Next month button
+        tripRecordView.calendarView.nextMonthButton.rx.tap
+            .bind(with: self) { owner, _ in
+                let calendar = Calendar.current
+                if let nextMonth = calendar.date(byAdding: .month, value: 1, to: owner.tripRecordView.calendarView.currentMonth) {
+                    owner.tripRecordView.calendarView.moveCalendar(to: nextMonth)
+                    owner.reactor?.action.onNext(.selectMonth(nextMonth))
+                }
+            }
+            .disposed(by: disposeBag)
+
+        // Action: Month label tap (year dropdown toggle)
+        let monthLabelTap = UITapGestureRecognizer()
+        tripRecordView.calendarView.monthLabel.addGestureRecognizer(monthLabelTap)
+        monthLabelTap.rx.event
+            .bind(with: self) { owner, _ in
+                owner.tripRecordView.calendarView.toggleYearDropdown()
+            }
+            .disposed(by: disposeBag)
+
+        // State: Trips (리스트 표시용 - 필터링된 데이터)
         reactor.state
             .map { $0.trips }
             .distinctUntilChanged()
             .asDriver(onErrorJustReturn: [])
             .drive(with: self) { owner, trips in
-                print("🔄 Drive: applySnapshot(\(trips.count) trips)")
                 owner.applySnapshot(trips: trips)
+            }
+            .disposed(by: disposeBag)
+
+        // State: All trips (캘린더 표시용 - 전체 여행 데이터)
+        reactor.state
+            .map { $0.allTrips }
+            .distinctUntilChanged()
+            .asDriver(onErrorJustReturn: [])
+            .drive(with: self) { owner, allTrips in
+                owner.tripRecordView.trips = allTrips
+                owner.tripRecordView.calendarView.calendar.reloadData()
+            }
+            .disposed(by: disposeBag)
+
+        // State: Trip tracks (Reactor에서 계산된 트랙 할당)
+        reactor.state
+            .map { $0.tripTracks }
+            .distinctUntilChanged()
+            .asDriver(onErrorJustReturn: [:])
+            .drive(with: self) { owner, tracks in
+                owner.tripTracks = tracks
+                owner.tripRecordView.calendarView.calendar.reloadData()
+            }
+            .disposed(by: disposeBag)
+
+        // State: Selected month (달력 이동)
+        reactor.state
+            .map { $0.selectedMonth }
+            .distinctUntilChanged()
+            .compactMap { $0 }
+            .asDriver(onErrorJustReturn: Date())
+            .drive(with: self) { owner, month in
+                owner.tripRecordView.calendarView.moveCalendar(to: month)
             }
             .disposed(by: disposeBag)
 
@@ -125,6 +198,10 @@ final class TripRecordViewController: BaseViewController, View {
         // Set delegate for swipe actions (works with RxSwift)
         tripRecordView.collectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
+
+        // Set calendar delegate
+        tripRecordView.calendarView.calendar.delegate = self
+        tripRecordView.calendarView.calendar.dataSource = self
     }
 
     // MARK: - Setup
@@ -157,6 +234,57 @@ final class TripRecordViewController: BaseViewController, View {
                 item: trip
             )
         }
+    }
+
+    private func setupYearTableView() {
+        // Bind available years to table view
+        Observable.just(availableYears)
+            .bind(to: tripRecordView.calendarView.yearTableView.rx.items(
+                cellIdentifier: "YearCell",
+                cellType: UITableViewCell.self
+            )) { [weak self] row, year, cell in
+                guard let self = self else { return }
+
+                cell.textLabel?.text = "\(year)년"
+                cell.textLabel?.font = FontManager.body
+                cell.textLabel?.textAlignment = .center
+                cell.backgroundColor = .white
+                cell.selectionStyle = .default
+
+                // 현재 선택된 년도 표시
+                let currentYear = Calendar.current.component(.year, from: self.tripRecordView.calendarView.currentMonth)
+                if year == currentYear {
+                    cell.backgroundColor = UIColor.primary.withAlphaComponent(0.1)
+                    cell.textLabel?.textColor = .primary
+                    cell.textLabel?.font = FontManager.bodyBold
+                } else {
+                    cell.textLabel?.textColor = .label
+                }
+            }
+            .disposed(by: disposeBag)
+
+        // Handle year selection
+        tripRecordView.calendarView.yearTableView.rx.itemSelected
+            .bind(with: self) { owner, indexPath in
+                owner.tripRecordView.calendarView.yearTableView.deselectRow(at: indexPath, animated: true)
+
+                let selectedYear = owner.availableYears[indexPath.row]
+                let calendar = Calendar.current
+                let currentMonth = calendar.component(.month, from: owner.tripRecordView.calendarView.currentMonth)
+
+                var components = DateComponents()
+                components.year = selectedYear
+                components.month = currentMonth
+                components.day = 1
+
+                if let selectedDate = calendar.date(from: components) {
+                    owner.tripRecordView.calendarView.moveCalendar(to: selectedDate)
+                    owner.reactor?.action.onNext(.selectMonth(selectedDate))
+                    owner.tripRecordView.calendarView.hideYearDropdown()
+                    owner.tripRecordView.calendarView.yearTableView.reloadData()
+                }
+            }
+            .disposed(by: disposeBag)
     }
 
     // MARK: - Alert
@@ -221,7 +349,7 @@ extension TripRecordViewController {
 
     // MARK: - Navigation
 
-    private func navigateToTripEditor(trip: Trip?) {
+    func navigateToTripEditor(trip: Trip?) {
         let viewController = AppContainer.shared.makeTripEditorViewController(trip: trip)
         navigationController?.pushViewController(viewController, animated: true)
     }

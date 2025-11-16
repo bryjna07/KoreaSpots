@@ -22,6 +22,8 @@ final class TripRecordReactor: Reactor {
     enum Mutation {
         case setLoading(Bool)
         case setTrips([Trip])
+        case setAllTrips([Trip])
+        case setTripTracks([String: Int])
         case setStatistics(TripStatistics)
         case setSortOption(TripSortOption)
         case setSelectedMonth(Date?)
@@ -30,7 +32,9 @@ final class TripRecordReactor: Reactor {
 
     struct State {
         var isLoading: Bool = false
-        var trips: [Trip] = []
+        var trips: [Trip] = []  // 리스트에 표시할 여행 (필터링된)
+        var allTrips: [Trip] = []  // 캘린더에 표시할 전체 여행
+        var tripTracks: [String: Int] = [:]  // 여행별 트랙 할당 맵
         var statistics: TripStatistics?
         var sortOption: TripSortOption = .newest
         var selectedMonth: Date?
@@ -100,6 +104,13 @@ final class TripRecordReactor: Reactor {
             newState.trips = trips
             newState.isLoading = false
 
+        case .setAllTrips(let trips):
+            print("📊 Reduce: setAllTrips(\(trips.count) trips)")
+            newState.allTrips = trips
+
+        case .setTripTracks(let tracks):
+            newState.tripTracks = tracks
+
         case .setStatistics(let statistics):
             print("📈 Reduce: setStatistics(total: \(statistics.totalTripCount))")
             newState.statistics = statistics
@@ -124,6 +135,7 @@ final class TripRecordReactor: Reactor {
         return .concat([
             .just(.setLoading(true)),
             loadStatistics(),
+            loadAllTrips(),  // 캘린더용 전체 여행
             loadTrips(sortedBy: currentState.sortOption, month: currentState.selectedMonth)
         ])
     }
@@ -134,6 +146,22 @@ final class TripRecordReactor: Reactor {
             .map { Mutation.setStatistics($0) }
             .catch { error in
                 print("❌ Load statistics error: \(error)")
+                return .empty()
+            }
+    }
+
+    private func loadAllTrips() -> Observable<Mutation> {
+        return getTripsUseCase.execute(sortedBy: .newest)
+            .asObservable()
+            .flatMap { trips -> Observable<Mutation> in
+                let tracks = self.calculateTripTracks(trips: trips)
+                return .concat([
+                    .just(.setAllTrips(trips)),
+                    .just(.setTripTracks(tracks))
+                ])
+            }
+            .catch { error in
+                print("❌ Load all trips error: \(error)")
                 return .empty()
             }
     }
@@ -154,5 +182,40 @@ final class TripRecordReactor: Reactor {
                 print("❌ Load trips error: \(error)")
                 return .just(.setError("여행 기록을 불러오는 중 오류가 발생했습니다."))
             }
+    }
+
+    // MARK: - Track Assignment
+
+    /// 전체 여행에 대한 트랙 할당 계산 (Apple Calendar 스타일)
+    private func calculateTripTracks(trips: [Trip]) -> [String: Int] {
+        var tripTracks: [String: Int] = [:]
+        let sortedTrips = trips.sorted { $0.startDate < $1.startDate }
+        var trackEndDates: [Date] = []
+
+        for trip in sortedTrips {
+            let calendar = Calendar.current
+            let tripStart = calendar.startOfDay(for: trip.startDate)
+
+            var assignedTrack = -1
+
+            for (trackIndex, trackEndDate) in trackEndDates.enumerated() {
+                let trackEnd = calendar.startOfDay(for: trackEndDate)
+
+                if tripStart > trackEnd {
+                    assignedTrack = trackIndex
+                    trackEndDates[trackIndex] = trip.endDate
+                    break
+                }
+            }
+
+            if assignedTrack == -1 {
+                assignedTrack = trackEndDates.count
+                trackEndDates.append(trip.endDate)
+            }
+
+            tripTracks[trip.id] = assignedTrack
+        }
+
+        return tripTracks
     }
 }
