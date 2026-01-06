@@ -12,6 +12,7 @@
 		179CE5262E8E0C9200181886 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 179CE5252E8E0C9200181886 /* FirebaseCrashlytics */; };
 		179CE5282E8E0C9200181886 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 179CE5272E8E0C9200181886 /* FirebaseMessaging */; };
 		17A08FCD2E869198003AF0A6 /* SkeletonView in Frameworks */ = {isa = PBXBuildFile; productRef = 17A08FCC2E869198003AF0A6 /* SkeletonView */; };
+		17A47D482EC3159E003CA98E /* FSCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 17A47D472EC3159E003CA98E /* FSCalendar */; };
 		17DDE7522E85324100E6057A /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 17DDE7512E85324100E6057A /* SnapKit */; };
 		17DDE7552E85325F00E6057A /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 17DDE7542E85325F00E6057A /* RealmSwift */; };
 		17DDE7582E85327700E6057A /* RxMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 17DDE7572E85327700E6057A /* RxMoya */; };
@@ -81,6 +82,7 @@
 				179CE5262E8E0C9200181886 /* FirebaseCrashlytics in Frameworks */,
 				17DDE75B2E8532B500E6057A /* Then in Frameworks */,
 				17DDE76D2E853B0F00E6057A /* ReactorKit in Frameworks */,
+				17A47D482EC3159E003CA98E /* FSCalendar in Frameworks */,
 				17DDE75E2E8532C200E6057A /* Kingfisher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -140,6 +142,7 @@
 				179CE5232E8E0C9200181886 /* FirebaseAnalytics */,
 				179CE5252E8E0C9200181886 /* FirebaseCrashlytics */,
 				179CE5272E8E0C9200181886 /* FirebaseMessaging */,
+				17A47D472EC3159E003CA98E /* FSCalendar */,
 			);
 			productName = KoreaSpots;
 			productReference = 17DDE6862E851F2D00E6057A /* KoreaSpots.app */;
@@ -182,6 +185,7 @@
 				17DDE76B2E853B0F00E6057A /* XCRemoteSwiftPackageReference "ReactorKit" */,
 				17A08FCB2E869198003AF0A6 /* XCRemoteSwiftPackageReference "SkeletonView" */,
 				179CE5222E8E0C9200181886 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				17A47D462EC3159E003CA98E /* XCRemoteSwiftPackageReference "FSCalendar" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 17DDE6872E851F2D00E6057A /* Products */;
@@ -245,7 +249,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = K9Z452TQ46;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -259,7 +263,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.1.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.watson.KoreaSpots;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -279,7 +283,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = K9Z452TQ46;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KoreaSpots/Resources/Info.plist;
@@ -292,7 +296,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.1.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.watson.KoreaSpots;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -469,6 +473,14 @@
 				minimumVersion = 1.31.0;
 			};
 		};
+		17A47D462EC3159E003CA98E /* XCRemoteSwiftPackageReference "FSCalendar" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/WenchaoD/FSCalendar";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.8.4;
+			};
+		};
 		17DDE7502E85324100E6057A /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
@@ -571,6 +583,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 17A08FCB2E869198003AF0A6 /* XCRemoteSwiftPackageReference "SkeletonView" */;
 			productName = SkeletonView;
+		};
+		17A47D472EC3159E003CA98E /* FSCalendar */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17A47D462EC3159E003CA98E /* XCRemoteSwiftPackageReference "FSCalendar" */;
+			productName = FSCalendar;
 		};
 		17DDE7512E85324100E6057A /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;

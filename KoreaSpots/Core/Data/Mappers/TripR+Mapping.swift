@@ -19,6 +19,7 @@ extension TripR {
             endDate: endDate,
             memo: memo,
             visitedPlaces: visitedPlaces.map { $0.toDomain() },
+            photos: photos.map { $0.toDomain() },
             visitedAreas: visitedAreas.map { $0.toDomain() },
             tags: Array(tags),
             createdAt: createdAt,
@@ -43,6 +44,7 @@ extension TripR {
         self.endDate = trip.endDate
         self.memo = trip.memo
         self.visitedPlaces.append(objectsIn: trip.visitedPlaces.map { VisitedPlaceE(from: $0) })
+        self.photos.append(objectsIn: trip.photos.map { TripPhotoE(from: $0) })
         self.visitedAreas.append(objectsIn: trip.visitedAreas.map { VisitedAreaE(from: $0) })
         self.tags.append(objectsIn: trip.tags)
         self.createdAt = trip.createdAt
@@ -70,8 +72,7 @@ extension VisitedPlaceE {
             location: locationSnapshot?.toDomain(),
             visitedTime: visitedTime,
             stayDuration: stayDuration,
-            routeIndex: routeIndex,
-            photos: photos.map { $0.toDomain() }
+            routeIndex: routeIndex
         )
     }
 
@@ -93,7 +94,6 @@ extension VisitedPlaceE {
         self.visitedTime = visitedPlace.visitedTime
         self.stayDuration = visitedPlace.stayDuration
         self.routeIndex = visitedPlace.routeIndex
-        self.photos.append(objectsIn: visitedPlace.photos.map { VisitPhotoE(from: $0) })
     }
 }
 
@@ -132,10 +132,10 @@ extension GeoPointE {
     }
 }
 
-// MARK: - VisitPhotoE Mapping
-extension VisitPhotoE {
-    func toDomain() -> VisitPhoto {
-        return VisitPhoto(
+// MARK: - TripPhotoE Mapping
+extension TripPhotoE {
+    func toDomain() -> TripPhoto {
+        return TripPhoto(
             photoId: photoId,
             localPath: localPath,
             caption: caption,
@@ -149,7 +149,7 @@ extension VisitPhotoE {
         )
     }
 
-    convenience init(from photo: VisitPhoto) {
+    convenience init(from photo: TripPhoto) {
         self.init()
         self.photoId = photo.photoId
         self.localPath = photo.localPath

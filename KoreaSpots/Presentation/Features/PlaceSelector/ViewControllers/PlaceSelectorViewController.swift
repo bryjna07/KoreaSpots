@@ -71,7 +71,7 @@ final class PlaceSelectorViewController: BaseViewController, View {
             .disposed(by: disposeBag)
 
         placeSelectorView.placeSelected
-            .withLatestFrom(reactor.state.map { $0.displayPlaces }) { (placeId: $0, places: $1) }
+            .withLatestFrom(reactor.state.map { $0.allAvailablePlaces }) { (placeId: $0, places: $1) }
             .compactMap { data -> (String, Place)? in
                 guard let place = data.places.first(where: { $0.contentId == data.placeId }) else {
                     return nil
@@ -146,6 +146,15 @@ final class PlaceSelectorViewController: BaseViewController, View {
                 self.placeSelectorView.confirmButton.setTitle(title, for: .normal)
                 self.placeSelectorView.confirmButton.isEnabled = count > 0
                 self.placeSelectorView.confirmButton.alpha = count > 0 ? 1.0 : 0.5
+            })
+            .disposed(by: disposeBag)
+
+        // 선택된 장소 목록 업데이트
+        reactor.state.map { $0.selectedPlacesList }
+            .distinctUntilChanged { $0.map { $0.contentId } == $1.map { $0.contentId } }
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] places in
+                self?.placeSelectorView.updateSelectedPlaces(places)
             })
             .disposed(by: disposeBag)
     }

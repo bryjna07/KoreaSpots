@@ -25,6 +25,13 @@ final class PlaceSelectorView: BaseView {
     lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
     let emptyLabel = UILabel()
     let activityIndicator = UIActivityIndicatorView(style: .medium)
+
+    // 선택된 장소 표시 영역
+    private let selectedPlacesContainerView = UIView()
+    private let selectedPlacesTitleLabel = UILabel()
+    private let selectedPlacesScrollView = UIScrollView()
+    private let selectedPlacesStackView = UIStackView()
+
     let confirmButton = UIButton(type: .system)
 
     // MARK: - Initialization
@@ -37,7 +44,9 @@ final class PlaceSelectorView: BaseView {
     // MARK: - ConfigureUI
 
     override func configureHierarchy() {
-        addSubviews(segmentedControl, searchBar, collectionView, emptyLabel, activityIndicator, confirmButton)
+        addSubviews(segmentedControl, searchBar, collectionView, emptyLabel, activityIndicator, selectedPlacesContainerView, confirmButton)
+        selectedPlacesContainerView.addSubviews(selectedPlacesTitleLabel, selectedPlacesScrollView)
+        selectedPlacesScrollView.addSubview(selectedPlacesStackView)
     }
 
     override func configureLayout() {
@@ -56,7 +65,7 @@ final class PlaceSelectorView: BaseView {
         collectionView.snp.makeConstraints {
             $0.top.equalTo(searchBar.snp.bottom).offset(8)
             $0.leading.trailing.equalToSuperview()
-            $0.bottom.equalTo(confirmButton.snp.top).offset(-8)
+            $0.bottom.equalTo(selectedPlacesContainerView.snp.top)
         }
 
         emptyLabel.snp.makeConstraints {
@@ -65,6 +74,29 @@ final class PlaceSelectorView: BaseView {
 
         activityIndicator.snp.makeConstraints {
             $0.center.equalTo(collectionView)
+        }
+
+        // 선택된 장소 영역
+        selectedPlacesContainerView.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalTo(confirmButton.snp.top).offset(-8)
+            $0.height.equalTo(0) // 초기에는 숨김
+        }
+
+        selectedPlacesTitleLabel.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(8)
+            $0.leading.equalToSuperview().offset(16)
+        }
+
+        selectedPlacesScrollView.snp.makeConstraints {
+            $0.top.equalTo(selectedPlacesTitleLabel.snp.bottom).offset(8)
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalToSuperview().offset(-8)
+        }
+
+        selectedPlacesStackView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+            $0.height.equalToSuperview()
         }
 
         confirmButton.snp.makeConstraints {
@@ -109,7 +141,29 @@ final class PlaceSelectorView: BaseView {
             $0.setTitleColor(.white, for: .normal)
             $0.layer.cornerRadius = 12
         }
-        
+
+        // 선택된 장소 영역 설정
+        selectedPlacesContainerView.do {
+            $0.backgroundColor = .secondBackGround
+            $0.clipsToBounds = true
+        }
+
+        selectedPlacesTitleLabel.do {
+            $0.text = "선택된 장소"
+            $0.font = .systemFont(ofSize: 13, weight: .medium)
+            $0.textColor = .secondaryLabel
+        }
+
+        selectedPlacesScrollView.do {
+            $0.showsHorizontalScrollIndicator = false
+            $0.contentInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        }
+
+        selectedPlacesStackView.do {
+            $0.axis = .horizontal
+            $0.spacing = 8
+            $0.alignment = .center
+        }
     }
 
     // MARK: - Layout
@@ -178,6 +232,60 @@ final class PlaceSelectorView: BaseView {
         dataSource.apply(snapshot, animatingDifferences: true)
 
         emptyLabel.isHidden = !places.isEmpty
+    }
+
+    /// 선택된 장소 목록 업데이트
+    func updateSelectedPlaces(_ places: [Place]) {
+        // 기존 태그 제거
+        selectedPlacesStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+
+        // 새로운 태그 추가
+        for place in places {
+            let tagView = createSelectedPlaceTag(place: place)
+            selectedPlacesStackView.addArrangedSubview(tagView)
+        }
+
+        // 컨테이너 높이 애니메이션
+        let newHeight: CGFloat = places.isEmpty ? 0 : 70
+        UIView.animate(withDuration: 0.25) {
+            self.selectedPlacesContainerView.snp.updateConstraints {
+                $0.height.equalTo(newHeight)
+            }
+            self.layoutIfNeeded()
+        }
+    }
+
+    private func createSelectedPlaceTag(place: Place) -> UIView {
+        let containerView = UIView()
+        containerView.backgroundColor = .primary.withAlphaComponent(0.15)
+        containerView.layer.cornerRadius = 8
+
+        let label = UILabel()
+        label.text = place.title
+        label.font = .systemFont(ofSize: 13, weight: .medium)
+        label.textColor = .primary
+        label.lineBreakMode = .byTruncatingTail
+
+        containerView.addSubview(label)
+        label.snp.makeConstraints {
+            $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10))
+            $0.width.lessThanOrEqualTo(120)
+        }
+
+        // 탭 제스처 추가 (선택 해제)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(selectedPlaceTagTapped(_:)))
+        containerView.addGestureRecognizer(tapGesture)
+        containerView.isUserInteractionEnabled = true
+        containerView.tag = place.contentId.hashValue
+        containerView.accessibilityIdentifier = place.contentId
+
+        return containerView
+    }
+
+    @objc private func selectedPlaceTagTapped(_ gesture: UITapGestureRecognizer) {
+        guard let view = gesture.view,
+              let contentId = view.accessibilityIdentifier else { return }
+        placeSelected.accept(contentId)
     }
 }
 

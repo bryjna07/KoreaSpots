@@ -36,22 +36,34 @@ final class TripCell: BaseListCell {
         memoLabel.text = trip.memo.isEmpty ? "메모 없음" : trip.memo
         placeCountLabel.text = "\(trip.visitedPlaceCount)개 관광지"
 
-        // TODO: Load thumbnail image from coverPhotoPath
-        if let coverPhotoPath = trip.coverPhotoPath {
-            // Load from file system
-            thumbnailImageView.image = UIImage(named: "placeholder")
+        // Load thumbnail image
+        // Priority: 1. First photo from photos array, 2. First place thumbnail, 3. Placeholder
+        if let firstPhoto = trip.photos.first,
+           !firstPhoto.localPath.isEmpty,
+           FileManager.default.fileExists(atPath: firstPhoto.localPath),
+           let image = UIImage(contentsOfFile: firstPhoto.localPath) {
+            thumbnailImageView.image = image
+        } else if let coverPhotoPath = trip.coverPhotoPath,
+                  !coverPhotoPath.isEmpty,
+                  FileManager.default.fileExists(atPath: coverPhotoPath),
+                  let coverImage = UIImage(contentsOfFile: coverPhotoPath) {
+            // Fallback to legacy coverPhotoPath
+            thumbnailImageView.image = coverImage
         } else if let firstPlace = trip.visitedPlaces.first,
                   let thumbnailURL = firstPlace.thumbnailURLSnapshot {
             // Load from URL
             thumbnailImageView.loadPlaceThumbnail(from: thumbnailURL)
         } else {
-            thumbnailImageView.image = UIImage(named: "placeholder")
+            thumbnailImageView.image = UIImage(systemName: "photo.fill")
+            thumbnailImageView.tintColor = .tertiaryLabel
+            thumbnailImageView.contentMode = .center
         }
     }
 
     override func prepareForReuse() {
         super.prepareForReuse()
         thumbnailImageView.image = nil
+        thumbnailImageView.contentMode = .scaleAspectFill
         titleLabel.text = nil
         dateLabel.text = nil
         memoLabel.text = nil
@@ -81,7 +93,7 @@ final class TripCell: BaseListCell {
         thumbnailImageView.snp.makeConstraints {
             $0.leading.top.bottom.equalToSuperview()
             $0.width.equalTo(120)
-            $0.height.greaterThanOrEqualTo(100)
+            $0.height.equalTo(120)
         }
 
         contentStackView.snp.makeConstraints {

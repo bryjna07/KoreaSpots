@@ -17,6 +17,9 @@ struct Trip: Hashable {
     let memo: String
     let visitedPlaces: [VisitedPlace]
 
+    // MARK: - 여행 사진
+    let photos: [TripPhoto]
+
     // MARK: - 향후 확장 필드 (1차 출시 미사용)
     let visitedAreas: [VisitedArea]
     let tags: [String]
@@ -29,9 +32,9 @@ struct Trip: Hashable {
     let travelStyle: String?
 
     var dateRangeString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy.MM.dd"
-        return "\(formatter.string(from: startDate)) - \(formatter.string(from: endDate))"
+        let startString = DateFormatterUtil.tripDateRange.string(from: startDate)
+        let endString = DateFormatterUtil.tripDateRange.string(from: endDate)
+        return "\(startString) - \(endString)"
     }
 
     var duration: Int {
@@ -48,7 +51,8 @@ struct Trip: Hashable {
     }
 
     static func == (lhs: Trip, rhs: Trip) -> Bool {
-        lhs.id == rhs.id
+        // Include updatedAt to detect changes for DiffableDataSource
+        lhs.id == rhs.id && lhs.updatedAt == rhs.updatedAt
     }
 }
 
@@ -70,13 +74,10 @@ struct VisitedPlace: Hashable {
     let visitedTime: Date?
     let stayDuration: Int?
     let routeIndex: Int?
-
-    // MARK: - 유저 사진 (여행 기록용)
-    let photos: [VisitPhoto]
 }
 
-// MARK: - VisitPhoto (방문지 사진)
-struct VisitPhoto: Hashable {
+// MARK: - TripPhoto (여행 사진)
+struct TripPhoto: Hashable {
     let photoId: String
     let localPath: String
     let caption: String?

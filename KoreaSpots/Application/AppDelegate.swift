@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Realm Configuration
     private func configureRealm() {
         // 현재 스키마 버전
-        let currentSchemaVersion: UInt64 = 1
+        let currentSchemaVersion: UInt64 = 2
 
         let config = Realm.Configuration(
             schemaVersion: currentSchemaVersion,
@@ -55,11 +55,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     // 초기 버전이므로 마이그레이션 불필요
                 }
 
-                // Version 1 → 2: 향후 근접 알림 스키마 추가 예정
-                // if oldSchemaVersion < 2 {
-                //     // PlaceNotificationSettingR, NotificationHistoryR 추가
-                //     // 기존 데이터는 영향 없음 (새 테이블 추가만)
-                // }
+                // Version 1 → 2: VisitedPlaceE.photos 필드 제거, TripR.photos 필드 추가
+                // 이전 버전에서는 방문지별 사진 기능이 없었으므로 데이터 마이그레이션 불필요
+                if oldSchemaVersion < 2 {
+                    #if DEBUG
+                    print("🔄 Migration v1→v2: Schema update - VisitedPlaceE.photos removed, TripR.photos added")
+                    #endif
+                    // 스키마 구조 변경만 처리 (Realm이 자동으로 처리)
+                }
 
                 // Version 2 → 3: 향후 추가 기능
                 // if oldSchemaVersion < 3 {
