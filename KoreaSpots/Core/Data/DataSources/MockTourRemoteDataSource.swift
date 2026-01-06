@@ -177,7 +177,7 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
                 let lowercasedKeyword = keyword.lowercased()
                 places = places.filter { place in
                     place.title.lowercased().contains(lowercasedKeyword) ||
-                    (place.address.lowercased().contains(lowercasedKeyword) ?? false)
+                    (place.address.lowercased().contains(lowercasedKeyword))
                 }
                 print("🔍 Keyword filter applied: \(keyword), results: \(places.count)")
 

@@ -70,7 +70,9 @@ final class TripCalendarView: BaseView {
 
         calendar.snp.makeConstraints {
             $0.top.equalTo(yearDropdownContainerView.snp.bottom).offset(4)
-            $0.leading.trailing.bottom.equalToSuperview().inset(16)
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.height.equalTo(540)
+            $0.bottom.equalToSuperview().inset(16).priority(.high)
         }
     }
 

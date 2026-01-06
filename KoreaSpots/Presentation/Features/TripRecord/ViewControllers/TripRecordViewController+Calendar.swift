@@ -81,6 +81,9 @@ extension TripRecordViewController: FSCalendarDelegate, FSCalendarDataSource, FS
         // 기존 커스텀 레이어 제거
         removeCustomLayers(from: cell)
 
+        // 셀의 bounds가 유효한지 확인 (hidden 상태에서 0이 될 수 있음)
+        guard cell.contentView.bounds.width > 0, cell.contentView.bounds.height > 0 else { return }
+
         // 해당 날짜의 모든 여행 가져오기
         let tripsForDate = tripRecordView.trips(for: date)
         guard !tripsForDate.isEmpty else { return }
