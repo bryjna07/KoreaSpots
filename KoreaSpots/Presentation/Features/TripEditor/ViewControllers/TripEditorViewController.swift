@@ -9,6 +9,8 @@ import UIKit
 import ReactorKit
 import RxSwift
 import RxCocoa
+import PhotosUI
+import MapKit
 
 final class TripEditorViewController: BaseViewController, View {
 
@@ -34,6 +36,7 @@ final class TripEditorViewController: BaseViewController, View {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
+        setupMapView()
     }
 
     // MARK: - Setup
@@ -45,6 +48,10 @@ final class TripEditorViewController: BaseViewController, View {
             target: self,
             action: #selector(cancelTapped)
         )
+    }
+
+    private func setupMapView() {
+        tripEditorView.routeMapView.delegate = self
     }
 
     // MARK: - Binding
@@ -67,9 +74,23 @@ final class TripEditorViewController: BaseViewController, View {
             reactor?.action.onNext(.updateMemo(text))
         }
 
+        // Setup Photos callbacks
+        tripEditorView.onAddPhotosTapped = { [weak self] in
+            self?.showPhotoPicker()
+        }
+
+        tripEditorView.onPhotoDeleteTapped = { [weak reactor] photo in
+            reactor?.action.onNext(.deletePhoto(photo))
+        }
+
         // Setup Places callbacks
         tripEditorView.onAddPlacesTapped = { [weak self] in
             self?.showPlaceSelector()
+        }
+
+        // Places reorder callback
+        tripEditorView.onPlacesReordered = { [weak reactor] reorderedPlaces in
+            reactor?.action.onNext(.setPlaces(reorderedPlaces))
         }
 
         // Save button
@@ -99,6 +120,16 @@ final class TripEditorViewController: BaseViewController, View {
             })
             .disposed(by: disposeBag)
 
+        // State: Photos
+        reactor.state
+            .map { $0.photos }
+            .distinctUntilChanged { $0.map { $0.photoId } == $1.map { $0.photoId } }
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(with: self, onNext: { owner, photos in
+                owner.tripEditorView.updatePhotos(photos)
+            })
+            .disposed(by: disposeBag)
+
         // State: Places list
         reactor.state
             .map { $0.visitedPlaces }
@@ -118,10 +149,18 @@ final class TripEditorViewController: BaseViewController, View {
             })
             .disposed(by: disposeBag)
 
-        reactor.pulse(\.$saveSuccess)
-            .compactMap { $0 }
-            .observe(on: MainScheduler.asyncInstance)
+        // State: Dismiss on save success
+        reactor.state
+            .map { $0.shouldDismiss }
+            .do(onNext: { value in
+                print("🔔 shouldDismiss state changed: \(value)")
+            })
+            .distinctUntilChanged()
+            .filter { $0 }
+            .observe(on: MainScheduler.instance)
             .subscribe(with: self, onNext: { owner, _ in
+                print("✅ shouldDismiss = true, popping view controller")
+                print("📱 navigationController: \(String(describing: owner.navigationController))")
                 owner.navigationController?.popViewController(animated: true)
             })
             .disposed(by: disposeBag)
@@ -160,6 +199,16 @@ final class TripEditorViewController: BaseViewController, View {
 
     @objc private func cancelTapped() {
         navigationController?.popViewController(animated: true)
+    }
+
+    private func showPhotoPicker() {
+        var configuration = PHPickerConfiguration()
+        configuration.selectionLimit = 10 // Allow multiple photos
+        configuration.filter = .images
+
+        let picker = PHPickerViewController(configuration: configuration)
+        picker.delegate = self
+        present(picker, animated: true)
     }
 
     private func showPlaceSelector() {
@@ -202,8 +251,7 @@ final class TripEditorViewController: BaseViewController, View {
                     ),
                     visitedTime: nil,
                     stayDuration: nil,
-                    routeIndex: nil,
-                    photos: []
+                    routeIndex: nil
                 )
             }
 
@@ -214,9 +262,79 @@ final class TripEditorViewController: BaseViewController, View {
         }
 
         // Store reactor reference
-        placeSelectorReactorRef = placeSelectorVC.reactor as? PlaceSelectorReactor
+        placeSelectorReactorRef = placeSelectorVC.reactor
 
         let nav = UINavigationController(rootViewController: placeSelectorVC)
         present(nav, animated: true)
+    }
+}
+
+// MARK: - PHPickerViewControllerDelegate
+
+extension TripEditorViewController: PHPickerViewControllerDelegate {
+
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+
+        guard !results.isEmpty else { return }
+
+        let dispatchGroup = DispatchGroup()
+        var loadedImages: [(Int, UIImage)] = []
+
+        for (index, result) in results.enumerated() {
+            dispatchGroup.enter()
+
+            result.itemProvider.loadObject(ofClass: UIImage.self) { object, error in
+                defer { dispatchGroup.leave() }
+
+                guard let image = object as? UIImage, error == nil else {
+                    print("Failed to load image: \(error?.localizedDescription ?? "Unknown error")")
+                    return
+                }
+
+                loadedImages.append((index, image))
+            }
+        }
+
+        dispatchGroup.notify(queue: .main) { [weak self] in
+            // Sort by original index to maintain order
+            let sortedImages = loadedImages.sorted { $0.0 < $1.0 }.map { $0.1 }
+            if !sortedImages.isEmpty {
+                self?.reactor?.action.onNext(.addPhotos(sortedImages))
+            }
+        }
+    }
+}
+
+// MARK: - MKMapViewDelegate
+
+extension TripEditorViewController: MKMapViewDelegate {
+
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        if let polyline = overlay as? MKPolyline {
+            let renderer = MKPolylineRenderer(polyline: polyline)
+            renderer.strokeColor = UIColor.primary
+            renderer.lineWidth = 3.0
+            return renderer
+        }
+        return MKOverlayRenderer(overlay: overlay)
+    }
+
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        guard !(annotation is MKUserLocation) else { return nil }
+
+        let identifier = "RouteAnnotation"
+        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView
+
+        if annotationView == nil {
+            annotationView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            annotationView?.canShowCallout = true
+        } else {
+            annotationView?.annotation = annotation
+        }
+
+        annotationView?.markerTintColor = .primary
+
+        return annotationView
     }
 }

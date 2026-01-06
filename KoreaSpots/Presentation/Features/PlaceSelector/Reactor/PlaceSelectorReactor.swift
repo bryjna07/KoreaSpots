@@ -54,6 +54,23 @@ final class PlaceSelectorReactor: Reactor {
                 return searchResults
             }
         }
+
+        /// 모든 로드된 장소 (즐겨찾기 + 검색 + 이미 선택된 장소)
+        var allAvailablePlaces: [Place] {
+            var places = favoritePlaces + searchResults
+            // selectedPlaces에서 이미 추가되지 않은 장소 추가
+            for (_, place) in selectedPlaces {
+                if !places.contains(where: { $0.contentId == place.contentId }) {
+                    places.append(place)
+                }
+            }
+            return places
+        }
+
+        /// 선택된 장소 목록 (순서 유지)
+        var selectedPlacesList: [Place] {
+            return selectedPlaceIds.compactMap { selectedPlaces[$0] }
+        }
     }
 
     let initialState: State

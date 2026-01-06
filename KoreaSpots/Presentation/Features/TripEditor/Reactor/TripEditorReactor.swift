@@ -8,6 +8,7 @@
 import Foundation
 import ReactorKit
 import RxSwift
+import UIKit
 
 final class TripEditorReactor: Reactor {
 
@@ -17,9 +18,11 @@ final class TripEditorReactor: Reactor {
         case updateEndDate(Date)
         case updateMemo(String)
         case addPlaces([String])
-        case setPlaces([VisitedPlace]) // Directly set places without API call
+        case setPlaces([VisitedPlace])
         case removePlace(String)
         case reorderPlaces([String])
+        case addPhotos([UIImage])
+        case deletePhoto(TripPhoto)
         case save
     }
 
@@ -29,10 +32,12 @@ final class TripEditorReactor: Reactor {
         case setEndDate(Date)
         case setMemo(String)
         case setPlaces([VisitedPlace])
+        case setPhotos([TripPhoto])
         case setLoading(Bool)
         case setError(String)
         case setSaveSuccess
-        case showAlert(String)  // Alert 표시용
+        case setShouldDismiss(Bool)
+        case showAlert(String)
     }
 
     struct State {
@@ -42,11 +47,13 @@ final class TripEditorReactor: Reactor {
         var endDate: Date = Date()
         var memo: String = ""
         var visitedPlaces: [VisitedPlace] = []
+        var photos: [TripPhoto] = []
         var isLoading: Bool = false
         var errorMessage: String?
+        var shouldDismiss: Bool = false
 
         @Pulse var saveSuccess: Void?
-        @Pulse var alertMessage: String?  // Alert 메시지
+        @Pulse var alertMessage: String?
 
         var isValid: Bool {
             !title.isEmpty && !visitedPlaces.isEmpty && startDate <= endDate
@@ -76,7 +83,8 @@ final class TripEditorReactor: Reactor {
                 startDate: trip.startDate,
                 endDate: trip.endDate,
                 memo: trip.memo,
-                visitedPlaces: trip.visitedPlaces
+                visitedPlaces: trip.visitedPlaces,
+                photos: trip.photos
             )
         } else {
             self.initialState = State()
@@ -112,6 +120,33 @@ final class TripEditorReactor: Reactor {
             }
             return .just(.setPlaces(reordered))
 
+        case .addPhotos(let images):
+            return addPhotos(images)
+
+        case .deletePhoto(let photo):
+            let updatedPhotos = currentState.photos.filter { $0.photoId != photo.photoId }
+            // Reorder remaining photos
+            let reorderedPhotos = updatedPhotos.enumerated().map { index, p in
+                TripPhoto(
+                    photoId: p.photoId,
+                    localPath: p.localPath,
+                    caption: p.caption,
+                    takenAt: p.takenAt,
+                    isCover: index == 0, // First photo is now cover
+                    order: index,
+                    width: p.width,
+                    height: p.height,
+                    cloudURL: p.cloudURL,
+                    isUploaded: p.isUploaded
+                )
+            }
+            // Delete file from disk (파일이 존재하는 경우에만)
+            if !photo.localPath.isEmpty,
+               FileManager.default.fileExists(atPath: photo.localPath) {
+                try? FileManager.default.removeItem(atPath: photo.localPath)
+            }
+            return .just(.setPhotos(reorderedPhotos))
+
         case .save:
             return saveTrip()
         }
@@ -136,6 +171,9 @@ final class TripEditorReactor: Reactor {
         case .setPlaces(let places):
             newState.visitedPlaces = places
 
+        case .setPhotos(let photos):
+            newState.photos = photos
+
         case .setLoading(let isLoading):
             newState.isLoading = isLoading
 
@@ -145,6 +183,10 @@ final class TripEditorReactor: Reactor {
 
         case .setSaveSuccess:
             newState.saveSuccess = ()
+
+        case .setShouldDismiss(let shouldDismiss):
+            print("📍 Reduce: setShouldDismiss(\(shouldDismiss))")
+            newState.shouldDismiss = shouldDismiss
 
         case .showAlert(let message):
             newState.alertMessage = message
@@ -192,8 +234,7 @@ final class TripEditorReactor: Reactor {
                         ),
                         visitedTime: nil,
                         stayDuration: nil,
-                        routeIndex: nil,
-                        photos: []
+                        routeIndex: nil
                     )
                     print("📍 Place: \(visitedPlace.placeNameSnapshot), Image: \(visitedPlace.thumbnailURLSnapshot ?? "nil")")
                     return visitedPlace
@@ -211,7 +252,7 @@ final class TripEditorReactor: Reactor {
             return .just(.setError("필수 항목을 입력해주세요"))
         }
 
-        // Mock 모드 체크 - 쓰기 작업 차단
+        // Mock 모드 체크
         guard AppStateManager.shared.canPerformWriteOperation() else {
             let message = """
             현재 서버 오류로 인해
@@ -225,15 +266,19 @@ final class TripEditorReactor: Reactor {
 
         let visitedAreas = extractVisitedAreas()
 
+        // First photo is cover photo
+        let coverPhotoPath: String? = currentState.photos.first?.localPath
+
         if let existingTrip = currentState.trip {
             let updatedTrip = Trip(
                 id: existingTrip.id,
                 title: currentState.title,
-                coverPhotoPath: existingTrip.coverPhotoPath,
+                coverPhotoPath: coverPhotoPath,
                 startDate: currentState.startDate,
                 endDate: currentState.endDate,
                 memo: currentState.memo.isEmpty ? "" : currentState.memo,
                 visitedPlaces: currentState.visitedPlaces,
+                photos: currentState.photos,
                 visitedAreas: visitedAreas,
                 tags: existingTrip.tags,
                 createdAt: existingTrip.createdAt,
@@ -243,26 +288,39 @@ final class TripEditorReactor: Reactor {
                 travelStyle: existingTrip.travelStyle
             )
 
+            print("🔄 Starting update trip...")
             return .concat([
                 .just(.setLoading(true)),
                 updateTripUseCase.execute(updatedTrip)
-                    .asObservable()
+                    .andThen(Observable.just(()))
+                    .do(onNext: { _ in
+                        print("✅ Update trip succeeded, emitting shouldDismiss")
+                    })
                     .flatMap { _ -> Observable<Mutation> in
-                        return .just(.setSaveSuccess)
+                        return Observable.from([
+                            Mutation.setLoading(false),
+                            Mutation.setSaveSuccess,
+                            Mutation.setShouldDismiss(true)
+                        ])
                     }
                     .catch { error in
-                        return .just(.setError("저장 실패: \(error.localizedDescription)"))
+                        print("❌ Update trip failed: \(error)")
+                        return Observable.from([
+                            Mutation.setLoading(false),
+                            Mutation.setError("저장 실패: \(error.localizedDescription)")
+                        ])
                     }
             ])
         } else {
             let newTrip = Trip(
                 id: "",
                 title: currentState.title,
-                coverPhotoPath: nil,
+                coverPhotoPath: coverPhotoPath,
                 startDate: currentState.startDate,
                 endDate: currentState.endDate,
                 memo: currentState.memo.isEmpty ? "" : currentState.memo,
                 visitedPlaces: currentState.visitedPlaces,
+                photos: currentState.photos,
                 visitedAreas: visitedAreas,
                 tags: [],
                 createdAt: Date(),
@@ -272,23 +330,95 @@ final class TripEditorReactor: Reactor {
                 travelStyle: nil
             )
 
+            print("🔄 Starting create trip...")
             return .concat([
                 .just(.setLoading(true)),
                 createTripUseCase.execute(newTrip)
                     .asObservable()
                     .flatMap { _ -> Observable<Mutation> in
-                        return .just(.setSaveSuccess)
+                        print("✅ Create trip succeeded, emitting shouldDismiss")
+                        return Observable.from([
+                            Mutation.setLoading(false),
+                            Mutation.setSaveSuccess,
+                            Mutation.setShouldDismiss(true)
+                        ])
                     }
                     .catch { error in
-                        return .just(.setError("저장 실패: \(error.localizedDescription)"))
+                        print("❌ Create trip failed: \(error)")
+                        return Observable.from([
+                            Mutation.setLoading(false),
+                            Mutation.setError("저장 실패: \(error.localizedDescription)")
+                        ])
                     }
             ])
         }
     }
 
+    private func addPhotos(_ images: [UIImage]) -> Observable<Mutation> {
+        var newPhotos: [TripPhoto] = []
+        let currentCount = currentState.photos.count
+
+        for (index, image) in images.enumerated() {
+            if let localPath = savePhotoToLocal(image: image) {
+                let order = currentCount + index
+                let photo = TripPhoto(
+                    photoId: UUID().uuidString,
+                    localPath: localPath,
+                    caption: nil,
+                    takenAt: Date(),
+                    isCover: order == 0, // First photo is cover
+                    order: order,
+                    width: Int(image.size.width),
+                    height: Int(image.size.height),
+                    cloudURL: nil,
+                    isUploaded: false
+                )
+                newPhotos.append(photo)
+            }
+        }
+
+        let allPhotos = currentState.photos + newPhotos
+
+        // Update isCover for all photos (first one is cover)
+        let updatedPhotos = allPhotos.enumerated().map { index, photo in
+            TripPhoto(
+                photoId: photo.photoId,
+                localPath: photo.localPath,
+                caption: photo.caption,
+                takenAt: photo.takenAt,
+                isCover: index == 0,
+                order: index,
+                width: photo.width,
+                height: photo.height,
+                cloudURL: photo.cloudURL,
+                isUploaded: photo.isUploaded
+            )
+        }
+
+        return .just(.setPhotos(updatedPhotos))
+    }
+
+    private func savePhotoToLocal(image: UIImage) -> String? {
+        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let photosDir = documentsPath.appendingPathComponent("TripPhotos")
+
+        try? FileManager.default.createDirectory(at: photosDir, withIntermediateDirectories: true)
+
+        let fileName = "\(UUID().uuidString).jpg"
+        let fileURL = photosDir.appendingPathComponent(fileName)
+
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else { return nil }
+
+        do {
+            try imageData.write(to: fileURL)
+            return fileURL.path
+        } catch {
+            print("Failed to save photo: \(error)")
+            return nil
+        }
+    }
+
     private func extractVisitedAreas() -> [VisitedArea] {
-        // Extract unique area codes from visited places
-        // This is a simplified version - actual implementation would use proper area data
         return []
     }
 }

@@ -34,6 +34,13 @@ enum DateFormatterUtil {
         return formatter
     }()
 
+    static let tripDateRange: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy.MM.dd"
+        formatter.locale = Locale(identifier: "ko_KR")
+        return formatter
+    }()
+
     // MARK: - Helper Methods
     /// 홈화면 축제 카드용 - M.d 형식
     static func formatPeriod(start: String, end: String) -> String {

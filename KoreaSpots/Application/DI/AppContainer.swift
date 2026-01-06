@@ -310,4 +310,19 @@ final class AppContainer {
         viewController.reactor = reactor
         return viewController
     }
+
+    // MARK: TripDetail
+    func makeTripDetailReactor(trip: Trip) -> TripDetailReactor {
+        return TripDetailReactor(
+            trip: trip,
+            tripRepository: tripRepository
+        )
+    }
+
+    func makeTripDetailViewController(trip: Trip) -> TripDetailViewController {
+        let reactor = makeTripDetailReactor(trip: trip)
+        let viewController = TripDetailViewController()
+        viewController.reactor = reactor
+        return viewController
+    }
 }

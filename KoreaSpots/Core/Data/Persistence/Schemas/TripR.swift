@@ -18,6 +18,9 @@ final class TripR: Object {
     @Persisted var memo: String = ""
     @Persisted var visitedPlaces: List<VisitedPlaceE>
 
+    // MARK: - 여행 사진
+    @Persisted var photos: List<TripPhotoE>
+
     // MARK: - 향후 확장 필드 (1차 출시 미사용)
     /// 지역 집계 (추후 통계 기능 업데이트 시 사용)
     @Persisted var visitedAreas: List<VisitedAreaE>
@@ -61,14 +64,10 @@ final class VisitedPlaceE: EmbeddedObject {
     @Persisted var stayDuration: Int?
     /// 경로 순서 인덱스 (order와 별도로 경로 추적용, 추후 업데이트)
     @Persisted var routeIndex: Int?
-
-    // MARK: - 유저 사진 (여행 기록용)
-    /// 해당 방문지에서 촬영한 사진들
-    @Persisted var photos: List<VisitPhotoE>
 }
 
-// MARK: - VisitPhotoE (방문지 사진 - Embedded)
-final class VisitPhotoE: EmbeddedObject {
+// MARK: - TripPhotoE (여행 사진 - Embedded)
+final class TripPhotoE: EmbeddedObject {
     /// 사진 고유 ID
     @Persisted var photoId: String = UUID().uuidString
     /// 로컬 파일 경로 (예: Documents/TripPhotos/trip_123_photo_1.jpg)
@@ -77,7 +76,7 @@ final class VisitPhotoE: EmbeddedObject {
     @Persisted var caption: String?
     /// 촬영 시각
     @Persisted var takenAt: Date = Date()
-    /// 해당 방문지의 대표 사진 여부
+    /// 여행의 대표 사진 여부
     @Persisted var isCover: Bool = false
     /// 사진 정렬 순서 (0부터 시작)
     @Persisted var order: Int = 0
