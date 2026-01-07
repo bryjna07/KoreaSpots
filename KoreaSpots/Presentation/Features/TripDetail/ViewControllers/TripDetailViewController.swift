@@ -110,17 +110,11 @@ final class TripDetailViewController: BaseViewController, View {
             }
             .disposed(by: disposeBag)
 
-        // Route: Cell selection
+        // Route: Cell selection - deselect only
         tripDetailView.routeContainerView.collectionView.rx.itemSelected
-            .do(onNext: { [weak self] indexPath in
+            .subscribe(onNext: { [weak self] indexPath in
                 self?.tripDetailView.routeContainerView.collectionView.deselectItem(at: indexPath, animated: true)
             })
-            .compactMap { [weak self] indexPath -> VisitedPlace? in
-                return self?.routeDataSource.itemIdentifier(for: indexPath)
-            }
-            .bind(with: self) { owner, place in
-                owner.showPlaceActionSheet(for: place)
-            }
             .disposed(by: disposeBag)
 
         // Carousel: Cell selection (full screen photo viewer)
@@ -207,14 +201,6 @@ final class TripDetailViewController: BaseViewController, View {
     }
 
     // MARK: - Actions
-
-    private func showPlaceActionSheet(for place: VisitedPlace) {
-        let alert = UIAlertController(title: place.placeNameSnapshot, message: nil, preferredStyle: .actionSheet)
-
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-
-        present(alert, animated: true)
-    }
 
     private func showPhotoViewer(photo: TripPhoto, index: Int, allPhotos: [TripPhoto]) {
         // TODO: Implement full-screen photo viewer

@@ -265,23 +265,27 @@ final class AppContainer {
     // MARK: PlaceSelector
     func makePlaceSelectorReactor(
         maxSelectionCount: Int,
-        preSelectedPlaceIds: [String]
+        preSelectedPlaceIds: [String],
+        preSelectedPlaces: [Place] = []
     ) -> PlaceSelectorReactor {
         return PlaceSelectorReactor(
             tourRepository: tourRepository,
             maxSelectionCount: maxSelectionCount,
-            preSelectedPlaceIds: preSelectedPlaceIds
+            preSelectedPlaceIds: preSelectedPlaceIds,
+            preSelectedPlaces: preSelectedPlaces
         )
     }
 
     func makePlaceSelectorViewController(
         maxSelectionCount: Int = 20,
         preSelectedPlaceIds: [String] = [],
+        preSelectedPlaces: [Place] = [],
         onConfirm: @escaping ([String]) -> Void
     ) -> PlaceSelectorViewController {
         let reactor = makePlaceSelectorReactor(
             maxSelectionCount: maxSelectionCount,
-            preSelectedPlaceIds: preSelectedPlaceIds
+            preSelectedPlaceIds: preSelectedPlaceIds,
+            preSelectedPlaces: preSelectedPlaces
         )
         let viewController = PlaceSelectorViewController(
             reactor: reactor,

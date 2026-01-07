@@ -36,6 +36,7 @@ final class TripEditorView: BaseView {
     var onAddPhotosTapped: (() -> Void)?
     var onPhotoDeleteTapped: ((TripPhoto) -> Void)?
     var onPlacesReordered: (([VisitedPlace]) -> Void)?
+    var onPlaceDeleteTapped: ((VisitedPlace) -> Void)?
 
     // Data
     private var places: [VisitedPlace] = []
@@ -306,13 +307,13 @@ final class TripEditorView: BaseView {
     private func createPlacesLayout() -> UICollectionViewCompositionalLayout {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(80)
+            heightDimension: .absolute(76)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(80)
+            heightDimension: .absolute(76)
         )
         let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
 
@@ -321,6 +322,54 @@ final class TripEditorView: BaseView {
         section.interGroupSpacing = 8
 
         return UICollectionViewCompositionalLayout(section: section)
+    }
+
+    func deletePlace(_ place: VisitedPlace) {
+        // places 배열에서 제거
+        places.removeAll { $0.entryId == place.entryId }
+
+        // order 재정렬
+        let reorderedPlaces = places.enumerated().map { index, p in
+            VisitedPlace(
+                entryId: p.entryId,
+                placeId: p.placeId,
+                placeNameSnapshot: p.placeNameSnapshot,
+                thumbnailURLSnapshot: p.thumbnailURLSnapshot,
+                areaCode: p.areaCode,
+                sigunguCode: p.sigunguCode,
+                addedAt: p.addedAt,
+                order: index,
+                note: p.note,
+                rating: p.rating,
+                location: p.location,
+                visitedTime: p.visitedTime,
+                stayDuration: p.stayDuration,
+                routeIndex: p.routeIndex
+            )
+        }
+        self.places = reorderedPlaces
+
+        // 스냅샷 업데이트
+        var snapshot = NSDiffableDataSourceSnapshot<Section, VisitedPlace>()
+        snapshot.appendSections([.places])
+        snapshot.appendItems(reorderedPlaces, toSection: .places)
+        placesDataSource.apply(snapshot, animatingDifferences: true)
+
+        // 컬렉션뷰 높이 업데이트
+        let itemHeight: CGFloat = 76
+        let spacing: CGFloat = 8
+        let totalHeight = CGFloat(reorderedPlaces.count) * itemHeight + CGFloat(max(0, reorderedPlaces.count - 1)) * spacing
+        placesCollectionView.snp.updateConstraints {
+            $0.height.equalTo(totalHeight)
+        }
+
+        // 경로 지도 업데이트
+        updateRouteMap(with: reorderedPlaces)
+
+        layoutIfNeeded()
+
+        // 부모에게 알림
+        onPlaceDeleteTapped?(place)
     }
 
     // MARK: - Photos DataSource
@@ -363,8 +412,11 @@ final class TripEditorView: BaseView {
     // MARK: - Places DataSource
 
     private func configurePlacesDataSource() {
-        let placeCellRegistration = UICollectionView.CellRegistration<TripPlaceCell, VisitedPlace> { cell, _, place in
+        let placeCellRegistration = UICollectionView.CellRegistration<TripPlaceCell, VisitedPlace> { [weak self] cell, _, place in
             cell.configure(with: place)
+            cell.onDeleteTapped = { [weak self] in
+                self?.deletePlace(place)
+            }
         }
 
         placesDataSource = UICollectionViewDiffableDataSource<Section, VisitedPlace>(
@@ -411,7 +463,7 @@ final class TripEditorView: BaseView {
         placesDataSource.apply(snapshot, animatingDifferences: false)
 
         // Update collection view height based on content
-        let itemHeight: CGFloat = 80
+        let itemHeight: CGFloat = 76
         let spacing: CGFloat = 8
         let totalHeight = CGFloat(places.count) * itemHeight + CGFloat(max(0, places.count - 1)) * spacing
 

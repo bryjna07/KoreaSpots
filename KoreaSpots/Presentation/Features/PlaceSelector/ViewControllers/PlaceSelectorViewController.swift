@@ -99,7 +99,7 @@ final class PlaceSelectorViewController: BaseViewController, View {
         // Combine displayPlaces and selectedPlaceIds to update snapshot (simplified for compiler)
         let placesStream = reactor.state
             .map { $0.displayPlaces }
-            .distinctUntilChanged { $0.count == $1.count }
+            .distinctUntilChanged { $0.map { $0.contentId } == $1.map { $0.contentId } }
             .share(replay: 1)
 
         let selectedIdsStream = reactor.state
