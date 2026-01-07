@@ -93,6 +93,11 @@ final class TripEditorViewController: BaseViewController, View {
             reactor?.action.onNext(.setPlaces(reorderedPlaces))
         }
 
+        // Places delete callback
+        tripEditorView.onPlaceDeleteTapped = { [weak reactor] place in
+            reactor?.action.onNext(.removePlace(place.placeId))
+        }
+
         // Save button
         tripEditorView.saveButton.rx.tap
             .map { Reactor.Action.save }
@@ -212,14 +217,48 @@ final class TripEditorViewController: BaseViewController, View {
     }
 
     private func showPlaceSelector() {
-        let selectedIds = reactor?.currentState.visitedPlaces.map { $0.placeId } ?? []
+        let existingVisitedPlaces = reactor?.currentState.visitedPlaces ?? []
+        let selectedIds = existingVisitedPlaces.map { $0.placeId }
+
+        // 기존 VisitedPlace를 Place 객체로 변환하여 전달
+        let preSelectedPlaces = existingVisitedPlaces.map { visited in
+            Place(
+                contentId: visited.placeId,
+                title: visited.placeNameSnapshot,
+                address: "",
+                imageURL: visited.thumbnailURLSnapshot,
+                mapX: visited.location?.lng,
+                mapY: visited.location?.lat,
+                tel: nil,
+                overview: nil,
+                contentTypeId: nil,
+                areaCode: visited.areaCode,
+                sigunguCode: visited.sigunguCode,
+                cat1: nil,
+                cat2: nil,
+                cat3: nil,
+                distance: nil,
+                modifiedTime: nil,
+                eventMeta: nil,
+                isCustom: false,
+                customPlaceId: nil,
+                userProvidedImagePath: nil
+            )
+        }
+
         print("🔍 Opening PlaceSelector with pre-selected: \(selectedIds)")
 
         var placeSelectorReactorRef: PlaceSelectorReactor?
 
+        // 기존 VisitedPlace 정보를 보관 (메타데이터 유지용)
+        let existingVisitedPlacesDict = Dictionary(
+            uniqueKeysWithValues: existingVisitedPlaces.map { ($0.placeId, $0) }
+        )
+
         let placeSelectorVC = appContainer.makePlaceSelectorViewController(
             maxSelectionCount: 20,
-            preSelectedPlaceIds: selectedIds
+            preSelectedPlaceIds: selectedIds,
+            preSelectedPlaces: preSelectedPlaces
         ) { [weak self] selectedIds in
             print("✅ PlaceSelector confirmed with IDs: \(selectedIds)")
 
@@ -229,30 +268,73 @@ final class TripEditorViewController: BaseViewController, View {
                 return
             }
 
-            let selectedPlaces = selectedIds.compactMap { placeSelectorReactor.currentState.selectedPlaces[$0] }
-            print("📦 Selected Places: \(selectedPlaces.map { "\($0.title) (ID: \($0.contentId))" })")
+            let selectedPlacesDict = placeSelectorReactor.currentState.selectedPlaces
+            let selectedIdSet = Set(selectedIds)
 
-            // Convert to VisitedPlace
-            let visitedPlaces = selectedPlaces.enumerated().map { index, place in
-                VisitedPlace(
-                    entryId: UUID().uuidString,
-                    placeId: place.contentId,
-                    placeNameSnapshot: place.title,
-                    thumbnailURLSnapshot: place.imageURL,
-                    areaCode: place.areaCode,
-                    sigunguCode: place.sigunguCode ?? 0,
-                    addedAt: Date(),
-                    order: index,
-                    note: nil,
-                    rating: nil,
-                    location: GeoPoint(
-                        lat: place.mapY ?? 0,
-                        lng: place.mapX ?? 0
-                    ),
-                    visitedTime: nil,
-                    stayDuration: nil,
-                    routeIndex: nil
-                )
+            // 1. 기존 장소 중 여전히 선택된 것들 (기존 순서 유지)
+            var orderedPlaces: [Place] = []
+            for existingPlace in existingVisitedPlaces {
+                if selectedIdSet.contains(existingPlace.placeId),
+                   let place = selectedPlacesDict[existingPlace.placeId] {
+                    orderedPlaces.append(place)
+                }
+            }
+
+            // 2. 새로 추가된 장소들 (기존에 없던 것들)
+            let existingIds = Set(existingVisitedPlaces.map { $0.placeId })
+            for id in selectedIds {
+                if !existingIds.contains(id), let place = selectedPlacesDict[id] {
+                    orderedPlaces.append(place)
+                }
+            }
+
+            print("📦 Ordered Places: \(orderedPlaces.map { "\($0.title) (ID: \($0.contentId))" })")
+
+            // Convert to VisitedPlace (기존 메타데이터 유지)
+            let visitedPlaces = orderedPlaces.enumerated().map { index, place in
+                // 기존에 있던 장소인 경우 메타데이터 유지
+                if let existing = existingVisitedPlacesDict[place.contentId] {
+                    return VisitedPlace(
+                        entryId: existing.entryId,
+                        placeId: place.contentId,
+                        placeNameSnapshot: place.title,
+                        thumbnailURLSnapshot: place.imageURL,
+                        areaCode: place.areaCode,
+                        sigunguCode: place.sigunguCode ?? 0,
+                        addedAt: existing.addedAt,
+                        order: index,
+                        note: existing.note,
+                        rating: existing.rating,
+                        location: GeoPoint(
+                            lat: place.mapY ?? 0,
+                            lng: place.mapX ?? 0
+                        ),
+                        visitedTime: existing.visitedTime,
+                        stayDuration: existing.stayDuration,
+                        routeIndex: existing.routeIndex
+                    )
+                } else {
+                    // 새로 추가된 장소
+                    return VisitedPlace(
+                        entryId: UUID().uuidString,
+                        placeId: place.contentId,
+                        placeNameSnapshot: place.title,
+                        thumbnailURLSnapshot: place.imageURL,
+                        areaCode: place.areaCode,
+                        sigunguCode: place.sigunguCode ?? 0,
+                        addedAt: Date(),
+                        order: index,
+                        note: nil,
+                        rating: nil,
+                        location: GeoPoint(
+                            lat: place.mapY ?? 0,
+                            lng: place.mapX ?? 0
+                        ),
+                        visitedTime: nil,
+                        stayDuration: nil,
+                        routeIndex: nil
+                    )
+                }
             }
 
             print("🎯 Final VisitedPlaces: \(visitedPlaces.map { "\($0.placeNameSnapshot) (ID: \($0.placeId))" })")

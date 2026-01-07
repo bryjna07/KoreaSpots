@@ -40,6 +40,7 @@ final class PlaceSelectorReactor: Reactor {
         var searchResults: [Place] = []
         var selectedPlaceIds: Set<String>
         var selectedPlaces: [String: Place] = [:] // Store actual Place objects
+        var selectedOrder: [String] = [] // 선택 순서 유지를 위한 배열
         var maxSelectionCount: Int
         var isLoading: Bool = false
         var errorMessage: String?
@@ -67,9 +68,9 @@ final class PlaceSelectorReactor: Reactor {
             return places
         }
 
-        /// 선택된 장소 목록 (순서 유지)
+        /// 선택된 장소 목록 (선택 순서 유지)
         var selectedPlacesList: [Place] {
-            return selectedPlaceIds.compactMap { selectedPlaces[$0] }
+            return selectedOrder.compactMap { selectedPlaces[$0] }
         }
     }
 
@@ -80,11 +81,21 @@ final class PlaceSelectorReactor: Reactor {
     init(
         tourRepository: TourRepository,
         maxSelectionCount: Int,
-        preSelectedPlaceIds: [String]
+        preSelectedPlaceIds: [String],
+        preSelectedPlaces: [Place] = []  // 기존 선택된 장소의 Place 객체들
     ) {
         self.tourRepository = tourRepository
+
+        // preSelectedPlaces를 딕셔너리로 변환
+        var selectedPlacesDict: [String: Place] = [:]
+        for place in preSelectedPlaces {
+            selectedPlacesDict[place.contentId] = place
+        }
+
         self.initialState = State(
             selectedPlaceIds: Set(preSelectedPlaceIds),
+            selectedPlaces: selectedPlacesDict,
+            selectedOrder: preSelectedPlaceIds, // 기존 순서 유지
             maxSelectionCount: maxSelectionCount
         )
     }
@@ -131,8 +142,8 @@ final class PlaceSelectorReactor: Reactor {
             return .just(.toggleSelection(contentId, place))
 
         case .confirm:
-            let selectedIds = Array(currentState.selectedPlaceIds)
-            print("✅ Confirming selection: \(selectedIds)")
+            let selectedIds = currentState.selectedOrder // 순서 유지된 배열 사용
+            print("✅ Confirming selection (ordered): \(selectedIds)")
             return .just(.triggerConfirm(selectedIds))
         }
     }
@@ -157,6 +168,7 @@ final class PlaceSelectorReactor: Reactor {
             if newState.selectedPlaceIds.contains(placeId) {
                 newState.selectedPlaceIds.remove(placeId)
                 newState.selectedPlaces.removeValue(forKey: placeId)
+                newState.selectedOrder.removeAll { $0 == placeId }
                 print("  ➖ Removed")
             } else {
                 // Check max selection count
@@ -165,10 +177,11 @@ final class PlaceSelectorReactor: Reactor {
                 } else {
                     newState.selectedPlaceIds.insert(placeId)
                     newState.selectedPlaces[placeId] = place
+                    newState.selectedOrder.append(placeId) // 선택 순서 끝에 추가
                     print("  ➕ Added")
                 }
             }
-            print("  📊 Total selected: \(newState.selectedPlaceIds.count)")
+            print("  📊 Total selected: \(newState.selectedPlaceIds.count), Order: \(newState.selectedOrder)")
 
         case .setLoading(let isLoading):
             newState.isLoading = isLoading
