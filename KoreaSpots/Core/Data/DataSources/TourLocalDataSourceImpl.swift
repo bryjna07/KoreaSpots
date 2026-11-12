@@ -290,37 +290,6 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
         .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
     }
 
-    func clearExpiredCache() -> Completable {
-        return Completable.create { [weak self] observer in
-            guard let self = self else {
-                observer(.completed)
-                return Disposables.create()
-            }
-
-            do {
-                let realm = try self.createRealm()
-                try realm.write {
-                    let now = Date()
-
-                    // Place 캐시: 7일 TTL (이벤트성 콘텐츠 포함)
-                    let expiredPlaceDate = now.addingTimeInterval(-7 * 24 * 60 * 60) as NSDate
-                    let expiredPlaces = realm.objects(PlaceR.self)
-                        .filter("cachedAt < %@ AND isFavorite == false", expiredPlaceDate)
-                    realm.delete(expiredPlaces)
-
-                    print("✅ Expired cache cleared - Places: \(expiredPlaces.count)")
-                }
-                observer(.completed)
-            } catch {
-                print("❌ Failed to clear expired cache: \(error)")
-                observer(.error(DataSourceError.cacheError))
-            }
-
-            return Disposables.create()
-        }
-        .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
-    }
-
     func clearAllCache() -> Completable {
         return Completable.create { [weak self] observer in
             guard let self = self else {

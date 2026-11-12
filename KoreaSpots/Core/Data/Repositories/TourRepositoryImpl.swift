@@ -98,9 +98,4 @@ final class TourRepositoryImpl: TourRepository {
                     }
             }
     }
-
-    // MARK: - Cache Management
-    func clearExpiredCache() -> Completable {
-        return localDataSource.clearExpiredCache()
-    }
 }

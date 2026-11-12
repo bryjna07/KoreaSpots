@@ -35,6 +35,5 @@ protocol TourLocalDataSource {
 
     // MARK: - Cache Management
     func isCacheValid(for key: String, ttl: TimeInterval) -> Single<Bool>
-    func clearExpiredCache() -> Completable
     func clearAllCache() -> Completable
 }

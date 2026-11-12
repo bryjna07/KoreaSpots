@@ -29,9 +29,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // CodeBook 데이터 미리 로드 (Ldong, Lcls)
         loadCodeBooks()
 
-        // 앱 시작 시 만료된 캐시 정리 (백그라운드)
-//        clearExpiredCacheOnStartup()
-
         return true
     }
 
@@ -119,21 +116,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print(success ? "✅ AppDelegate: lcls_codes.json loaded successfully" : "⚠️ AppDelegate: lcls_codes.json load failed")
         }
     }
-
-    // MARK: - Cache Management
-//    private func clearExpiredCacheOnStartup() {
-//        let localDataSource = TourLocalDataSourceImpl()
-//        localDataSource.clearExpiredCache()
-//            .subscribe(
-//                onCompleted: {
-//                    print("✅ AppDelegate: Expired cache cleared on startup")
-//                },
-//                onError: { error in
-//                    print("⚠️ AppDelegate: Failed to clear expired cache: \(error)")
-//                }
-//            )
-//            .disposed(by: disposeBag)
-//    }
 
     // MARK: UISceneSession Lifecycle
 

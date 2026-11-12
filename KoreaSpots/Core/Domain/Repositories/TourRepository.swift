@@ -60,7 +60,4 @@ protocol TourRepository {
     func getPlaceOperatingInfo(contentId: String, contentTypeId: Int) -> Single<OperatingInfo>
     func getPlaceImages(contentId: String) -> Single<[PlaceImage]>
     func getTravelCourseDetails(contentId: String, contentTypeId: Int) -> Single<[CourseDetail]>
-
-    // MARK: - Cache Management
-    func clearExpiredCache() -> Completable
 }
