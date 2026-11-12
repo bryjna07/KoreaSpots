@@ -28,7 +28,8 @@ Sources (data.go.kr notices by Korea Tourism Organization): 2026-01-02 (field ch
   - `locationBasedList2` (Seoul City Hall, 5km): all 280; `lclsSystm1=FD` 142; old `cat1=A05` 142 (same).
   - `searchKeyword2` ("경복궁"): all 13; `lDongRegnCd=11` 9; `lclsSystm1=HS` 2; old `areaCode=1` 0.
   - `searchStay2` exists: `lDongRegnCd=11` 380 vs old `areaCode=1` 126. The app has no `TourAPI` case for it (only an enum case in `Category.swift`), so it is unused.
-- Impact: old `areaCode` filters already return almost nothing for festivals (2 vs 183) and keyword search (0 vs 9), which explains the empty home banner seen in the simulator. Migration is a fix, not just future-proofing.
+- Impact: old `areaCode` filters already return almost nothing for festivals (2 vs 183) and keyword search (0 vs 9), so region-filtered screens on a real device were degraded. Migration is a fix, not just future-proofing.
+- Correction: the empty home banner seen in the simulator was NOT caused by this. `HomeReactor` requests festivals by the user's location-derived region and falls back to an empty list when location is unavailable (simulator had no location/permission). With a simulated location + permission and the new `lDongRegnCd`, the banner loads. The old-`areaCode` problem is still real for devices with location.
 
 ### Region mapping (areaCode -> lDongRegnCd, 법정동 시도)
 | Region | old areaCode | new lDongRegnCd |

@@ -17,7 +17,7 @@ Presentation (VC/View/Reactor)  ->  Domain (UseCase, Repository protocol, Entity
 - Remote: Moya `TourAPI` (`Core/Networking/API/`), `MoyaProviderFactory`.
 - Mock: `MockTourRemoteDataSource` serving `Resources/Mock/*.json`.
 - `DataSourceMode` (`Core/Common/AppEnvironment.swift`): `normal`, `mockFallback` (API quota/server error), `offline` (`NetworkMonitor`).
-- Local: Realm schemas in `Core/Data/Persistence/Schemas/` (`PlaceR`, `TripR`, `RecentSearchKeywordR`, `OperatingInfoE`), `schemaVersion` 2, migration in AppDelegate.
+- Local: Realm schemas in `Core/Data/Persistence/Schemas/` (`PlaceR`, `TripR`, `RecentSearchKeywordR`, `OperatingInfoE`), `schemaVersion` 3 (v3: region codes -> legal-dong codes, `Core/Data/Persistence/Migration/RealmRegionMigration.swift`), migration block in AppDelegate.
 - Code books: `Core/Common/CodeBook/` (`TourCodeBook.swift` enums AreaCode/ContentTypeID/Cat1/Cat2/Theme12, `CodeBookStore.swift`); JSON `cat3_codes.json`, `sigungu_codes.json` in Resources.
 
 ## Features (`Presentation/Features/`)
