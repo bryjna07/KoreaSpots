@@ -23,7 +23,12 @@ Sources (data.go.kr notices by Korea Tourism Organization): 2026-01-02 (field ch
 - Old `cat1~3` are EMPTY for ~86% of items (sample 7,883 items over 8 contentTypeIds); old `areaCode=1` returned 792 items vs 8,013 for `lDongRegnCd=11` (both Seoul). Old filters therefore miss most data.
 - Old Gwangju code (`lDongRegnCd=29`) returns 0 items.
 - `lclsSystmCode2` full list: 10 level-1, 59 level-2, 246 level-3 codes. Mapping old cat -> new lclsSystm is many-to-many (e.g. A0302 land leisure -> mostly AC05 camping), so no static conversion table; use `lclsSystm` natively.
-- Not yet verified: whether `searchFestival2`, `locationBasedList2`, `searchKeyword2` accept the new params.
+- New params work on all list operations (filtered total < unfiltered total):
+  - `searchFestival2` (from 20260101): all 861; `lDongRegnCd=11` 183; old `areaCode=1` only 2; old Gwangju `lDongRegnCd=29` 0.
+  - `locationBasedList2` (Seoul City Hall, 5km): all 280; `lclsSystm1=FD` 142; old `cat1=A05` 142 (same).
+  - `searchKeyword2` ("경복궁"): all 13; `lDongRegnCd=11` 9; `lclsSystm1=HS` 2; old `areaCode=1` 0.
+  - `searchStay2` exists: `lDongRegnCd=11` 380 vs old `areaCode=1` 126. The app has no `TourAPI` case for it (only an enum case in `Category.swift`), so it is unused.
+- Impact: old `areaCode` filters already return almost nothing for festivals (2 vs 183) and keyword search (0 vs 9), which explains the empty home banner seen in the simulator. Migration is a fix, not just future-proofing.
 
 ### Region mapping (areaCode -> lDongRegnCd, 법정동 시도)
 | Region | old areaCode | new lDongRegnCd |
