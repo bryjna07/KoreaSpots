@@ -18,13 +18,13 @@ Presentation (VC/View/Reactor)  ->  Domain (UseCase, Repository protocol, Entity
 - Mock: `MockTourRemoteDataSource` serving `Resources/Mock/*.json`.
 - `DataSourceMode` (`Core/Common/AppEnvironment.swift`): `normal`, `mockFallback` (API quota/server error), `offline` (`NetworkMonitor`).
 - Local: Realm schemas in `Core/Data/Persistence/Schemas/` (`PlaceR`, `TripR`, `RecentSearchKeywordR`, `OperatingInfoE`), `schemaVersion` 2, migration in AppDelegate.
-- Code books: `cat3_codes.json`, `sigungu_codes.json` via `CodeBookStore`.
+- Code books: `Core/Common/CodeBook/` (`TourCodeBook.swift` enums AreaCode/ContentTypeID/Cat1/Cat2/Theme12, `CodeBookStore.swift`); JSON `cat3_codes.json`, `sigungu_codes.json` in Resources.
 
 ## Features (`Presentation/Features/`)
 TabBar (Category, Home, TripRecord, Favorite), Home, Category, PlaceList, Search, PlaceDetail (per-contentType operating-info cells), Favorite, TripRecord (calendar/stats/list), TripEditor, TripDetail (route map, photos, timeline), PlaceSelector.
 
 ## Base classes
-`Presentation/Base/`: BaseViewController, BaseView, BaseCollectionViewCell, BaseListCell, SkeletonableCell, ReusableView, alert extensions.
+`Presentation/Base/` (+ `Protocols/`: Configurable, ConfigureUI, ReusableView): BaseViewController, BaseView, BaseCollectionViewCell, BaseListCell, SkeletonableCell, ReusableView, alert extensions.
 
 ## Other
 - Font: GwangyangSunshine via `FontManager`.
