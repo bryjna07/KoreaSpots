@@ -81,7 +81,7 @@ extension TourRepositoryImpl {
                     }, onError: { error in
                         print("❌ Location API Error: \(error)")
                     })
-                    .catchError { [weak self] apiError in
+                    .catch { [weak self] apiError in
                         guard let self else { return .just([]) }
 
                         return self.handleAPIError(
@@ -207,7 +207,7 @@ extension TourRepositoryImpl {
             }, onError: { error in
                 print("❌ Area API Error: \(error)")
             })
-            .catchError { [weak self] apiError in
+            .catch { [weak self] apiError in
                 guard let self else { return .just([]) }
 
                 return self.handleAPIError(

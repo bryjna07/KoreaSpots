@@ -45,7 +45,7 @@ extension TourRepositoryImpl {
                     }, onError: { error in
                         print("❌ Detail API Error for contentId \(contentId): \(error)")
                     })
-                    .catchError { [weak self] apiError in
+                    .catch { [weak self] apiError in
                         guard let self else { return .error(apiError) }
                         print("⚠️ Detail API failed, using fallback Mock Data")
 
@@ -95,7 +95,7 @@ extension TourRepositoryImpl {
                     }, onError: { error in
                         print("❌ OperatingInfo API Error for contentId \(contentId): \(error)")
                     })
-                    .catchError { apiError in
+                    .catch { apiError in
                         print("⚠️ OperatingInfo API failed, returning empty info")
                         // 운영정보는 선택사항이므로 빈 값 반환
                         return .just(OperatingInfo.empty)
@@ -111,7 +111,7 @@ extension TourRepositoryImpl {
             }, onError: { error in
                 print("❌ Images API Error: \(error)")
             })
-            .catchError { [weak self] apiError in
+            .catch { [weak self] apiError in
                 guard let self else { return .just([]) }
                 print("⚠️ Images API failed, using fallback Mock Data")
 
@@ -143,7 +143,7 @@ extension TourRepositoryImpl {
             }, onError: { error in
                 print("❌ Travel Course Details API Error: \(error)")
             })
-            .catchError { [weak self] apiError in
+            .catch { [weak self] apiError in
                 guard let self else { return .just([]) }
                 print("⚠️ Travel Course Details API failed, using fallback Mock Data")
 

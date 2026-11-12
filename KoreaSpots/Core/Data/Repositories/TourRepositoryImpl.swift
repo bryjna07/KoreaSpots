@@ -78,7 +78,7 @@ final class TourRepositoryImpl: TourRepository {
                     }, onError: { error in
                         print("❌ Festival API Error: \(error)")
                     })
-                    .catchError { [weak self] apiError in
+                    .catch { [weak self] apiError in
                         guard let self else { return .just([]) }
 
                         return self.handleAPIError(

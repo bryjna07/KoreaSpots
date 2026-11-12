@@ -46,7 +46,7 @@ extension TourRepositoryImpl {
         }, onError: { error in
             print("❌ Search API Error: \(error)")
         })
-        .catchError { [weak self] apiError in
+        .catch { [weak self] apiError in
             guard let self else { return .just([]) }
             print("⚠️ Search API failed, using fallback Mock Data")
 
