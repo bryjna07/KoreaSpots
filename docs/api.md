@@ -10,6 +10,50 @@
 ## Failure handling
 Quota exceeded / server error -> `DataSourceMode.mockFallback` -> mock JSON in `Resources/Mock/`.
 
+## 2026 code-system migration (TourAPI notices, status: investigated, NOT yet applied in code)
+Sources (data.go.kr notices by Korea Tourism Organization): 2026-01-02 (field change, effective 2026-01-12), 2026-01-09 (pet-tour service only; not used by this app), 2026-06-29 (legal-dong change, effective 2026-07-01).
+
+### What changed
+- Request/response fields `areaCode`, `sigunguCode`, `cat1`, `cat2`, `cat3` are replaced by `lDongRegnCd`, `lDongSignguCd`, `lclsSystm1`, `lclsSystm2`, `lclsSystm3`. Affected operations: area-based, location-based, keyword, festival, stay, sync.
+- New code-table operations: `ldongCode2` (params `lDongRegnCd`, `lDongListYn`), `lclsSystmCode2` (params `lclsSystm1~3`, `lclsSystmListYn`).
+- Region code values changed (not a rename): Gwangju + Jeonnam merged into one province; Incheon gained districts.
+
+### Verified by curl on KorService2 (2026-11-12)
+- `areaBasedList2` still accepts old `areaCode`, and responses contain BOTH old (`areacode`, `sigungucode`, `cat1~3`) and new fields. Removal date unknown.
+- Old `cat1~3` are EMPTY for ~86% of items (sample 7,883 items over 8 contentTypeIds); old `areaCode=1` returned 792 items vs 8,013 for `lDongRegnCd=11` (both Seoul). Old filters therefore miss most data.
+- Old Gwangju code (`lDongRegnCd=29`) returns 0 items.
+- `lclsSystmCode2` full list: 10 level-1, 59 level-2, 246 level-3 codes. Mapping old cat -> new lclsSystm is many-to-many (e.g. A0302 land leisure -> mostly AC05 camping), so no static conversion table; use `lclsSystm` natively.
+- Not yet verified: whether `searchFestival2`, `locationBasedList2`, `searchKeyword2` accept the new params.
+
+### Region mapping (areaCode -> lDongRegnCd, 법정동 시도)
+| Region | old areaCode | new lDongRegnCd |
+|---|---|---|
+| Seoul | 1 | 11 |
+| Incheon | 2 | 28 |
+| Daejeon | 3 | 30 |
+| Daegu | 4 | 27 |
+| Gwangju + Jeonnam | 5 + 38 | 12 (전남광주통합특별시) |
+| Busan | 6 | 26 |
+| Ulsan | 7 | 31 |
+| Sejong | 8 | 36110 (5 digits) |
+| Gyeonggi | 31 | 41 |
+| Gangwon | 32 | 51 |
+| Chungbuk / Chungnam | 33 / 34 | 43 / 44 |
+| Gyeongbuk / Gyeongnam | 35 / 36 | 47 / 48 |
+| Jeonbuk | 37 | 52 |
+| Jeju | 39 | 50 |
+Sigungu: old sequential `sigunguCode` -> legal-dong `lDongSignguCd` (e.g. Gangnam-gu = 680); fetch per-province tables via `ldongCode2`.
+
+### New taxonomy (lclsSystm1)
+AC 숙박, C01 추천코스 (level-2 codes `C0112~C0117` identical to old cat2), EV 축제/공연/행사, EX 체험관광, FD 음식, HS 역사관광, LS 레저스포츠, NA 자연관광, SH 쇼핑, VE 문화관광.
+App layers: home buttons (8) are by `contentTypeId` (unchanged); Category screen filters use `Cat1`(7)/`Cat2`(24)/`Cat3`(~153) -> to be replaced by lclsSystm. Home "공연·전시" button uses old `cat2=A0208`: needs a new-code decision.
+
+### Plan (decided direction)
+1. Docs (this section). 2. Verify new params on the other operations. 3. Regenerate code-table JSON from `ldongCode2`/`lclsSystmCode2`. 4. Switch `TourAPI` params, DTO, mappers. 5. Replace `AreaCode`/`Cat1/2/3` data with new codes. 6. Check Realm (`PlaceR`, `TripR`) stored old codes; bump `schemaVersion` + migration if needed.
+
+## Code tables
+Bundled JSON (`Resources/cat3_codes.json`, `sigungu_codes.json`) loaded at launch into `CodeBookStore` (static cache). Region/Cat1/Cat2 are hardcoded Swift enums in `TourCodeBook.swift`. Two sources of truth that drifted when the API changed; see migration plan for the replacement.
+
 ## Known gaps
 - `FetchFestivalUseCase.swift:61` pageNo handling TODO.
 - `TripLocalDataSourceImpl.swift:214` region code 0 handling TODO.
