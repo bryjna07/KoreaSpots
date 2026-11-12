@@ -21,6 +21,7 @@ class PlaceR: Object {
     @Persisted var cat1: String?
     @Persisted var cat2: String?
     @Persisted var cat3: String?
+    @Persisted var lclsSystm3: String?  // 신 분류체계 소분류 (즐겨찾기 등 캐시 경로의 테마 태그용)
     @Persisted var distance: Int?
 
     // 캐싱 관련 필드
@@ -77,6 +78,7 @@ extension PlaceR {
         self.cat1 = place.cat1
         self.cat2 = place.cat2
         self.cat3 = place.cat3
+        self.lclsSystm3 = place.lclsSystm3
         self.distance = place.distance
         self.areaCode = place.areaCode
         self.sigunguCode = place.sigunguCode
@@ -107,6 +109,7 @@ extension PlaceR {
         self.cat1 = place.cat1
         self.cat2 = place.cat2
         self.cat3 = place.cat3
+        self.lclsSystm3 = place.lclsSystm3
         self.distance = place.distance
         self.areaCode = place.areaCode
         self.sigunguCode = place.sigunguCode
@@ -143,6 +146,7 @@ extension PlaceR {
             cat1: cat1,
             cat2: cat2,
             cat3: cat3,
+            lclsSystm3: lclsSystm3,
             distance: distance,
             modifiedTime: modifiedTime,
             eventMeta: eventMeta?.toDomain(),

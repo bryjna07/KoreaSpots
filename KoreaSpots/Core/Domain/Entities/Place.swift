@@ -22,6 +22,7 @@ struct Place {
     let cat1: String?
     let cat2: String?
     let cat3: String?
+    var lclsSystm3: String? = nil  // 신 분류체계 소분류 (테마 필터/태그용, 캐시(PlaceR)에는 저장하지 않음)
     let distance: Int? // 미터 단위
 
     // MARK: - 캐싱 관련

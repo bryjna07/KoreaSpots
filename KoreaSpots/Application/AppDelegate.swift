@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Realm Configuration
     private func configureRealm() {
         // 현재 스키마 버전
-        let currentSchemaVersion: UInt64 = 3
+        let currentSchemaVersion: UInt64 = 4
 
         let config = Realm.Configuration(
             schemaVersion: currentSchemaVersion,
@@ -68,6 +68,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 // 스키마 구조 변경은 없고 값만 변환 (PlaceR 일반 캐시는 삭제)
                 if oldSchemaVersion < 3 {
                     RealmRegionMigration.migrate(migration)
+                }
+
+                // Version 3 → 4: PlaceR.lclsSystm3 (optional) 추가
+                // 기본값 nil로 Realm이 자동 처리하므로 별도 변환 없음
+                if oldSchemaVersion < 4 {
+                    #if DEBUG
+                    print("🔄 Migration v3→v4: PlaceR.lclsSystm3 added (nil default)")
+                    #endif
                 }
             },
             shouldCompactOnLaunch: { totalBytes, usedBytes in
