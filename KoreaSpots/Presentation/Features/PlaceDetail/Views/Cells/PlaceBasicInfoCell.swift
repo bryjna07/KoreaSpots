@@ -14,7 +14,6 @@ final class PlaceBasicInfoCell: BaseCollectionViewCell {
 
     // MARK: - UI Components
     private let titleLabel = UILabel()
-    /// TODO: - CustomUI
     private let categoryTagView = UIView()
     private let categoryLabel = UILabel()
     private let addressLabel = UILabel()
@@ -64,7 +63,6 @@ extension PlaceBasicInfoCell {
         categoryTagView.snp.makeConstraints {
             $0.top.equalToSuperview().inset(Constants.Layout.mediumPadding)
             $0.trailing.equalToSuperview().inset(Constants.Layout.standardPadding)
-            ///TODO: - 높이 조절 필요
             $0.height.equalTo(36)
         }
 

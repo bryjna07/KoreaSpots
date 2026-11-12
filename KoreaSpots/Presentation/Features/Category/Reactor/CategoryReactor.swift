@@ -30,7 +30,6 @@ final class CategoryReactor: Reactor {
         case selectCat2(LclsCategory) // 왼쪽 사이드바 탭
         case scrollToCat2(LclsCategory) // 오른쪽 스크롤로 인한 사이드바 하이라이트
         case toggleExpandSection(LclsCategory) // 더보기 버튼
-        case selectCat3(String)
         case selectArea(AreaCode?)
         case selectSigungu(Int?)
     }
@@ -136,10 +135,6 @@ final class CategoryReactor: Reactor {
 
         case .toggleExpandSection(let cat2):
             return .just(.toggleSectionExpanded(cat2))
-
-        case .selectCat3:
-            // TODO: Cat3 선택 시 장소 목록 화면으로 이동
-            return .empty()
 
         case .selectArea(let area):
             return .just(.setSelectedArea(area))

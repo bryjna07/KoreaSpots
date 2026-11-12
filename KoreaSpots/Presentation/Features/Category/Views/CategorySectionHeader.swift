@@ -56,7 +56,6 @@ final class CategorySectionHeader: BaseReusableView {
     }
 
     // MARK: - Configuration
-    /// TODO: - 컬러 변경 필요
     func configure(cat2: LclsCategory, isExpanded: Bool, showMoreButton: Bool) {
         titleLabel.text = cat2.labelKo
 
