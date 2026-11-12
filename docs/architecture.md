@@ -10,6 +10,8 @@ Presentation (VC/View/Reactor)  ->  Domain (UseCase, Repository protocol, Entity
 ## DI
 `Application/DI/AppContainer.swift` - hand-written lazy singleton. Builds DataSources -> Repositories -> UseCases, exposes `makeXxxViewController()` factories.
 
+Rationale for layering/DI/schema decisions: `architecture-decisions.md`.
+
 ## Navigation
 `Core/Navigation/Navigator.swift` - `Navigator` protocol adopted by view controllers. Unimplemented: MapViewController, FestivalDetailViewController (TODO at lines ~64, 73). Suspect: default `present` may recurse (unverified).
 
