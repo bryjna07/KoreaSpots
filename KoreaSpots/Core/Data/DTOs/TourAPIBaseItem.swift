@@ -21,11 +21,12 @@ struct TourAPIBaseItem: Decodable {
     let title: String  // 콘텐츠 제목
     let contenttypeid: String  // 콘텐츠 타입 ID (12=관광지, 14=문화시설, 15=축제, 25=여행코스, 28=레포츠, 32=숙박, 38=쇼핑, 39=음식점)
     let addr1: String  // 주소
-    let areacode: String  // 지역 코드
-    let sigungucode: String  // 시군구 코드
     let modifiedtime: String  // 수정일
 
     // MARK: - 선택 필드 (모든 API 공통)
+    // 옛 지역 코드: API 개편(2026-01)으로 제거 예정이라 옵셔널로 디코딩 (필수면 제거 시 목록 파싱 전체 실패)
+    let areacode: String?  // 지역 코드 (구)
+    let sigungucode: String?  // 시군구 코드 (구)
     let addr2: String?  // 상세주소
     let cat1: String?  // 대분류 코드
     let cat2: String?  // 중분류 코드
@@ -69,11 +70,11 @@ struct TourAPIBaseItem: Decodable {
         title = try container.decode(String.self, forKey: .title)
         contenttypeid = try container.decode(String.self, forKey: .contenttypeid)
         addr1 = try container.decode(String.self, forKey: .addr1)
-        areacode = try container.decode(String.self, forKey: .areacode)
-        sigungucode = try container.decode(String.self, forKey: .sigungucode)
         modifiedtime = try container.decode(String.self, forKey: .modifiedtime)
 
         // MARK: - 선택 필드 (모든 API 공통)
+        areacode = try container.decodeIfPresent(String.self, forKey: .areacode)
+        sigungucode = try container.decodeIfPresent(String.self, forKey: .sigungucode)
         addr2 = try container.decodeIfPresent(String.self, forKey: .addr2)
         cat1 = try container.decodeIfPresent(String.self, forKey: .cat1)
         cat2 = try container.decodeIfPresent(String.self, forKey: .cat2)
@@ -112,9 +113,9 @@ struct TourAPIBaseItem: Decodable {
 
     private enum CodingKeys: String, CodingKey {
         // 필수
-        case contentid, contenttypeid, title, addr1, areacode, sigungucode, modifiedtime
+        case contentid, contenttypeid, title, addr1, modifiedtime
         // 공통 선택
-        case addr2, cat1, cat2, cat3, createdtime, firstimage, firstimage2, cpyrhtDivCd
+        case areacode, sigungucode, addr2, cat1, cat2, cat3, createdtime, firstimage, firstimage2, cpyrhtDivCd
         case mapx, mapy, mlevel, tel, zipcode
         // 법정동 코드
         case lDongRegnCd, lDongSignguCd, lclsSystm1, lclsSystm2, lclsSystm3
