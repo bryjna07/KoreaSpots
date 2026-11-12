@@ -124,6 +124,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 print("⚠️ AppDelegate: sigungu_codes.json load failed")
             }
         }
+
+        // 법정동 코드 로드 (TourAPI 개편 대응, 생성: scripts/fetch_codebook.py)
+        CodeBookStore.Ldong.loadFromBundleAsync { success in
+            print(success ? "✅ AppDelegate: ldong_codes.json loaded successfully" : "⚠️ AppDelegate: ldong_codes.json load failed")
+        }
+
+        // 분류체계 코드 로드
+        CodeBookStore.Lcls.loadFromBundleAsync { success in
+            print(success ? "✅ AppDelegate: lcls_codes.json loaded successfully" : "⚠️ AppDelegate: lcls_codes.json load failed")
+        }
     }
 
     // MARK: - Cache Management

@@ -176,6 +176,76 @@ extension CodeBookStore {
         }
     }
 
+    // 법정동 코드 (ldongCode2): ROOT = 시도, 시도코드 = 시군구
+    public enum Ldong {
+        private static let category = "ldong"
+        /// 최상위(시도) 목록을 담는 부모 키 (scripts/fetch_codebook.py 출력 형식)
+        private static let root = "ROOT"
+
+        public static func loadFromBundleAsync(
+            fileName: String = "ldong_codes",
+            completion: @escaping (Bool) -> Void
+        ) {
+            CodeBookStore.loadFromBundleAsync(category: category, fileName: fileName, completion: completion)
+        }
+
+        public static var isLoaded: Bool {
+            CodeBookStore.isLoaded(category: category)
+        }
+
+        public static func sidoName(regnCd: Int) -> String? {
+            CodeBookStore.name(category: category, parentCode: root, childCode: "\(regnCd)")
+        }
+
+        public static func signguName(regnCd: Int, signguCd: Int) -> String? {
+            CodeBookStore.name(category: category, parentCode: "\(regnCd)", childCode: "\(signguCd)")
+        }
+
+        public static func allSidoCodes() -> [String] {
+            CodeBookStore.allChildCodes(category: category, parentCode: root)
+        }
+
+        public static func allSignguCodes(for regnCd: Int) -> [String] {
+            CodeBookStore.allChildCodes(category: category, parentCode: "\(regnCd)")
+        }
+    }
+
+    // 분류체계 코드 (lclsSystmCode2): ROOT = 대분류, 대분류 = 중분류, 중분류 = 소분류
+    public enum Lcls {
+        private static let category = "lcls"
+        private static let root = "ROOT"
+
+        public static func loadFromBundleAsync(
+            fileName: String = "lcls_codes",
+            completion: @escaping (Bool) -> Void
+        ) {
+            CodeBookStore.loadFromBundleAsync(category: category, fileName: fileName, completion: completion)
+        }
+
+        public static var isLoaded: Bool {
+            CodeBookStore.isLoaded(category: category)
+        }
+
+        /// 대분류 목록 (예: AC, EV, FD ...)
+        public static func allLevel1Codes() -> [String] {
+            CodeBookStore.allChildCodes(category: category, parentCode: root)
+        }
+
+        /// 하위 코드 목록: 대분류 -> 중분류, 중분류 -> 소분류
+        public static func childCodes(of parentCode: String) -> [String] {
+            CodeBookStore.allChildCodes(category: category, parentCode: parentCode)
+        }
+
+        public static func level1Name(_ code: String) -> String? {
+            CodeBookStore.name(category: category, parentCode: root, childCode: code)
+        }
+
+        /// 중분류/소분류 이름: parentCode는 한 단계 위 코드
+        public static func name(parentCode: String, code: String) -> String? {
+            CodeBookStore.name(category: category, parentCode: parentCode, childCode: code)
+        }
+    }
+
     // Sigungu 관련 편의 메서드
     public enum Sigungu {
         private static let category = "sigungu"
