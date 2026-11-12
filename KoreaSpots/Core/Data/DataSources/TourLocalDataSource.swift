@@ -34,6 +34,5 @@ protocol TourLocalDataSource {
     func clearAllRecentKeywords() -> Completable
 
     // MARK: - Cache Management
-    func isCacheValid(for key: String, ttl: TimeInterval) -> Single<Bool>
     func clearAllCache() -> Completable
 }

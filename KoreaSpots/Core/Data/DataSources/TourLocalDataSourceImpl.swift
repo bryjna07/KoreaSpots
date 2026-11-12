@@ -264,32 +264,6 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
     }
 
     // MARK: - Cache Management
-    func isCacheValid(for key: String, ttl: TimeInterval) -> Single<Bool> {
-        return Single.create { [weak self] observer in
-            guard let self = self else {
-                observer(.success(false))
-                return Disposables.create()
-            }
-
-            do {
-                let realm = try self.createRealm()
-                // contentId를 캐시 키로 사용하여 PlaceR에서 검색 (이벤트 포함)
-                let expiryDate = Date().addingTimeInterval(-ttl)
-
-                let hasValidPlace = realm.objects(PlaceR.self)
-                    .filter("contentId == %@ AND cachedAt > %@", key, expiryDate as NSDate)
-                    .count > 0
-
-                observer(.success(hasValidPlace))
-            } catch {
-                observer(.failure(DataSourceError.cacheError))
-            }
-
-            return Disposables.create()
-        }
-        .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
-    }
-
     func clearAllCache() -> Completable {
         return Completable.create { [weak self] observer in
             guard let self = self else {

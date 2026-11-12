@@ -50,4 +50,4 @@ Log of architecture-relevant decisions made during the portfolio rework (branch 
   - Operating info: read-time `OperatingInfoE.isValid()` = 7 days.
   - `clearExpiredCache` (delete non-favorite places older than 7 days) was storage cleanup only; its call in `AppDelegate` had been commented out (likely after the switch to daily refresh), so it was removed as dead code. Old non-favorite rows are never pruned (DB grows, API usage unaffected). Trips do not reference `PlaceR` (snapshot fields only), so a future cleanup is safe for Trip data.
   - History (commit `fd5b9bd`, 2025-10-23, "API 권장사항에 맞게 1일 1회 갱신"): replaced TTLs (location lists 3h, other lists 1h, place detail 7 days) with one daily refresh at 04:00 KST to follow the Tour API's recommendation; same commit added `modifiedtime` change detection. The reason for 04:00 itself is not documented (likely the data sync window; unverified).
-  - Decision needed: keep daily refresh for place detail or move to 7 days. (`isCacheValid(for:ttl:)` also has no callers; remove separately.)
+  - Decision needed: keep daily refresh for place detail or move to 7 days. (Unused `isCacheValid(for:ttl:)` was also removed.)
