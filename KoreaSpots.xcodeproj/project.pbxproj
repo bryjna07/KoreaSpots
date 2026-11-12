@@ -494,7 +494,7 @@
 			repositoryURL = "https://github.com/realm/realm-swift.git";
 			requirement = {
 				kind = exactVersion;
-				version = 20.0.3;
+				version = 20.0.6;
 			};
 		};
 		17DDE7562E85327700E6057A /* XCRemoteSwiftPackageReference "Moya" */ = {
