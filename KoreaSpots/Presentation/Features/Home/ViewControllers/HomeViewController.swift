@@ -124,11 +124,7 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
 
                 switch kind {
                 case FestivalPageIndicatorView.elementKind:
-                    let view = collectionView.dequeueReusableSupplementaryView(
-                        ofKind: kind,
-                        withReuseIdentifier: FestivalPageIndicatorView.reuseIdentifier,
-                        for: indexPath
-                    ) as! FestivalPageIndicatorView
+                    let view = collectionView.dequeue(supplementary: FestivalPageIndicatorView.self, ofKind: kind, for: indexPath)
 
                     let totalPages = dataSource[indexPath.section].items.count
                     let currentPage = self.homeView.currentPage
@@ -136,11 +132,7 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
                     return view
 
                 case AttributionFooterView.elementKind:
-                    let view = collectionView.dequeueReusableSupplementaryView(
-                        ofKind: kind,
-                        withReuseIdentifier: AttributionFooterView.reuseIdentifier,
-                        for: indexPath
-                    ) as! AttributionFooterView
+                    let view = collectionView.dequeue(supplementary: AttributionFooterView.self, ofKind: kind, for: indexPath)
                     return view
 
                 case UICollectionView.elementKindSectionHeader:
@@ -185,7 +177,7 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             return UICollectionReusableView()
         }
 
-        let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: SectionHeaderView.reuseIdentifier, for: indexPath) as! SectionHeaderView
+        let headerView = collectionView.dequeue(supplementary: SectionHeaderView.self, ofKind: kind, for: indexPath)
 
         let actionTitle: String? = {
             switch section.section {
