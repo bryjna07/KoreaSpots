@@ -32,7 +32,16 @@ Log of architecture-relevant decisions made during the portfolio rework (branch 
 - **Risk / TODO**: v2 -> v3 migration is not yet verified with real 1.1.1 data on a device. Do this before release.
 - **Talking point**: "Only released schemas need migration steps; I squashed dev-only versions."
 
+## 5. Single owner for favorites
+- **Context**: `TourRepository` and `FavoriteRepository` both exposed favorites. `TourRepository.toggleFavorite(contentId:)` had no callers; `getFavoritePlaces()` was used only by `PlaceSelectorReactor`.
+- **Decision**: Removed both from `TourRepository`; added `getFavoritePlaces() -> Single<[Place]>` to `FavoriteRepository` (same DataSource call, so same ordering and one-shot semantics). Removed the unused `TourLocalDataSource.toggleFavorite(contentId:)`.
+- **Why**: One concept, one owner. Replacing it with `getFavorites()` would silently change behavior (live-observed Observable, no sorting), so the equivalent method was added instead.
+
 ## Open architecture items
-- Remove favorites from `TourRepository` (duplicates `FavoriteRepository`).
-- Check whether `clearExpiredCache` is used anywhere; delete if not.
+- Cache policy (intent: cut Tour API usage; re-fetch occasionally in case data changed). Actual behavior, verified in code:
+  - Place detail: read-time check `PlaceR.needsRefresh()` = refresh once per day after 04:00 KST (not 7 days; the `TourRepositoryImpl` comment says "long TTL").
+  - Operating info: read-time `OperatingInfoE.isValid()` = 7 days.
+  - `clearExpiredCache` (delete non-favorite places older than 7 days) is storage cleanup only; its call in `AppDelegate` is commented out, so old non-favorite rows are never pruned (DB grows, API usage unaffected).
+  - History (commit `fd5b9bd`, 2025-10-23, "API 권장사항에 맞게 1일 1회 갱신"): replaced TTLs (location lists 3h, other lists 1h, place detail 7 days) with one daily refresh at 04:00 KST to follow the Tour API's recommendation; same commit added `modifiedtime` change detection. The reason for 04:00 itself is not documented (likely the data sync window; unverified).
+  - Decision needed: keep daily refresh for place detail or move to 7 days; enable or delete `clearExpiredCache`.
 - Split `TourRepositoryImpl` (~780 lines) by extension; replace deprecated `catchError` with `catch` in a separate commit.
