@@ -2,6 +2,25 @@
 
 Order: 1) quality cleanup -> 2) bug fixes -> 3) AI chatbot. Discuss a plan before each multi-file step.
 
+## Release plan
+Order agreed with the user (details of each item live in the sections below).
+1. **Gate: real-device Realm migration test (1.1.1 -> v3).** No code work; do before any release build.
+2. **2.0.0**: category improvements + UI polish + app logo + iPhone Duo check.
+   - Build all layout changes with localization in mind (no fixed widths, allow longer text via wrapping/scaling/Auto Layout); the translation itself ships later.
+   - Category: two-way scroll sync, per-subcategory images, level-2 merge list (user picks groups).
+   - UI polish: font/height/color in `PlaceLocationCell`, `PlaceBasicInfoCell`, `CategorySectionHeader`.
+   - App logo: asset replacement (design needed first).
+   - iPhone Duo (large foldable): see below.
+3. **After 2.0.0** (version TBD): localization. Follow the system language only (no in-app picker, so no Settings dependency). Extend `LocalizedKeys`; ~140 hardcoded KR literals, mostly `PlaceDetail/Views/Cells/*OperatingInfoCell`. Layouts are already prepared for longer strings during 2.0.0, so this step is mostly key extraction and translation.
+4. **Later**: AI chatbot, after the separate Python project is finished (see section 3). Then tests (Reactor/UseCase first), last.
+
+### iPhone Duo
+Source: Apple HIG "Designing for iPhone Duo" (via context7).
+- Outer display = compact width, inner display = regular width. Use size classes, layout margins and safe area insets; avoid fixed widths and display-specific code. Do not build per-pose layouts.
+- Fold: prefer an even number of grid columns; use `UIView.ReservedRegion` for content that must avoid the center.
+- Plan: capture Home/Category/Detail/Trip on both displays (Xcode Device Hub or Duo simulator), classify what breaks, then fix. Likely first targets: fixed item sizes/column counts in collection views, fixed-width SnapKit constraints.
+- Not yet verified: how the iPhone-only target behaves on the inner display (compatibility vs. native).
+
 ## 1. Quality cleanup
 - (done) Empty `SharedUI/` removed.
 - Split large files (see architecture.md).
