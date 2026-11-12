@@ -31,4 +31,4 @@ TabBar (Category, Home, TripRecord, Favorite), Home, Category, PlaceList, Search
 ## Other
 - Font: GwangyangSunshine via `FontManager`.
 - Localization: `ko.lproj` only (`en.lproj` empty).
-- Large files to split: `TripEditorView` (760 lines), `TripRecordViewController` (588), `TripRecordView` (547), `SearchReactor` (539).
+- Large files: `TripEditorView`, `TripRecordViewController`, `TourRepositoryImpl` were split via extensions (see `architecture-decisions.md` #6). `TripRecordView` (547) and `SearchReactor` (539) intentionally left as is.

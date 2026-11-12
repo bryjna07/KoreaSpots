@@ -37,6 +37,13 @@ Log of architecture-relevant decisions made during the portfolio rework (branch 
 - **Decision**: Removed both from `TourRepository`; added `getFavoritePlaces() -> Single<[Place]>` to `FavoriteRepository` (same DataSource call, so same ordering and one-shot semantics). Removed the unused `TourLocalDataSource.toggleFavorite(contentId:)`.
 - **Why**: One concept, one owner. Replacing it with `getFavorites()` would silently change behavior (live-observed Observable, no sorting), so the equivalent method was added instead.
 
+## 6. When to split a large file (and when not to)
+- **Done**: `TourRepositoryImpl` (745 -> 106 + 5 files by domain), `TripEditorView` (760 -> 326 + DataSource / DragDrop / `EditorPhotoCell`), `TripRecordViewController` (588 -> 466 + `+Delegate`). Each: verbatim move via extensions, build + line-multiset diff by `refactor-reviewer`.
+- **Skipped on purpose**: `SearchReactor` (539) is one cohesive Reactor (Action/Mutation/State/mutate/reduce belong together). `TripRecordView` (547) is a single view whose layout is already in its own extension.
+- **Self-correction**: my first pass also split `TripRecordViewController+Bind` (a 275-line `bind` moved wholesale) and `TripEditorView+Layout` (63 lines used by one class). Neither separated a responsibility; both only added files to jump between and relaxed `private`. Merged back; `private` restored on the members that no longer cross files (access relaxations: 7 -> 3 and 11 -> 9).
+- **Rule**: split only when a file mixes responsibilities (several domains, a view plus its protocol conformances, a nested reusable type). Line count alone is not a reason; an unnecessary split makes maintenance harder.
+- **Cost**: members used across files lose `private` (internal instead). Only what the compiler required was relaxed (checked by reverting speculative ones).
+
 ## Open architecture items
 - Cache policy (intent: cut Tour API usage; re-fetch occasionally in case data changed). Actual behavior, verified in code:
   - Place detail: read-time check `PlaceR.needsRefresh()` = refresh once per day after 04:00 KST (not 7 days; the `TourRepositoryImpl` comment says "long TTL").
@@ -44,4 +51,3 @@ Log of architecture-relevant decisions made during the portfolio rework (branch 
   - `clearExpiredCache` (delete non-favorite places older than 7 days) is storage cleanup only; its call in `AppDelegate` is commented out, so old non-favorite rows are never pruned (DB grows, API usage unaffected).
   - History (commit `fd5b9bd`, 2025-10-23, "API 권장사항에 맞게 1일 1회 갱신"): replaced TTLs (location lists 3h, other lists 1h, place detail 7 days) with one daily refresh at 04:00 KST to follow the Tour API's recommendation; same commit added `modifiedtime` change detection. The reason for 04:00 itself is not documented (likely the data sync window; unverified).
   - Decision needed: keep daily refresh for place detail or move to 7 days; enable or delete `clearExpiredCache`.
-- Split `TourRepositoryImpl` (~780 lines) by extension; replace deprecated `catchError` with `catch` in a separate commit.
