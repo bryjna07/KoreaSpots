@@ -40,7 +40,6 @@
 "area_incheon" = "인천";
 "area_daejeon" = "대전";
 "area_daegu" = "대구";
-"area_gwangju" = "광주";
 "area_busan" = "부산";
 "area_ulsan" = "울산";
 "area_sejong" = "세종";
@@ -51,7 +50,7 @@
 "area_gyeongbuk" = "경북";
 "area_gyeongnam" = "경남";
 "area_jeonbuk" = "전북";
-"area_jeonnam" = "전남";
+"area_jeonnam" = "전남광주";
 "area_jeju" = "제주";
 
 // Categories

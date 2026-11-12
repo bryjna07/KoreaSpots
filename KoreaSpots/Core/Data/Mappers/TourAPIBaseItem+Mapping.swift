@@ -18,7 +18,7 @@ extension TourAPIBaseItem {
         // 주소가 비어있으면 areacode로 지역명 표시
         let displayAddress: String
         if addr1.isEmpty {
-            if let areaCodeInt = parseInt(areacode),
+            if let areaCodeInt = regionCode,
                let areaCode = AreaCode(rawValue: areaCodeInt) {
                 displayAddress = areaCode.displayName
             } else {
@@ -38,8 +38,8 @@ extension TourAPIBaseItem {
             tel: processPhone(tel),
             overview: processOverview(overview),
             contentTypeId: parseInt(contenttypeid) ?? 12,
-            areaCode: parseInt(areacode),
-            sigunguCode: parseInt(sigungucode),
+            areaCode: regionCode,
+            sigunguCode: signguCode,
             cat1: cat1?.isEmpty == true ? nil : cat1,
             cat2: cat2?.isEmpty == true ? nil : cat2,
             cat3: cat3?.isEmpty == true ? nil : cat3,
@@ -73,7 +73,7 @@ extension TourAPIBaseItem {
         // 주소가 비어있으면 areacode로 지역명 표시
         let displayAddress: String
         if addr1.isEmpty {
-            if let areaCodeInt = parseInt(areacode),
+            if let areaCodeInt = regionCode,
                let areaCode = AreaCode(rawValue: areaCodeInt) {
                 displayAddress = areaCode.displayName
             } else {
@@ -93,8 +93,8 @@ extension TourAPIBaseItem {
             tel: processPhone(tel),
             overview: processOverview(overview),
             contentTypeId: parseInt(contenttypeid) ?? 15,  // 축제는 contentTypeId 15
-            areaCode: parseInt(areacode),
-            sigunguCode: parseInt(sigungucode),
+            areaCode: regionCode,
+            sigunguCode: signguCode,
             cat1: cat1?.isEmpty == true ? nil : cat1,
             cat2: cat2?.isEmpty == true ? nil : cat2,
             cat3: cat3?.isEmpty == true ? nil : cat3,
@@ -105,6 +105,21 @@ extension TourAPIBaseItem {
             customPlaceId: nil,
             userProvidedImagePath: nil
         )
+    }
+
+    // MARK: - Region Codes
+    /// 법정동 시도 코드: 새 필드 우선, 없으면(옛 Mock JSON) 옛 areacode를 변환
+    private var regionCode: Int? {
+        if let regn = parseInt(lDongRegnCd) { return regn }
+        guard let area = parseInt(areacode) else { return nil }
+        return LegacyRegionMap.regionCode(fromLegacyArea: area)
+    }
+
+    /// 법정동 시군구 코드: 새 필드 우선, 없으면 옛 (areacode, sigungucode)를 변환
+    private var signguCode: Int? {
+        if let signgu = parseInt(lDongSignguCd) { return signgu }
+        guard let area = parseInt(areacode), let sigungu = parseInt(sigungucode) else { return nil }
+        return LegacyRegionMap.signguCode(fromLegacyArea: area, sigungu: sigungu)
     }
 
     // MARK: - Helper Methods

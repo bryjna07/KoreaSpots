@@ -208,6 +208,17 @@ extension CodeBookStore {
         public static func allSignguCodes(for regnCd: Int) -> [String] {
             CodeBookStore.allChildCodes(category: category, parentCode: "\(regnCd)")
         }
+
+        /// 시도의 시군구 목록 (코드 숫자순). 세종처럼 5자리 코드도 포함
+        public static func signguList(for regnCd: Int) -> [(code: Int, name: String)] {
+            allSignguCodes(for: regnCd)
+                .compactMap { codeString -> (code: Int, name: String)? in
+                    guard let code = Int(codeString),
+                          let name = signguName(regnCd: regnCd, signguCd: code) else { return nil }
+                    return (code: code, name: name)
+                }
+                .sorted { $0.code < $1.code }
+        }
     }
 
     // 분류체계 코드 (lclsSystmCode2): ROOT = 대분류, 대분류 = 중분류, 중분류 = 소분류

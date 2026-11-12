@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Realm Configuration
     private func configureRealm() {
         // 현재 스키마 버전
-        let currentSchemaVersion: UInt64 = 2
+        let currentSchemaVersion: UInt64 = 3
 
         let config = Realm.Configuration(
             schemaVersion: currentSchemaVersion,
@@ -64,10 +64,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     // 스키마 구조 변경만 처리 (Realm이 자동으로 처리)
                 }
 
-                // Version 2 → 3: 향후 추가 기능
-                // if oldSchemaVersion < 3 {
-                //     // 필드 추가/삭제/변경 처리
-                // }
+                // Version 2 → 3: TourAPI 개편(2026)에 따라 저장된 지역 코드를 법정동 코드로 변환
+                // 스키마 구조 변경은 없고 값만 변환 (PlaceR 일반 캐시는 삭제)
+                if oldSchemaVersion < 3 {
+                    RealmRegionMigration.migrate(migration)
+                }
             },
             shouldCompactOnLaunch: { totalBytes, usedBytes in
                 // 100MB 이상이고 사용률 50% 미만이면 압축

@@ -73,10 +73,10 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
 
     // MARK: - Bind
     func bind(reactor: PlaceListReactor) {
-        // Load sigungu data
-        CodeBookStore.Sigungu.loadFromBundleAsync(fileName: "sigungu_codes") { success in
+        // Load 법정동 코드표 (시군구 칩)
+        CodeBookStore.Ldong.loadFromBundleAsync { success in
             if success {
-                print("✅ sigungu_codes.json loaded")
+                print("✅ ldong_codes.json loaded")
             }
         }
 
@@ -332,18 +332,12 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
     }
 
     private func getSigungus(for areaCode: AreaCode) -> [(code: Int, name: String)] {
-        guard CodeBookStore.Sigungu.isLoaded else {
-            print("⚠️ CodeBookStore.Sigungu not loaded yet")
+        guard CodeBookStore.Ldong.isLoaded else {
+            print("⚠️ CodeBookStore.Ldong not loaded yet")
             return []
         }
 
-        var sigungus: [(code: Int, name: String)] = []
-        for code in 1...999 {
-            if let name = CodeBookStore.Sigungu.name(areaCode: areaCode.rawValue, sigunguCode: code, preferred: .ko) {
-                sigungus.append((code: code, name: name))
-            }
-        }
-        return sigungus
+        return CodeBookStore.Ldong.signguList(for: areaCode.rawValue)
     }
 
     private func updateRegionChipSelection(selectedArea: AreaCode?) {

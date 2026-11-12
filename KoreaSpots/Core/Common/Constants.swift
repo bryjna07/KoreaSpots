@@ -210,7 +210,6 @@ enum Constants {
             static let incheon = "airplane"
             static let daejeon = "leaf.fill"
             static let daegu = "mountains.fill"
-            static let gwangju = "sun.max.fill"
             static let busan = "water.waves"
             static let ulsan = "gear"
             static let sejong = "building.columns"

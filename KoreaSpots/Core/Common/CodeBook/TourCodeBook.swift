@@ -8,32 +8,32 @@
 import Foundation
 
 // MARK: - 광역 지역 코드 (시/도)
+/// rawValue = TourAPI 법정동 시도 코드(lDongRegnCd). 2026-01 API 개편 이전의 areaCode(1~39)와 다름
+/// 광주(5) + 전남(38)은 전남광주통합특별시(12)로 통합, 세종은 5자리(36110)
 public enum AreaCode: Int, CaseIterable {
-    case seoul = 1
-    case incheon = 2
-    case daejeon = 3
-    case daegu = 4
-    case gwangju = 5
-    case busan = 6
-    case ulsan = 7
-    case sejong = 8
-    case gyeonggi = 31
-    case gangwon = 32
-    case chungbuk = 33
-    case chungnam = 34
-    case gyeongbuk = 35
-    case gyeongnam = 36
-    case jeonbuk = 37
-    case jeonnam = 38
-    case jeju = 39
-    
+    case seoul = 11
+    case incheon = 28
+    case daejeon = 30
+    case daegu = 27
+    case busan = 26
+    case ulsan = 31
+    case sejong = 36110
+    case gyeonggi = 41
+    case gangwon = 51
+    case chungbuk = 43
+    case chungnam = 44
+    case gyeongbuk = 47
+    case gyeongnam = 48
+    case jeonbuk = 52
+    case jeonnamGwangju = 12
+    case jeju = 50
+
     public var displayName: String {
         switch self {
         case .seoul: return LocalizedKeys.Area.seoul.localized
         case .incheon: return LocalizedKeys.Area.incheon.localized
         case .daejeon: return LocalizedKeys.Area.daejeon.localized
         case .daegu: return LocalizedKeys.Area.daegu.localized
-        case .gwangju: return LocalizedKeys.Area.gwangju.localized
         case .busan: return LocalizedKeys.Area.busan.localized
         case .ulsan: return LocalizedKeys.Area.ulsan.localized
         case .sejong: return LocalizedKeys.Area.sejong.localized
@@ -44,7 +44,7 @@ public enum AreaCode: Int, CaseIterable {
         case .gyeongbuk: return LocalizedKeys.Area.gyeongbuk.localized
         case .gyeongnam: return LocalizedKeys.Area.gyeongnam.localized
         case .jeonbuk: return LocalizedKeys.Area.jeonbuk.localized
-        case .jeonnam: return LocalizedKeys.Area.jeonnam.localized
+        case .jeonnamGwangju: return LocalizedKeys.Area.jeonnam.localized
         case .jeju: return LocalizedKeys.Area.jeju.localized
         }
     }
@@ -55,7 +55,6 @@ public enum AreaCode: Int, CaseIterable {
         case .incheon: return "Incheon"
         case .daejeon: return "Daejeon"
         case .daegu: return "Daegu"
-        case .gwangju: return "Gwangju"
         case .busan: return "Busan"
         case .ulsan: return "Ulsan"
         case .sejong: return "Sejong"
@@ -66,7 +65,7 @@ public enum AreaCode: Int, CaseIterable {
         case .gyeongbuk: return "Gyeongsangbuk-do"
         case .gyeongnam: return "Gyeongsangnam-do"
         case .jeonbuk: return "Jeollabuk-do"
-        case .jeonnam: return "Jeollanam-do"
+        case .jeonnamGwangju: return "Jeonnam-Gwangju"
         case .jeju: return "Jeju"
         }
     }
@@ -83,7 +82,6 @@ public enum AreaCode: Int, CaseIterable {
         case .incheon: return Constants.Icon.Area.incheon
         case .daejeon: return Constants.Icon.Area.daejeon
         case .daegu: return Constants.Icon.Area.daegu
-        case .gwangju: return Constants.Icon.Area.gwangju
         case .busan: return Constants.Icon.Area.busan
         case .ulsan: return Constants.Icon.Area.ulsan
         case .sejong: return Constants.Icon.Area.sejong
@@ -94,7 +92,7 @@ public enum AreaCode: Int, CaseIterable {
         case .gyeongbuk: return Constants.Icon.Area.gyeongbuk
         case .gyeongnam: return Constants.Icon.Area.gyeongnam
         case .jeonbuk: return Constants.Icon.Area.jeonbuk
-        case .jeonnam: return Constants.Icon.Area.jeonnam
+        case .jeonnamGwangju: return Constants.Icon.Area.jeonnam
         case .jeju: return Constants.Icon.Area.jeju
         }
     }
@@ -119,8 +117,8 @@ public enum AreaCode: Int, CaseIterable {
             return .daejeon
         case "대구", "대구광역시":
             return .daegu
-        case "광주", "광주광역시":
-            return .gwangju
+        case "광주", "광주광역시", "전남", "전라남도", "전남광주", "전남광주통합특별시":
+            return .jeonnamGwangju
         case "부산", "부산광역시":
             return .busan
         case "울산", "울산광역시":
@@ -141,8 +139,6 @@ public enum AreaCode: Int, CaseIterable {
             return .gyeongnam
         case "전북", "전라북도", "전북특별자치도":
             return .jeonbuk
-        case "전남", "전라남도":
-            return .jeonnam
         case "제주", "제주도", "제주특별자치도":
             return .jeju
         default:
@@ -154,7 +150,7 @@ public enum AreaCode: Int, CaseIterable {
         if normalized.contains("incheon") { return .incheon }
         if normalized.contains("daejeon") { return .daejeon }
         if normalized.contains("daegu") { return .daegu }
-        if normalized.contains("gwangju") { return .gwangju }
+        if normalized.contains("gwangju") { return .jeonnamGwangju }
         if normalized.contains("busan") || normalized.contains("pusan") { return .busan }
         if normalized.contains("ulsan") { return .ulsan }
         if normalized.contains("sejong") { return .sejong }
@@ -165,7 +161,7 @@ public enum AreaCode: Int, CaseIterable {
         if normalized.contains("gyeongsangbuk") || normalized.contains("gyeongbuk") { return .gyeongbuk }
         if normalized.contains("gyeongsangnam") || normalized.contains("gyeongnam") { return .gyeongnam }
         if normalized.contains("jeollabuk") || normalized.contains("jeonbuk") { return .jeonbuk }
-        if normalized.contains("jeollanam") || normalized.contains("jeonnam") { return .jeonnam }
+        if normalized.contains("jeollanam") || normalized.contains("jeonnam") { return .jeonnamGwangju }
         if normalized.contains("jeju") { return .jeju }
 
         return nil

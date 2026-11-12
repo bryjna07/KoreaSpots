@@ -70,7 +70,6 @@ enum LocalizedKeys {
         static let incheon = "area_incheon"
         static let daejeon = "area_daejeon"
         static let daegu = "area_daegu"
-        static let gwangju = "area_gwangju"
         static let busan = "area_busan"
         static let ulsan = "area_ulsan"
         static let sejong = "area_sejong"
