@@ -247,13 +247,16 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
     private func navigateToCategoryPlaceList(category: Category) {
         guard let contentTypeId = category.contentType.contentTypeId?.rawValue else { return }
 
-        // Cat2 파라미터 추출 (축제는 A0207, 공연/행사는 A0208)
-        let cat2 = category.contentType.cat2?.rawValue
+        // 중분류 파라미터 추출 (축제는 EV01, 공연·전시는 EV02,VE07)
+        let cat2 = category.contentType.lclsSystm2
+        // 중분류가 여러 대분류에 걸치면(공연·전시) cat1과 contentTypeId를 보내지 않는다 (전시시설은 contentTypeId가 다름)
+        let isMultiCat2 = cat2?.contains(",") == true
+        let cat1 = isMultiCat2 ? nil : cat2.map { String($0.prefix(2)) }
 
         let viewController = AppContainer.shared.makePlaceListViewController(
             initialArea: nil,
-            contentTypeId: contentTypeId,
-            cat1: nil,
+            contentTypeId: isMultiCat2 ? nil : contentTypeId,
+            cat1: cat1,
             cat2: cat2,
             cat3: nil
         )
@@ -279,22 +282,15 @@ final class HomeViewController: BaseViewController, View, ScreenNavigatable {
             return
         }
 
-        // Cat3 필터링을 위한 쿼리 문자열 생성
-        // - cat3가 1개인 경우: API에 직접 전달 (예: 동굴)
-        // - cat3가 2개 이상인 경우: cat2로 넓게 조회 후 클라이언트 필터링
-        let cat3Query: String?
-        if theme.theme12.query.cat3Filters.count == 1 {
-            cat3Query = theme.theme12.query.cat3Filters.first
-        } else {
-            cat3Query = nil
-        }
+        // 테마 분류 코드를 쉼표로 전달 (Repository에서 서버 파라미터/클라이언트 접두사 필터로 분기)
+        let cat3Query = theme.lclsCodes.joined(separator: ",")
 
         let viewController = AppContainer.shared.makePlaceListViewController(
             initialArea: nil,
             contentTypeId: contentTypeId,
-            cat1: theme.cat1,
-            cat2: theme.cat2,
-            cat3: cat3Query
+            cat1: theme.lcls1,
+            cat2: theme.lcls2,
+            cat3: cat3Query.isEmpty ? nil : cat3Query
         )
         viewController.title = theme.title
         navigationController?.pushViewController(viewController, animated: true)

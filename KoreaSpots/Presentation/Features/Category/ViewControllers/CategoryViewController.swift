@@ -20,7 +20,7 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
     }
 
     enum GridSection: Hashable {
-        case category(Cat2)
+        case category(LclsCategory)
     }
 
     struct GridItem: Hashable {
@@ -39,7 +39,7 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
     private let categoryView = CategoryView()
 
     // MARK: - Properties
-    private var sidebarDataSource: UICollectionViewDiffableDataSource<SidebarSection, Cat2>!
+    private var sidebarDataSource: UICollectionViewDiffableDataSource<SidebarSection, LclsCategory>!
     private var gridDataSource: UICollectionViewDiffableDataSource<GridSection, GridItem>!
     private var isScrollingProgrammatically = false
 
@@ -85,14 +85,14 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
         guard sidebarDataSource == nil || gridDataSource == nil else { return }
 
         // Sidebar DataSource
-        let sidebarCellRegistration = UICollectionView.CellRegistration<CategorySidebarCell, Cat2> {
+        let sidebarCellRegistration = UICollectionView.CellRegistration<CategorySidebarCell, LclsCategory> {
             [weak self] cell, indexPath, cat2 in
             guard let self = self, let reactor = self.reactor else { return }
             let isHighlighted = (cat2 == reactor.currentState.highlightedCat2)
             cell.configure(cat2: cat2, isHighlighted: isHighlighted)
         }
 
-        sidebarDataSource = UICollectionViewDiffableDataSource<SidebarSection, Cat2>(
+        sidebarDataSource = UICollectionViewDiffableDataSource<SidebarSection, LclsCategory>(
             collectionView: categoryView.sidebarCollectionView
         ) { collectionView, indexPath, cat2 in
             return collectionView.dequeueConfiguredReusableCell(
@@ -149,7 +149,7 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
 
         // Sidebar Selection
         categoryView.sidebarCollectionView.rx.itemSelected
-            .compactMap { [weak self] indexPath -> Cat2? in
+            .compactMap { [weak self] indexPath -> LclsCategory? in
                 return self?.sidebarDataSource.itemIdentifier(for: indexPath)
             }
             .bind(with: self) { owner, cat2 in
@@ -159,13 +159,13 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
 
         // Grid Selection - Navigate to PlaceList
         categoryView.gridCollectionView.rx.itemSelected
-            .compactMap { [weak self] indexPath -> (Cat2, String)? in
+            .compactMap { [weak self] indexPath -> (LclsCategory, String)? in
                 guard let self = self,
                       let item = self.gridDataSource.itemIdentifier(for: indexPath) else {
                     return nil
                 }
 
-                // 현재 섹션의 Cat2 가져오기
+                // 현재 섹션의 LclsCategory 가져오기
                 let snapshot = self.gridDataSource.snapshot()
                 let section = snapshot.sectionIdentifiers[indexPath.section]
 
@@ -228,7 +228,7 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
         // State - Highlighted Sidebar (스크롤로 인한 변경)
         reactor.state.map { $0.highlightedCat2 }
             .distinctUntilChanged()
-            .asDriver(onErrorJustReturn: .A0101)
+            .asDriver(onErrorJustReturn: LclsCategory(rawValue: "NA01"))
             .drive(with: self) { owner, _ in
                 owner.updateSidebarHighlight()
             }
@@ -237,7 +237,7 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
         // State - Scroll To Section
         reactor.state.compactMap { $0.scrollToCat2 }
             .distinctUntilChanged()
-            .asDriver(onErrorJustReturn: .A0101)
+            .asDriver(onErrorJustReturn: LclsCategory(rawValue: "NA01"))
             .drive(with: self) { owner, cat2 in
                 owner.scrollToSection(cat2: cat2)
             }
@@ -254,12 +254,12 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
     }
 
     // MARK: - Snapshot Apply
-    private func applySidebarSnapshot(items: [Cat2]) {
+    private func applySidebarSnapshot(items: [LclsCategory]) {
         guard sidebarDataSource != nil else {
             print("⚠️ sidebarDataSource is nil")
             return
         }
-        var snapshot = NSDiffableDataSourceSnapshot<SidebarSection, Cat2>()
+        var snapshot = NSDiffableDataSourceSnapshot<SidebarSection, LclsCategory>()
         snapshot.appendSections([.main])
         snapshot.appendItems(items, toSection: .main)
         sidebarDataSource.apply(snapshot, animatingDifferences: false)
@@ -271,7 +271,7 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
             return
         }
         var snapshot = NSDiffableDataSourceSnapshot<GridSection, GridItem>()
-        var seenSections = Set<Cat2>()
+        var seenSections = Set<LclsCategory>()
 
         state.categories.forEach { categoryDetail in
             // 중복 섹션 건너뛰기
@@ -302,7 +302,7 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
     }
 
     // MARK: - Scroll Coordination
-    private func scrollToSection(cat2: Cat2) {
+    private func scrollToSection(cat2: LclsCategory) {
         guard gridDataSource != nil else { return }
         guard let sectionIndex = gridDataSource.snapshot().sectionIdentifiers.firstIndex(where: {
             if case .category(let sectionCat2) = $0 {
@@ -338,17 +338,17 @@ final class CategoryViewController: BaseViewController, View, ScreenNavigatable 
     }
 
     // MARK: - Navigation
-    private func navigateToPlaceList(cat2: Cat2, cat3: String) {
+    private func navigateToPlaceList(cat2: LclsCategory, cat3: String) {
         let viewController = AppContainer.shared.makePlaceListViewController(
             initialArea: nil,
-            contentTypeId: cat2.contentTypeId,  // Cat2에 맞는 contentTypeId 전달
-            cat1: cat2.cat1,                    // Cat2에서 Cat1 추출 (예: A0101 -> A01)
+            contentTypeId: nil,                 // 분류 코드(lclsSystm)만으로 충분히 좁혀지므로 생략
+            cat1: cat2.lcls1,                   // 중분류에서 대분류 추출 (예: NA01 -> NA)
             cat2: cat2.rawValue,
             cat3: cat3
         )
 
         // 타이틀 설정: CodeBookStore에서 이름 조회
-        viewController.title = CodeBookStore.Cat3.name(cat2Code: cat2.rawValue, cat3Code: cat3) ?? cat3
+        viewController.title = CodeBookStore.Lcls.name(parentCode: cat2.rawValue, code: cat3) ?? cat3
 
         navigationController?.pushViewController(viewController, animated: true)
     }

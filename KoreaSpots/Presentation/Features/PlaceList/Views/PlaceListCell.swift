@@ -137,11 +137,8 @@ final class PlaceListCell: BaseCollectionViewCell, SkeletonableCell {
     private func configureTag(for place: Place) {
         var tagText: String?
 
-        // 1. Theme12 매핑 (cat3 기반)
-        if let cat3 = place.cat3,
-           let theme = Theme12.allCases.first(where: {
-               $0.query.cat3Filters.contains(cat3)
-           }) {
+        // 1. Theme12 매핑 (lclsSystm3 기반)
+        if let theme = Theme12.matching(lclsSystm3: place.lclsSystm3) {
             tagText = theme.displayName
         }
         // 2. ContentType 기반 (Theme12에 없는 경우)

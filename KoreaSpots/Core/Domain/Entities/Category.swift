@@ -102,12 +102,13 @@ extension Category {
             }
         }
 
-        var cat2: Cat2? {
+        /// 신 분류체계 중분류 (축제 EV01, 공연·전시 EV02+VE07: 쉼표로 구분하면 Repository가 병합 조회)
+        var lclsSystm2: String? {
             switch self {
             case .festival:
-                return .A0207  // 축제
+                return "EV01"  // 축제
             case .performance:
-                return .A0208  // 공연/행사
+                return "EV02,VE07"  // 공연 + 전시시설
             default:
                 return nil
             }
@@ -139,44 +140,41 @@ extension Category: Equatable {
     }
 }
 
-// MARK: - Category Detail (Cat1, Cat2, Cat3 계층 구조)
+// MARK: - Category Detail (lclsSystm 중분류-소분류 계층 구조)
+/// 중분류 코드(lclsSystm2) 래퍼 (예: NA01)
+struct LclsCategory: Hashable {
+    let rawValue: String
+
+    /// 대분류 코드 (코드북의 대분류 중 접두사가 일치하는 것. 예: NA01 -> NA, C0112 -> C01)
+    var lcls1: String {
+        CodeBookStore.Lcls.allLevel1Codes().first { rawValue.hasPrefix($0) } ?? String(rawValue.prefix(2))
+    }
+
+    var labelKo: String {
+        CodeBookStore.Lcls.name(parentCode: lcls1, code: rawValue) ?? rawValue
+    }
+}
+
 struct CategoryDetail {
-    let cat1: Cat1
-    let cat2: Cat2
+    let cat2: LclsCategory
     let cat3Items: [String]
 }
 
 extension CategoryDetail {
-    /// Cat1별 모든 Cat2-Cat3 계층 구조를 반환
-    /// CodeBookStore.Cat3에서 동적으로 cat3 코드를 로드합니다
+    /// 카테고리 화면 대분류 노출 순서 (목록에 없는 대분류는 뒤에 코드순으로 붙는다)
+    private static let level1Order = ["NA", "HS", "VE", "EX", "LS", "EV", "AC", "FD", "SH"]
+
+    /// 모든 중분류-소분류 계층 구조를 반환 (CodeBookStore.Lcls 기반)
     static func allCategories() -> [CategoryDetail] {
-        // Cat2 전체 케이스 순회
-        let allCat2Cases = Cat2.allCases
+        let all = CodeBookStore.Lcls.allLevel1Codes()
+        let ordered = level1Order.filter(all.contains) + all.filter { !level1Order.contains($0) }
 
-        var result: [CategoryDetail] = []
-
-        for cat2 in allCat2Cases {
-            // CodeBookStore에서 해당 Cat2의 모든 Cat3 코드 가져오기
-            let cat3Codes = CodeBookStore.Cat3.allCat3Codes(for: cat2.rawValue)
-
-            // Cat3 코드가 있는 경우에만 CategoryDetail 생성
-            guard !cat3Codes.isEmpty else { continue }
-
-            // Cat2에서 Cat1 추출 (앞 3자리)
-            guard let cat1 = Cat1(rawValue: cat2.cat1) else { continue }
-
-            result.append(CategoryDetail(
-                cat1: cat1,
-                cat2: cat2,
-                cat3Items: cat3Codes
-            ))
+        return ordered.flatMap { level1 in
+            CodeBookStore.Lcls.childCodes(of: level1).compactMap { level2 -> CategoryDetail? in
+                let items = CodeBookStore.Lcls.childCodes(of: level2)
+                guard !items.isEmpty else { return nil }
+                return CategoryDetail(cat2: LclsCategory(rawValue: level2), cat3Items: items)
+            }
         }
-
-        return result
-    }
-
-    /// Cat1별로 그룹화된 CategoryDetail 배열 반환
-    static func categoriesByCat1(_ cat1: Cat1) -> [CategoryDetail] {
-        return allCategories().filter { $0.cat1 == cat1 }
     }
 }

@@ -14,21 +14,26 @@ struct Theme {
     let description: String?
     let contentTypeId: Int?
     let theme12: Theme12
-    let cat1: String
-    let cat2: String
+    /// 서버 요청용 대분류/중분류 (테마 코드가 한 분류에 모일 때만 값이 있음)
+    let lcls1: String?
+    let lcls2: String?
+    /// 테마에 속한 분류 코드 (접두사 매칭)
+    let lclsCodes: [String]
 }
 
 extension Theme {
     static let staticThemes: [Theme] = Theme12.allCases.map { theme12 in
-        Theme(
+        let entry = ThemeCatalog.entry(id: theme12.rawValue)
+        return Theme(
             id: theme12.rawValue,
             title: theme12.displayName,
             imageName: theme12.imageURLString,
             description: theme12.description,
             contentTypeId: theme12.contentTypeId,
             theme12: theme12,
-            cat1: theme12.query.cat1.rawValue,
-            cat2: theme12.query.cat2.rawValue
+            lcls1: entry?.requestLcls1,
+            lcls2: entry?.requestLcls2,
+            lclsCodes: entry?.lcls ?? []
         )
     }
 }
@@ -111,5 +116,20 @@ private extension Theme12 {
         case .etc:
             return "https://tong.visitkorea.or.kr/cms/resource/59/3351159_image2_1.jpg"
         }
+    }
+}
+
+// MARK: - 분류 코드 -> 테마 매칭 (themes.json 기반)
+extension Theme12 {
+    /// 소분류 코드가 속한 테마 (themes.json 순서 우선)
+    static func matching(lclsSystm3: String?) -> Theme12? {
+        guard let entry = ThemeCatalog.entry(matching: lclsSystm3) else { return nil }
+        return allCases.first { $0.rawValue == entry.id }
+    }
+
+    /// 필터 코드(정확히 일치)가 속한 테마
+    static func matching(filterCode: String) -> Theme12? {
+        guard let entry = ThemeCatalog.entries.first(where: { $0.lcls.contains(filterCode) }) else { return nil }
+        return allCases.first { $0.rawValue == entry.id }
     }
 }

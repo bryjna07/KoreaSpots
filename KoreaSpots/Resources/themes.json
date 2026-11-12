@@ -10,5 +10,5 @@
   { "id": "spa",       "contentTypeId": 12, "lcls": ["EX050100"] },
   { "id": "tradition", "contentTypeId": 12, "lcls": ["EX01", "EX02", "EX03"] },
   { "id": "history",   "contentTypeId": 12, "lcls": ["HS01", "HS02"] },
-  { "id": "etc",       "contentTypeId": 12, "lcls": ["NA04"] }
+  { "id": "etc",       "contentTypeId": 12, "lcls": ["NA040100", "NA040200", "NA040300", "NA040400", "NA040500", "NA05"] }
 ]

@@ -198,16 +198,38 @@ final class TourRepositoryImpl: TourRepository {
         pageNo: Int,
         arrange: String
     ) -> Single<[Place]> {
+        // 중분류가 여러 개(쉼표 구분)면 각각 조회 후 병합 (예: 공연·전시 = EV02 + VE07)
+        let cat2List = (cat2 ?? "").split(separator: ",").map { String($0.trimmingCharacters(in: .whitespaces)) }
+        if cat2List.count > 1 {
+            let requests = cat2List.map { code in
+                getAreaBasedPlaces(
+                    areaCode: areaCode,
+                    sigunguCode: sigunguCode,
+                    contentTypeId: contentTypeId,
+                    cat1: String(code.prefix(2)),
+                    cat2: code,
+                    cat3: cat3,
+                    numOfRows: numOfRows,
+                    pageNo: pageNo,
+                    arrange: arrange
+                )
+            }
+            return Single.zip(requests).map { results in
+                var seen = Set<String>()
+                return results.flatMap { $0 }.filter { seen.insert($0.contentId).inserted }
+            }
+        }
+
         // Mock 모드에서는 Mock 데이터 반환
         if AppStateManager.shared.currentMode == .mockFallback {
             print("🔄 Mock mode active - using mock data")
             let cat3Filters = parseCat3Filters(cat3)
 
-            // cat3가 1개인 경우 API에 직접 전달, 2개 이상이면 nil로 전달 후 클라이언트 필터링
+            // 소분류(8자리) 1개면 API에 직접 전달, 2개 이상이면 nil로 전달 후 클라이언트 접두사 필터링
             let apiCat3: String?
             let needsClientFiltering: Bool
             if cat3Filters.count == 1 {
-                apiCat3 = cat3Filters.first
+                apiCat3 = cat3Filters.first.flatMap { $0.count == 8 ? $0 : nil }
                 needsClientFiltering = false
             } else {
                 apiCat3 = nil
@@ -233,11 +255,12 @@ final class TourRepositoryImpl: TourRepository {
         // Cat3 필터 목록 파싱 (쉼표로 구분된 문자열)
         let cat3Filters = parseCat3Filters(cat3)
 
-        // cat3가 1개인 경우 API에 직접 전달, 2개 이상이면 nil로 전달 후 클라이언트 필터링
+        // 소분류(8자리) 1개면 API에 직접 전달, 2개 이상이면 nil로 전달 후 클라이언트 접두사 필터링
+        // (대/중분류 단일 코드는 cat1/cat2 파라미터로 이미 서버에서 좁혀짐)
         let apiCat3: String?
         let needsClientFiltering: Bool
         if cat3Filters.count == 1 {
-            apiCat3 = cat3Filters.first
+            apiCat3 = cat3Filters.first.flatMap { $0.count == 8 ? $0 : nil }
             needsClientFiltering = false
         } else {
             apiCat3 = nil
@@ -313,8 +336,8 @@ final class TourRepositoryImpl: TourRepository {
         guard !cat3Filters.isEmpty else { return places }
 
         return places.filter { place in
-            guard let cat3 = place.cat3, !cat3.isEmpty else { return false }
-            return cat3Filters.contains(cat3)
+            guard let code = place.lclsSystm3, !code.isEmpty else { return false }
+            return cat3Filters.contains { code.hasPrefix($0) }
         }
     }
 

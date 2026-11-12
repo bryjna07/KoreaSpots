@@ -90,13 +90,13 @@ extension TourAPI: TargetType {
                 p["contentTypeId"] = c
             }
             if let c1 = cat1, !c1.isEmpty {
-                p["cat1"] = c1
+                p["lclsSystm1"] = c1
             }
             if let c2 = cat2, !c2.isEmpty {
-                p["cat2"] = c2
+                p["lclsSystm2"] = c2
             }
             if let c3 = cat3, !c3.isEmpty {
-                p["cat3"] = c3
+                p["lclsSystm3"] = c3
             }
             return p
 
@@ -144,13 +144,13 @@ extension TourAPI: TargetType {
                 p["contentTypeId"] = c
             }
             if let c1 = cat1, !c1.isEmpty {
-                p["cat1"] = c1
+                p["lclsSystm1"] = c1
             }
             if let c2 = cat2, !c2.isEmpty {
-                p["cat2"] = c2
+                p["lclsSystm2"] = c2
             }
             if let c3 = cat3, !c3.isEmpty {
-                p["cat3"] = c3
+                p["lclsSystm3"] = c3
             }
             return p
 

@@ -364,53 +364,6 @@ public enum Theme12: CaseIterable {
         case .etc: return LocalizedKeys.Theme.etc.localized
         }
     }
-    
-    /// 요청 최적화 전략:
-    /// - 서버엔 넓은 cat1/cat2로 조회(1콜)
-    /// - 클라이언트에서 cat3로 정밀 필터링 → **카테고리 코드 조회 API 추가 호출 불필요**
-    public struct Query {
-        public let cat1: Cat1
-        public let cat2: Cat2
-        public let cat3Filters: Set<String>
-        public init(cat1: Cat1, cat2: Cat2, cat3Filters: Set<String>) {
-            self.cat1 = cat1; self.cat2 = cat2; self.cat3Filters = cat3Filters
-        }
-    }
-
-    public var query: Query {
-        switch self {
-        case .mountain:
-            return .init(
-                cat1: .A01, cat2: .A0101,
-                cat3Filters: ["A01010400", "A01010100", "A01010200", "A01010300"]
-            )
-        case .ocean:
-            return .init(
-                cat1: .A01, cat2: .A0101,
-                cat3Filters: ["A01011200", "A01011100", "A01011600", "A01011400", "A01011300"]
-            )
-        case .valley:
-            return .init(cat1: .A01, cat2: .A0101, cat3Filters: ["A01010900", "A01010800"])
-        case .river:
-            return .init(cat1: .A01, cat2: .A0101, cat3Filters: ["A01011800", "A01011700"])
-        case .forest:
-            return .init(cat1: .A01, cat2: .A0101, cat3Filters: ["A01010600", "A01010700"])
-        case .cave:
-            return .init(cat1: .A01, cat2: .A0101, cat3Filters: ["A01011900"])
-        case .park:
-            return .init(cat1: .A02, cat2: .A0202, cat3Filters: ["A02020700"])
-        case .themePark:
-            return .init(cat1: .A02, cat2: .A0202, cat3Filters: ["A02020600"])
-        case .spa:
-            return .init(cat1: .A02, cat2: .A0202, cat3Filters: ["A02020300"])
-        case .tradition:
-            return .init(cat1: .A02, cat2: .A0203, cat3Filters: ["A02030100", "A02030200", "A02030300"])
-        case .history:
-            return .init(cat1: .A02, cat2: .A0201, cat3Filters: [])
-        case .etc:
-            return .init(cat1: .A01, cat2: .A0102, cat3Filters: ["A01020100", "A01020200"])
-        }
-    }
 }
 // MARK: - 시군구 코드는 JSON 리소스로 관리 (CodeBookStore.Sigungu 사용)
 /// sigungu_codes.json 파일 참조

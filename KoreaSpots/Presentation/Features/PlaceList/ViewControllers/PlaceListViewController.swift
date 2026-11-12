@@ -384,9 +384,7 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
         if let cat3 = cat3, !cat3.isEmpty {
             let cat3List = cat3.split(separator: ",").map { String($0.trimmingCharacters(in: .whitespaces)) }
             if let firstCat3 = cat3List.first,
-               let theme = Theme12.allCases.first(where: {
-                   $0.query.cat3Filters.contains(firstCat3)
-               }) {
+               let theme = Theme12.matching(filterCode: firstCat3) {
                 categoryName = theme.displayName
             }
         }
