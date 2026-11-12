@@ -17,6 +17,7 @@ Order: 1) quality cleanup -> 2) bug fixes -> 3) AI chatbot. Discuss a plan befor
 - `SkeletonDataProvider.swift:59` API-error placeholder cell
 - `FetchFestivalUseCase.swift:61` pageNo handling
 - `TripLocalDataSourceImpl.swift:214` region code 0
+- `SearchReactor.swift:199,253,307` `Observable.create` discards the inner `.subscribe(observer)` Disposable and returns `Disposables.create()`, so cancelling the outer stream (e.g. a new search) does not cancel the inner request; stale results may arrive late. Fix: `return ....subscribe(observer)`. Behavior change -> `Fix:` commit, verify on simulator by changing filters/keywords quickly.
 - Category screen improvements (after lclsSystm switch; 59 level-2 sections):
   - Sync scroll both ways: left sidebar tap/scroll should also drive the right grid (currently only right -> left)
   - Replace per-item generic icon (`RectangleCell`) with a brief image per subcategory
