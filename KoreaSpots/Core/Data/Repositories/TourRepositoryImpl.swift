@@ -546,23 +546,6 @@ final class TourRepositoryImpl: TourRepository {
         }
     }
 
-    // MARK: - Recent Search Keywords
-    func saveRecentKeyword(_ keyword: String) -> Completable {
-        return localDataSource.saveRecentKeyword(keyword)
-    }
-
-    func getRecentKeywords(limit: Int) -> Single<[String]> {
-        return localDataSource.getRecentKeywords(limit: limit)
-    }
-
-    func deleteRecentKeyword(_ keyword: String) -> Completable {
-        return localDataSource.deleteRecentKeyword(keyword)
-    }
-
-    func clearAllRecentKeywords() -> Completable {
-        return localDataSource.clearAllRecentKeywords()
-    }
-
     // MARK: - Favorites
     func getFavoritePlaces() -> Single<[Place]> {
         // 읽기 작업은 항상 허용

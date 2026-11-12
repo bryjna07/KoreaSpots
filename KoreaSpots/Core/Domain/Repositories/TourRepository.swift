@@ -65,12 +65,6 @@ protocol TourRepository {
     func getFavoritePlaces() -> Single<[Place]>
     func toggleFavorite(contentId: String) -> Completable
 
-    // MARK: - Recent Search Keywords
-    func saveRecentKeyword(_ keyword: String) -> Completable
-    func getRecentKeywords(limit: Int) -> Single<[String]>
-    func deleteRecentKeyword(_ keyword: String) -> Completable
-    func clearAllRecentKeywords() -> Completable
-
     // MARK: - Cache Management
     func clearExpiredCache() -> Completable
 }

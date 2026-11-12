@@ -47,6 +47,7 @@ protocol SearchPlacesUseCase {
 final class SearchPlacesUseCaseImpl: SearchPlacesUseCase {
 
     private let tourRepository: TourRepository
+    private let recentKeywordRepository: RecentKeywordRepository
 
     // MARK: - Business Policy Constants
     private let minKeywordLength = 2
@@ -58,8 +59,9 @@ final class SearchPlacesUseCaseImpl: SearchPlacesUseCase {
     // 금칙어 리스트 (비즈니스 정책)
     private let blacklistedKeywords = ["성인", "19금", "도박", "불법"]
 
-    init(tourRepository: TourRepository) {
+    init(tourRepository: TourRepository, recentKeywordRepository: RecentKeywordRepository) {
         self.tourRepository = tourRepository
+        self.recentKeywordRepository = recentKeywordRepository
     }
 
     func execute(_ input: SearchPlacesInput) -> Single<[Place]> {
@@ -85,7 +87,7 @@ final class SearchPlacesUseCaseImpl: SearchPlacesUseCase {
                     .flatMap { places -> Single<[Place]> in
                         // 최근 검색어 저장 (검색 성공 후)
                         if normalizedInput.shouldSaveToRecent {
-                            return self.tourRepository.saveRecentKeyword(normalizedInput.keyword)
+                            return self.recentKeywordRepository.saveRecentKeyword(normalizedInput.keyword)
                                 .andThen(Single.just(places))
                         } else {
                             return Single.just(places)

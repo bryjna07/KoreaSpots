@@ -29,19 +29,19 @@ protocol ClearAllRecentKeywordsUseCase {
 
 final class GetRecentKeywordsUseCaseImpl: GetRecentKeywordsUseCase {
 
-    private let tourRepository: TourRepository
+    private let recentKeywordRepository: RecentKeywordRepository
     private let maxAllowedLimit = 20
     private let defaultLimit = 10
 
-    init(tourRepository: TourRepository) {
-        self.tourRepository = tourRepository
+    init(recentKeywordRepository: RecentKeywordRepository) {
+        self.recentKeywordRepository = recentKeywordRepository
     }
 
     func execute(limit: Int = 10) -> Single<[String]> {
         // 비즈니스 규칙: limit 검증 및 정규화
         let validLimit = min(max(1, limit), maxAllowedLimit)
 
-        return tourRepository.getRecentKeywords(limit: validLimit)
+        return recentKeywordRepository.getRecentKeywords(limit: validLimit)
             .map { keywords in
                 // 후처리: 빈 문자열 필터링
                 keywords.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
@@ -51,10 +51,10 @@ final class GetRecentKeywordsUseCaseImpl: GetRecentKeywordsUseCase {
 
 final class DeleteRecentKeywordUseCaseImpl: DeleteRecentKeywordUseCase {
 
-    private let tourRepository: TourRepository
+    private let recentKeywordRepository: RecentKeywordRepository
 
-    init(tourRepository: TourRepository) {
-        self.tourRepository = tourRepository
+    init(recentKeywordRepository: RecentKeywordRepository) {
+        self.recentKeywordRepository = recentKeywordRepository
     }
 
     func execute(keyword: String) -> Completable {
@@ -65,20 +65,20 @@ final class DeleteRecentKeywordUseCaseImpl: DeleteRecentKeywordUseCase {
             return .error(RecentKeywordUseCaseError.emptyKeyword)
         }
 
-        return tourRepository.deleteRecentKeyword(normalizedKeyword)
+        return recentKeywordRepository.deleteRecentKeyword(normalizedKeyword)
     }
 }
 
 final class ClearAllRecentKeywordsUseCaseImpl: ClearAllRecentKeywordsUseCase {
 
-    private let tourRepository: TourRepository
+    private let recentKeywordRepository: RecentKeywordRepository
 
-    init(tourRepository: TourRepository) {
-        self.tourRepository = tourRepository
+    init(recentKeywordRepository: RecentKeywordRepository) {
+        self.recentKeywordRepository = recentKeywordRepository
     }
 
     func execute() -> Completable {
-        return tourRepository.clearAllRecentKeywords()
+        return recentKeywordRepository.clearAllRecentKeywords()
             .do(onCompleted: {
                 print("✅ All recent keywords cleared")
             })
