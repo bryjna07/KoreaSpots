@@ -12,12 +12,17 @@ Order: 1) quality cleanup -> 2) bug fixes -> 3) AI chatbot. Discuss a plan befor
 
 ## 2. Bugs / TODO
 - `Navigator.swift:64,73` Map/FestivalDetail VCs not implemented
-- `HomeViewController.swift:192,233,238,241` map, festival list, category list, theme list navigation
+- `HomeViewController.swift:184,225,230,233` map view, festival/category/theme list navigation (header action hook `handleHeaderAction` is unreachable until a header `actionTitle` is set)
 - `HomeSectionModel.swift:55` weekly weather section
-- `SkeletonDataProvider.swift:59` API-error placeholder cell
+- `TabBarController.swift:122` Settings screen (draft in `stash@{5}`)
+- `TripDetailViewController.swift:206` full-screen photo viewer
+- `SkeletonDataProvider.swift:56` API-error placeholder cell
 - `FetchFestivalUseCase.swift:61` pageNo handling
 - `TripLocalDataSourceImpl.swift:214` region code 0
-- `SearchReactor.swift:199,253,307` `Observable.create` discards the inner `.subscribe(observer)` Disposable and returns `Disposables.create()`, so cancelling the outer stream (e.g. a new search) does not cancel the inner request; stale results may arrive late. Fix: `return ....subscribe(observer)`. Behavior change -> `Fix:` commit, verify on simulator by changing filters/keywords quickly.
+- `PlaceDetailReactor.swift:236` error handling
+- Unreproduced bugs: `SearchReactor.swift:539` recent-keyword first tap shows an alert; `PlaceDescriptionCell.swift:147` info shown only on card tap
+- UI polish (font/height/color in `PlaceLocationCell`, `PlaceBasicInfoCell`, `CategorySectionHeader`): one pass later, no per-line TODOs
+- `SearchReactor.swift` (3 `Observable.create` sites) `Observable.create` discards the inner `.subscribe(observer)` Disposable and returns `Disposables.create()`, so cancelling the outer stream (e.g. a new search) does not cancel the inner request; stale results may arrive late. Fix: `return ....subscribe(observer)`. Behavior change -> `Fix:` commit, verify on simulator by changing filters/keywords quickly.
 - Category screen improvements (after lclsSystm switch; 59 level-2 sections):
   - Sync scroll both ways: left sidebar tap/scroll should also drive the right grid (currently only right -> left)
   - Replace per-item generic icon (`RectangleCell`) with a brief image per subcategory
