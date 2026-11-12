@@ -491,38 +491,4 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
         }
         .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
     }
-
-    func toggleFavorite(contentId: String) -> Completable {
-        return Completable.create { [weak self] observer in
-            guard let self = self else {
-                observer(.completed)
-                return Disposables.create()
-            }
-
-            do {
-                let realm = try self.createRealm()
-                try realm.write {
-                    if let place = realm.object(ofType: PlaceR.self, forPrimaryKey: contentId) {
-                        place.isFavorite.toggle()
-                        print("✅ Favorite toggled for contentId: \(contentId), isFavorite: \(place.isFavorite)")
-                    } else {
-                        // Place가 Realm에 없으면 새로 생성하고 isFavorite = true로 설정
-                        print("⚠️ Place not found for contentId: \(contentId), creating new entry")
-                        let newPlace = PlaceR()
-                        newPlace.contentId = contentId
-                        newPlace.isFavorite = true
-                        realm.add(newPlace, update: .modified)
-                        print("✅ Created new favorite place: \(contentId)")
-                    }
-                }
-                observer(.completed)
-            } catch {
-                print("❌ Failed to toggle favorite: \(error)")
-                observer(.error(DataSourceError.cacheError))
-            }
-
-            return Disposables.create()
-        }
-        .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
-    }
 }

@@ -26,7 +26,6 @@ protocol TourLocalDataSource {
 
     // MARK: - Favorites
     func getFavoritePlaces() -> Single<[Place]>
-    func toggleFavorite(contentId: String) -> Completable
 
     // MARK: - Recent Search Keywords
     func saveRecentKeyword(_ keyword: String) -> Completable
