@@ -18,9 +18,6 @@ class PlaceR: Object {
     @Persisted var tel: String?
     @Persisted var overview: String?
     @Persisted var contentTypeId: Int?
-    @Persisted var cat1: String?
-    @Persisted var cat2: String?
-    @Persisted var cat3: String?
     @Persisted var lclsSystm3: String?  // 신 분류체계 소분류 (즐겨찾기 등 캐시 경로의 테마 태그용)
     @Persisted var distance: Int?
 
@@ -52,7 +49,7 @@ class PlaceR: Object {
     }
 
     override static func indexedProperties() -> [String] {
-        return ["contentTypeId", "areaCode", "sigunguCode", "cat1", "cat2", "cat3", "cachedAt", "isFavorite", "isCustom"]
+        return ["contentTypeId", "areaCode", "sigunguCode", "cachedAt", "isFavorite", "isCustom"]
     }
 }
 
@@ -75,9 +72,6 @@ extension PlaceR {
         self.tel = place.tel
         self.overview = place.overview
         self.contentTypeId = place.contentTypeId
-        self.cat1 = place.cat1
-        self.cat2 = place.cat2
-        self.cat3 = place.cat3
         self.lclsSystm3 = place.lclsSystm3
         self.distance = place.distance
         self.areaCode = place.areaCode
@@ -106,9 +100,6 @@ extension PlaceR {
         self.tel = place.tel
         self.overview = place.overview
         self.contentTypeId = place.contentTypeId
-        self.cat1 = place.cat1
-        self.cat2 = place.cat2
-        self.cat3 = place.cat3
         self.lclsSystm3 = place.lclsSystm3
         self.distance = place.distance
         self.areaCode = place.areaCode
@@ -143,9 +134,6 @@ extension PlaceR {
             contentTypeId: contentTypeId,
             areaCode: areaCode,
             sigunguCode: sigunguCode,
-            cat1: cat1,
-            cat2: cat2,
-            cat3: cat3,
             lclsSystm3: lclsSystm3,
             distance: distance,
             modifiedTime: modifiedTime,

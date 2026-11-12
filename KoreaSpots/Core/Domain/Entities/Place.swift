@@ -19,9 +19,6 @@ struct Place {
     let contentTypeId: Int?
     let areaCode: Int?  // 커스텀 장소나 위치 기반 검색은 areaCode 없을 수 있음
     let sigunguCode: Int?
-    let cat1: String?
-    let cat2: String?
-    let cat3: String?
     var lclsSystm3: String? = nil  // 신 분류체계 소분류 (테마 필터/태그용, 캐시(PlaceR)에는 저장하지 않음)
     let distance: Int? // 미터 단위
 
@@ -55,9 +52,6 @@ extension Place: Equatable {
             contentTypeId: 0,
             areaCode: nil,
             sigunguCode: nil,
-            cat1: nil,
-            cat2: nil,
-            cat3: nil,
             distance: nil,
             modifiedTime: nil,
             eventMeta: nil,

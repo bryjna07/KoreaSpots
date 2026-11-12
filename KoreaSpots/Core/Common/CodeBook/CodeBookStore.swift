@@ -18,9 +18,9 @@ public enum LanguageTag: String {
 }
 
 // MARK: - 통합 CodeBookStore (Generic)
-/// Cat3, Sigungu 등 계층 구조를 가진 코드북을 관리하는 통합 Store
-/// - Key1: 상위 코드 (예: Cat2, AreaCode)
-/// - Key2: 하위 코드 (예: Cat3, SigunguCode)
+/// Ldong, Lcls 등 계층 구조를 가진 코드북을 관리하는 통합 Store
+/// - Key1: 상위 코드 (예: 법정동 시도코드, 분류 중분류)
+/// - Key2: 하위 코드 (예: 시군구코드, 분류 소분류)
 public enum CodeBookStore {
     // cache: category -> (parentCode -> (childCode -> record))
     private static var cache: [String: [String: [String: CodeNameRecord]]] = [:]
@@ -140,42 +140,6 @@ public enum CodeBookStore {
 // MARK: - Convenience Extensions
 
 extension CodeBookStore {
-    // Cat3 관련 편의 메서드
-    public enum Cat3 {
-        private static let category = "cat3"
-
-        public static func load(from data: Data) throws {
-            try CodeBookStore.load(category: category, from: data)
-        }
-
-        public static func loadFromBundleAsync(
-            fileName: String = "cat3_codes",
-            completion: @escaping (Bool) -> Void
-        ) {
-            CodeBookStore.loadFromBundleAsync(
-                category: category,
-                fileName: fileName,
-                completion: completion
-            )
-        }
-
-        public static var isLoaded: Bool {
-            CodeBookStore.isLoaded(category: category)
-        }
-
-        public static func name(cat2Code: String, cat3Code: String, preferred: LanguageTag = .ko) -> String? {
-            CodeBookStore.name(category: category, parentCode: cat2Code, childCode: cat3Code, preferred: preferred)
-        }
-
-        public static func allCat3Codes(for cat2Code: String) -> [String] {
-            CodeBookStore.allChildCodes(category: category, parentCode: cat2Code)
-        }
-
-        public static func merge(cat2Code: String, entries: [String: CodeNameRecord]) {
-            CodeBookStore.merge(category: category, parentCode: cat2Code, entries: entries)
-        }
-    }
-
     // 법정동 코드 (ldongCode2): ROOT = 시도, 시도코드 = 시군구
     public enum Ldong {
         private static let category = "ldong"
@@ -257,44 +221,4 @@ extension CodeBookStore {
         }
     }
 
-    // Sigungu 관련 편의 메서드
-    public enum Sigungu {
-        private static let category = "sigungu"
-
-        public static func load(from data: Data) throws {
-            try CodeBookStore.load(category: category, from: data)
-        }
-
-        public static func loadFromBundleAsync(
-            fileName: String = "sigungu_codes",
-            completion: @escaping (Bool) -> Void
-        ) {
-            CodeBookStore.loadFromBundleAsync(
-                category: category,
-                fileName: fileName,
-                completion: completion
-            )
-        }
-
-        public static var isLoaded: Bool {
-            CodeBookStore.isLoaded(category: category)
-        }
-
-        public static func name(areaCode: Int, sigunguCode: Int, preferred: LanguageTag = .ko) -> String? {
-            CodeBookStore.name(
-                category: category,
-                parentCode: "\(areaCode)",
-                childCode: "\(sigunguCode)",
-                preferred: preferred
-            )
-        }
-
-        public static func allSigunguCodes(for areaCode: Int) -> [String] {
-            CodeBookStore.allChildCodes(category: category, parentCode: "\(areaCode)")
-        }
-
-        public static func merge(areaCode: Int, entries: [String: CodeNameRecord]) {
-            CodeBookStore.merge(category: category, parentCode: "\(areaCode)", entries: entries)
-        }
-    }
 }

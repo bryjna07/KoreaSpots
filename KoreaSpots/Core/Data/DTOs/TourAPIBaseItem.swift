@@ -28,9 +28,6 @@ struct TourAPIBaseItem: Decodable {
     let areacode: String?  // 지역 코드 (구)
     let sigungucode: String?  // 시군구 코드 (구)
     let addr2: String?  // 상세주소
-    let cat1: String?  // 대분류 코드
-    let cat2: String?  // 중분류 코드
-    let cat3: String?  // 소분류 코드
     let createdtime: String?  // 생성일
     let firstimage: String?  // 대표이미지 (원본)
     let firstimage2: String?  // 대표이미지 (썸네일)
@@ -76,9 +73,6 @@ struct TourAPIBaseItem: Decodable {
         areacode = try container.decodeIfPresent(String.self, forKey: .areacode)
         sigungucode = try container.decodeIfPresent(String.self, forKey: .sigungucode)
         addr2 = try container.decodeIfPresent(String.self, forKey: .addr2)
-        cat1 = try container.decodeIfPresent(String.self, forKey: .cat1)
-        cat2 = try container.decodeIfPresent(String.self, forKey: .cat2)
-        cat3 = try container.decodeIfPresent(String.self, forKey: .cat3)
         createdtime = try container.decodeIfPresent(String.self, forKey: .createdtime)
         firstimage = try container.decodeIfPresent(String.self, forKey: .firstimage)
         firstimage2 = try container.decodeIfPresent(String.self, forKey: .firstimage2)
@@ -115,7 +109,7 @@ struct TourAPIBaseItem: Decodable {
         // 필수
         case contentid, contenttypeid, title, addr1, modifiedtime
         // 공통 선택
-        case areacode, sigungucode, addr2, cat1, cat2, cat3, createdtime, firstimage, firstimage2, cpyrhtDivCd
+        case areacode, sigungucode, addr2, createdtime, firstimage, firstimage2, cpyrhtDivCd
         case mapx, mapy, mlevel, tel, zipcode
         // 법정동 코드
         case lDongRegnCd, lDongSignguCd, lclsSystm1, lclsSystm2, lclsSystm3

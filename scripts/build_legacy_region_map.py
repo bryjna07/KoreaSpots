@@ -4,7 +4,7 @@
 사용법 (오프라인, API 호출 없음):
     python3 scripts/build_legacy_region_map.py
 
-입력:  KoreaSpots/Resources/sigungu_codes.json (옛 코드표), ldong_codes.json (새 코드표)
+입력:  scripts/legacy_sigungu_codes.json (옛 코드표, 앱 번들에서 제외됨), KoreaSpots/Resources/ldong_codes.json (새 코드표)
 출력:  KoreaSpots/Resources/legacy_region_map.json
     {"<옛 areaCode>": {"regn": <새 시도코드>, "sigungu": {"<옛 sigunguCode>": <새 시군구코드>}}}
 
@@ -51,7 +51,7 @@ def main() -> int:
     parser.add_argument("--res-dir", type=Path, default=Path("KoreaSpots/Resources"))
     args = parser.parse_args()
 
-    old = json.loads((args.res_dir / "sigungu_codes.json").read_text(encoding="utf-8"))
+    old = json.loads(Path("scripts/legacy_sigungu_codes.json").read_text(encoding="utf-8"))
     new = json.loads((args.res_dir / "ldong_codes.json").read_text(encoding="utf-8"))
     result, unmatched = build(old, new)
 

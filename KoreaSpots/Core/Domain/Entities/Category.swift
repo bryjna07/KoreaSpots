@@ -75,7 +75,7 @@ extension Category {
 
     enum ContentType {
         case festival          // searchFestival2
-        case performance       // searchFestival2 + cat2=A0208
+        case performance       // areaBasedList2 + lclsSystm2=EV02,VE07
         case culture          // areaBasedList2 + contentTypeId=14
         case course           // areaBasedList2 + contentTypeId=25
         case leisure          // areaBasedList2 + contentTypeId=28
