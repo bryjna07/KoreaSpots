@@ -1,0 +1,14 @@
+[
+  { "id": "mountain",  "contentTypeId": 12, "lcls": ["NA010100"] },
+  { "id": "ocean",     "contentTypeId": 12, "lcls": ["NA020500", "NA020700", "NA020800", "NA020900"] },
+  { "id": "valley",    "contentTypeId": 12, "lcls": ["NA010300", "NA010400"] },
+  { "id": "river",     "contentTypeId": 12, "lcls": ["NA020100", "NA020200", "NA020300"] },
+  { "id": "forest",    "contentTypeId": 12, "lcls": ["NA010200", "NA040600", "NA040700"] },
+  { "id": "cave",      "contentTypeId": 12, "lcls": ["NA030100"] },
+  { "id": "park",      "contentTypeId": 12, "lcls": ["VE03"] },
+  { "id": "themePark", "contentTypeId": 12, "lcls": ["VE020100", "VE020200"] },
+  { "id": "spa",       "contentTypeId": 12, "lcls": ["EX050100"] },
+  { "id": "tradition", "contentTypeId": 12, "lcls": ["EX01", "EX02", "EX03"] },
+  { "id": "history",   "contentTypeId": 12, "lcls": ["HS01", "HS02"] },
+  { "id": "etc",       "contentTypeId": 12, "lcls": ["NA04"] }
+]
