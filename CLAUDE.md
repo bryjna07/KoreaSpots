@@ -1,6 +1,6 @@
 # KoreaSpots
 
-Released iOS app (v1.1.1, build 9) for discovering Korean tourist spots/festivals and recording trips. Data from the Korea Tour API (data.go.kr).
+Released iOS app "어디로" (v1.1.1, build 9) for discovering Korean tourist spots/festivals and recording trips. Data from the Korea Tour API (data.go.kr).
 
 ## Stack
 - UIKit (programmatic, SnapKit + Then), no storyboards for screens. iPhone only, Swift 5.
@@ -27,6 +27,13 @@ Released iOS app (v1.1.1, build 9) for discovering Korean tourist spots/festival
 - Realm models use `R` suffix (`PlaceR`, `TripR`); mappers named `Xxx+Mapping`.
 - New screens: add factory `makeXxxViewController()` in `AppContainer`; navigate via `Navigator`.
 - User-facing strings go to `LocalizedKeys` / `Localizable.strings` (some legacy hardcoded Korean remains).
+
+## Context scope
+- Focus: `KoreaSpots/{Application,Core,Presentation}`. Avoid reading: `*.xcassets`, `Resources/Mock/*.json` (large), `DerivedData`, `Resources/Config/Secrets/`.
+- If more context is needed, propose a file list first instead of scanning the whole repo.
+
+## Definition of done
+- Build passes (`build-verifier`), no new warnings. UI bindings on main thread. No hardcoded user-facing strings/colors. Behavior-preserving refactors: `refactor-reviewer` says SAFE.
 
 ## Rules
 - NEVER read, print, or commit `KoreaSpots/Resources/Config/Secrets/` (API key xcconfig, git-ignored) or GoogleService plist.

@@ -11,7 +11,18 @@
     "deny": [
       "Read(./KoreaSpots/Resources/Config/Secrets/**)",
       "Read(**/GoogleService-Info.plist)",
-      "Bash(cat *Secrets*)"
+      "Bash(cat *Secrets*)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./.git/**)",
+      "Read(./DerivedData/**)",
+      "Read(./build/**)",
+      "Read(./**/*.xcuserstate)",
+      "Read(./**/xcuserdata/**)",
+      "Read(./**/*.xcassets/**)",
+      "Read(./**/*.dSYM)",
+      "Read(./**/*.ipa)",
+      "Read(./**/*.xcarchive)"
     ]
   }
 }
