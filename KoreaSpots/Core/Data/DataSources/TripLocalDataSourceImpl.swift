@@ -259,7 +259,7 @@ final class TripLocalDataSourceImpl: TripLocalDataSource {
 
                     // Create new indices
                     for visitedPlace in trip.visitedPlaces {
-                        let index = VisitIndexR(from: trip, visitedPlace: visitedPlace)
+                        let index = try VisitIndexR(from: trip, visitedPlace: visitedPlace)
                         realm.add(index)
                     }
                 }
