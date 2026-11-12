@@ -17,6 +17,10 @@ Order: 1) quality cleanup -> 2) bug fixes -> 3) AI chatbot. Discuss a plan befor
 - `SkeletonDataProvider.swift:59` API-error placeholder cell
 - `FetchFestivalUseCase.swift:61` pageNo handling
 - `TripLocalDataSourceImpl.swift:214` region code 0
+- Category screen improvements (after lclsSystm switch; 59 level-2 sections):
+  - Sync scroll both ways: left sidebar tap/scroll should also drive the right grid (currently only right -> left)
+  - Replace per-item generic icon (`RectangleCell`) with a brief image per subcategory
+  - Merge/curate level-2 categories to shorten the list (e.g. via a JSON like `themes.json`)
 
 ## 3. AI chatbot (place recommendations)
 - LLM key stays server-side: backend proxy (e.g. Firebase Functions). Consult claude-api skill first.
