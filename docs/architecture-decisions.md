@@ -44,6 +44,13 @@ Log of architecture-relevant decisions made during the portfolio rework (branch 
 - **Rule**: split only when a file mixes responsibilities (several domains, a view plus its protocol conformances, a nested reusable type). Line count alone is not a reason; an unnecessary split makes maintenance harder.
 - **Cost**: members used across files lose `private` (internal instead). Only what the compiler required was relaxed (checked by reverting speculative ones).
 
+## 7. Mock data as an outage fallback (not a test double)
+- **Context**: The Tour API (data.go.kr) has a daily quota and occasional server errors. An error screen on every list would leave the app unusable during an outage.
+- **Decision**: `MockTourRemoteDataSource` (bundled `Resources/Mock/*.json`) is a production fallback. `AppStateManager` switches `DataSourceMode` to `mockFallback` on quota/server errors; `TourRepositoryImpl` then skips the cache and serves mock data. Mock titles get an `[예시]` prefix, a one-time `mockModeEntered` notification shows a message ("sample data, may differ from real data"), and `shouldRestrictWriteOperations` blocks writes while mock data is shown.
+- **Why**: The UI stays usable and the user is told the data is a sample. The prefix and the write restriction stop sample data from being mistaken for, or saved as, real data (e.g. a mock place in a trip or favorites).
+- **Trade-off**: Fallback logic lives in `TourRepositoryImpl` (`mockDataSource` injected next to the remote one) and ~140KB of JSON ships in the app. Accepted: the alternative (error/empty screen) gives a worse outage experience. Not a debug-only feature, so no `#if DEBUG`.
+- **Talking point**: "Graceful degradation: the app is explicit about degraded state (`DataSourceMode`) instead of failing silently or hiding the outage."
+
 ## Open architecture items
 - Cache policy (intent: cut Tour API usage; re-fetch occasionally in case data changed). Actual behavior, verified in code:
   - Place detail: read-time check `PlaceR.needsRefresh()` = refresh once per day after 04:00 KST (not 7 days; the `TourRepositoryImpl` comment says "long TTL").
