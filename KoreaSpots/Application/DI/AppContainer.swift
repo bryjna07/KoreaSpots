@@ -274,6 +274,7 @@ final class AppContainer {
     ) -> PlaceSelectorReactor {
         return PlaceSelectorReactor(
             tourRepository: tourRepository,
+            favoriteRepository: favoriteRepository,
             maxSelectionCount: maxSelectionCount,
             preSelectedPlaceIds: preSelectedPlaceIds,
             preSelectedPlaces: preSelectedPlaces

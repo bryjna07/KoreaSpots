@@ -76,6 +76,11 @@ final class FavoriteRepositoryImpl: FavoriteRepository {
         }
     }
 
+    func getFavoritePlaces() -> Single<[Place]> {
+        // 읽기 작업은 항상 허용
+        return localDataSource.getFavoritePlaces()
+    }
+
     func getFavorites() -> Observable<[Place]> {
         // Realm auto-update 활용: Results를 관찰
         return Observable.create { observer in

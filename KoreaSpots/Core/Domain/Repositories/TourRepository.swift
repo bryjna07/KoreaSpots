@@ -61,10 +61,6 @@ protocol TourRepository {
     func getPlaceImages(contentId: String) -> Single<[PlaceImage]>
     func getTravelCourseDetails(contentId: String, contentTypeId: Int) -> Single<[CourseDetail]>
 
-    // MARK: - Favorites
-    func getFavoritePlaces() -> Single<[Place]>
-    func toggleFavorite(contentId: String) -> Completable
-
     // MARK: - Cache Management
     func clearExpiredCache() -> Completable
 }

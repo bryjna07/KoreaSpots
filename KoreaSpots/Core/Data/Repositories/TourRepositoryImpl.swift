@@ -546,26 +546,6 @@ final class TourRepositoryImpl: TourRepository {
         }
     }
 
-    // MARK: - Favorites
-    func getFavoritePlaces() -> Single<[Place]> {
-        // 읽기 작업은 항상 허용
-        return localDataSource.getFavoritePlaces()
-    }
-
-    func toggleFavorite(contentId: String) -> Completable {
-        // Mock 모드에서는 쓰기 작업 차단
-        print("🔍 toggleFavorite called - Current mode: \(AppStateManager.shared.currentMode)")
-        print("🔍 canPerformWriteOperation: \(AppStateManager.shared.canPerformWriteOperation())")
-
-        guard AppStateManager.shared.canPerformWriteOperation() else {
-            print("❌ Write operation blocked - returning error")
-            return .error(TourRepositoryError.writeOperationBlocked)
-        }
-
-        print("✅ Write operation allowed - proceeding")
-        return localDataSource.toggleFavorite(contentId: contentId)
-    }
-
     // MARK: - Cache Management
     func clearExpiredCache() -> Completable {
         return localDataSource.clearExpiredCache()
