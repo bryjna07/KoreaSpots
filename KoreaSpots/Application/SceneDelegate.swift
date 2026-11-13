@@ -36,10 +36,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let tourRepository = AppContainer.shared.makeTourRepository()
 
         // 현재 날짜 기준 축제 검색 (결과가 없어도 상관없음, API 응답만 확인)
-        let today = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd"
-        let dateString = formatter.string(from: today)
+        let dateString = DateFormatterUtil.yyyyMMdd.string(from: Date())
 
         tourRepository.getFestivals(
             eventStartDate: dateString,
