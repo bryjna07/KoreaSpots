@@ -17,7 +17,9 @@ Verdict legend: **CONFIRMED** = verified by reading code plus a run/script; **CO
 | 18 | done | `ed2d246` | build |
 | 9 | done (no bag, error logged; repository `disposeBag` removed) | `97741d8` | build |
 | 4 | done (filter by `contentTypeId`, hit only on page 1 with `>= numOfRows`) | `338a210` | simulator log |
-| 5, 10-16, 19-21 | open | | |
+| 19 | done (detail/images/course go through `handleAPIError`; detail propagates other errors) | `61fcf9d` | build |
+| 21 | done (distance recomputed in UseCase) | | build |
+| 5, 10-16, 20 | open (20 deferred) | | |
 
 Also fixed while verifying (not a review finding): `PlaceBasicInfoCell` tag squeezed after scrolling (ambiguous horizontal priorities since the first implementation) -> `a21db2e`, confirmed on simulator.
 
@@ -49,7 +51,7 @@ Also fixed while verifying (not a review finding): `PlaceBasicInfoCell` tag sque
 18. **Mock detail is written to the cache** (CODE). `+Detail.swift:57` saves the mock fallback via `savePlaceDetail`, so mock data stays visible after the server recovers (until the 4 AM refresh). Do not cache mock data.
 19. **Detail API failure bypasses `handleAPIError`** (CODE). `getPlaceDetail` catches errors and returns mock detail directly, so it never enters mock mode (no write block, no alert) and offline errors also show mock data. Route through `handleAPIError` like the list APIs.
 20. **Location cache is not keyed by query** (CONFIRMED on simulator after #4). After #4 the cache only hits with `>= numOfRows` rows of the requested type. In sparse areas (Seoul City Hall, type 12: 2/4/5 results at 1/3/5 km) it never hits, so each Home load makes 3 API calls (radius auto-expansion). Fix: cache per query (rounded center + radius + type -> contentIds, with its own timestamp); needs a new Realm model + `schemaVersion` bump + migration. Deferred until after 2.0.0 (user decision 2026-11-13).
-21. **Cached `distance` may be stale** (VERIFY). `PlaceR.distance` is the API value for the center of the request that saved it. Sorting recomputes distance from coordinates (`FetchLocationBasedPlacesUseCase`), but check whether any cell displays `place.distance` from a cache hit.
+21. **Cached `distance` is stale** (CODE, confirmed by reading; not reproduced at runtime). `PlaceR.distance` is the API value for the center of the request that saved it. Sorting already recomputes distance from coordinates (`FetchLocationBasedPlacesUseCase`), but `PlaceCardCell` shows `place.distance` as returned, so a cache hit after moving shows the old distance. Fix: recompute `distance` in `applyBusinessFilters` (`Place.distance` is now `var`). The cache query is a square bounding box, so places slightly beyond the radius (corners) can still appear; not filtered.
 
 ### Low / structure
 11. **Layering is inconsistent.** 4 reactors use repositories directly (`PlaceDetail`, `TripEditor`, `PlaceSelector`, `TripDetail`) while others go through UseCases. `PlaceDetailReactor` holds business logic (course merge, phone regex) that belongs in a `FetchPlaceDetailUseCase`. `FavoriteRepositoryImpl` writes Realm directly but reads through `TourLocalDataSource`. Pick one rule and document it (e.g. "Reactors only see UseCases").
