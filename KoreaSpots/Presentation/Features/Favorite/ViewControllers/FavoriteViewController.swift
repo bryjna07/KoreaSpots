@@ -172,11 +172,4 @@ final class FavoriteViewController: BaseViewController, View, ScreenNavigatable 
 
         dataSource.apply(snapshot, animatingDifferences: true)
     }
-
-    // MARK: - Navigation
-
-    func navigateToPlaceDetail(place: Place) {
-        let viewController = AppContainer.shared.makeDetailViewController(place: place)
-        navigationController?.pushViewController(viewController, animated: true)
-    }
 }
