@@ -93,6 +93,8 @@ extension PlaceBasicInfoCell {
             $0.textColor = .label
             $0.numberOfLines = 2
             $0.isSkeletonable = true
+            // 가로 공간이 부족하면 태그 대신 제목이 줄어들도록 우선순위 낮춤
+            $0.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         }
 
         categoryTagView.do {
@@ -106,6 +108,9 @@ extension PlaceBasicInfoCell {
             $0.textColor = .white
             $0.textAlignment = .center
             $0.isSkeletonable = true
+            // 셀 재사용/재계산 시 태그가 찌그러지지 않도록 텍스트 너비 유지
+            $0.setContentCompressionResistancePriority(.required, for: .horizontal)
+            $0.setContentHuggingPriority(.required, for: .horizontal)
         }
 
         addressLabel.do {
