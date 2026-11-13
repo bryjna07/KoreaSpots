@@ -19,7 +19,9 @@ Verdict legend: **CONFIRMED** = verified by reading code plus a run/script; **CO
 | 4 | done (filter by `contentTypeId`, hit only on page 1 with `>= numOfRows`) | `338a210` | simulator log |
 | 19 | done (detail/images/course go through `handleAPIError`; detail propagates other errors) | `61fcf9d` | build |
 | 21 | done (distance recomputed in UseCase) | | build |
-| 5, 10-16, 20 | open (20 deferred) | | |
+| 15 | done (redundant `present`/`dismiss` defaults removed) | `0274310` | build + refactor-reviewer SAFE |
+| 13 | partly done (removed `createRealm` double open, `filterChangedPlaces`; `MockDataProvider` is in use; `reloadCategories`, `getFavorites` double emit remain) | `0564308`, `b62e33b` | build + refactor-reviewer SAFE |
+| 5, 10-12, 14, 16, 20 | open (20 deferred) | | |
 
 Also fixed while verifying (not a review finding): `PlaceBasicInfoCell` tag squeezed after scrolling (ambiguous horizontal priorities since the first implementation) -> `a21db2e`, confirmed on simulator.
 
