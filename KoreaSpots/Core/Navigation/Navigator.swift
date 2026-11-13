@@ -23,20 +23,12 @@ extension Navigator where Self: UIViewController {
         navigationController?.pushViewController(viewController, animated: animated)
     }
 
-    func present(_ viewController: UIViewController, animated: Bool = true, completion: (() -> Void)? = nil) {
-        present(viewController, animated: animated, completion: completion)
-    }
-
     func pop(animated: Bool = true) {
         navigationController?.popViewController(animated: animated)
     }
 
     func popToRoot(animated: Bool = true) {
         navigationController?.popToRootViewController(animated: animated)
-    }
-
-    func dismiss(animated: Bool = true, completion: (() -> Void)? = nil) {
-        dismiss(animated: animated, completion: completion)
     }
 }
 

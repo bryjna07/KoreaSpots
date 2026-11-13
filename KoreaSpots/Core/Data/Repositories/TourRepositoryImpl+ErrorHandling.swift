@@ -75,30 +75,4 @@ extension TourRepositoryImpl {
 
         return .error(error)
     }
-
-    // MARK: - Helper: modifiedTime 기반 스마트 갱신
-    /// API에서 받은 Place들의 modifiedTime을 확인하여 변경된 경우에만 캐시 업데이트
-    /// - Parameters:
-    ///   - apiPlaces: API 응답으로 받은 Place 배열
-    ///   - cachedPlaces: 기존 캐시된 Place 배열
-    /// - Returns: 실제로 변경이 필요한 Place 배열
-    private func filterChangedPlaces(_ apiPlaces: [Place], cachedPlaces: [Place]) -> [Place] {
-        let cachedDict = Dictionary(uniqueKeysWithValues: cachedPlaces.map { ($0.contentId, $0) })
-
-        return apiPlaces.filter { apiPlace in
-            guard let cached = cachedDict[apiPlace.contentId] else {
-                // 캐시에 없는 새로운 데이터
-                return true
-            }
-
-            // modifiedTime 비교
-            if let apiModifiedTime = apiPlace.modifiedTime,
-               let cachedModifiedTime = cached.modifiedTime {
-                return apiModifiedTime != cachedModifiedTime
-            }
-
-            // modifiedTime이 없는 경우 (detailIntro2, detailImage2 등) 무조건 갱신
-            return true
-        }
-    }
 }

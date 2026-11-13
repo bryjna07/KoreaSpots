@@ -19,7 +19,6 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
 
     // 스레드별 Realm 인스턴스 생성
     private func createRealm() throws -> Realm {
-        let realm = try Realm()
         return try Realm()
     }
 
