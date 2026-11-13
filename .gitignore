@@ -86,3 +86,6 @@ iOSInjectionProject/
 
 ## Claude local
 .claude/settings.local.json
+
+# XcodeBuildMCP local defaults (machine-specific simulator id)
+.xcodebuildmcp/
