@@ -51,12 +51,9 @@ extension TourRepositoryImpl {
 
                         return self.mockDataSource
                             .fetchDetailCommon(contentId: contentId)
-                            .do(onSuccess: { [weak self] place in
+                            .do(onSuccess: { _ in
+                                // Mock 데이터는 캐싱하지 않음 (서버 복구 후에도 예시 데이터가 남는 문제 방지)
                                 print("✅ Mock Fallback Success for contentId: \(contentId)")
-                                // Mock 데이터도 캐싱
-                                self?.localDataSource.savePlaceDetail(place)
-                                    .subscribe()
-                                    .disposed(by: self?.disposeBag ?? DisposeBag())
                             })
                     }
             }
