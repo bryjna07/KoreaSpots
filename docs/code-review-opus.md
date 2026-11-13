@@ -4,6 +4,23 @@ Scope: whole-project review on branch `review/opus-audit` (renamed to `fix/revie
 
 Verdict legend: **CONFIRMED** = verified by reading code plus a run/script; **CODE** = follows from the code, not run in the app; **VERIFY** = plausible, needs a simulator/device check.
 
+## Fix status (branch `fix/review-findings`, not pushed)
+| # | Status | Commit | Verification |
+|---|---|---|---|
+| 6 | done | `8845d99` | Debug + Release build |
+| 3 | done (API: POSIX + Gregorian; display: Gregorian; time zone intentionally unset) | `3c991ea`, `7ed5662` | script repro + build |
+| 2 | done | `6e1a792`, `5bd8492` | SearchReactor leak confirmed by memgraph before fix; after-fix memgraph not taken |
+| 1 | done (half-open retry: 5 min or foreground; success = decoded real response) | `99788b1` | build only; recovery not reproduced |
+| 7 | done (single owner `SceneDelegate`, topmost VC; strings in `LocalizedKeys.MockMode`) | `29dedd9` | build |
+| 8 | done (existing row: only `isFavorite` + `cachedAt`, keeps favorites order) | `c337679` | build |
+| 17 | done (+ empty overview stored as `""` so detail cache still hits) | `037f06c`, `68079c1` | simulator before/after (log + screen) |
+| 18 | done | `ed2d246` | build |
+| 9 | done (no bag, error logged; repository `disposeBag` removed) | `97741d8` | build |
+| 4 | done (filter by `contentTypeId`, hit only on page 1 with `>= numOfRows`) | `338a210` | simulator log |
+| 5, 10-16, 19-21 | open | | |
+
+Also fixed while verifying (not a review finding): `PlaceBasicInfoCell` tag squeezed after scrolling (ambiguous horizontal priorities since the first implementation) -> `a21db2e`, confirmed on simulator.
+
 ## Strengths (keep, and mention in the portfolio)
 - Clean layering with protocol + `*Impl` at every boundary; constructor injection from one `AppContainer` -> every Reactor/UseCase can get mocks in tests.
 - Realm thread confinement done right: a fresh `Realm()` per operation on a background scheduler, mapped to domain structs before leaving the thread. No Realm object reaches the UI.
@@ -30,6 +47,9 @@ Verdict legend: **CONFIRMED** = verified by reading code plus a run/script; **CO
 10. **Category screen** (CODE; part of the scroll-sync task): `scrollToCat2` + `distinctUntilChanged` blocks re-tapping the same item (`CategoryViewController.swift:238`); `scrollToItem(.top)` puts row 1 under the pinned header; 0.5 s flag timer instead of `scrollViewDidEndScrollingAnimation`; the sidebar does not scroll to keep the highlight visible. Also VERIFY: "더보기/접기" header title after toggle (diffable apply does not reconfigure existing supplementary views).
 17. **Detail cache hit on list-only rows** (VERIFY at runtime; found while planning #8). List/location/festival saves create `PlaceR` rows with `cachedAt = now`; `getPlaceDetail` (`+Detail.swift:31`) treats any fresh row as a detail hit, so a place seen in a list today opens without `overview`/detail fields. `PlaceR.update(from:)` also overwrites a cached `overview` with nil on every list save. Root cause shared with #8: summary and detail data share one row and one `cachedAt`. Fix: keep `overview` when the incoming value is nil; require `overview != nil` for a detail hit (no schema change; a separate `detailCachedAt` would need a migration).
 18. **Mock detail is written to the cache** (CODE). `+Detail.swift:57` saves the mock fallback via `savePlaceDetail`, so mock data stays visible after the server recovers (until the 4 AM refresh). Do not cache mock data.
+19. **Detail API failure bypasses `handleAPIError`** (CODE). `getPlaceDetail` catches errors and returns mock detail directly, so it never enters mock mode (no write block, no alert) and offline errors also show mock data. Route through `handleAPIError` like the list APIs.
+20. **Location cache is not keyed by query** (CONFIRMED on simulator after #4). After #4 the cache only hits with `>= numOfRows` rows of the requested type. In sparse areas (Seoul City Hall, type 12: 2/4/5 results at 1/3/5 km) it never hits, so each Home load makes 3 API calls (radius auto-expansion). Fix: cache per query (rounded center + radius + type -> contentIds, with its own timestamp); needs a new Realm model + `schemaVersion` bump + migration. Deferred until after 2.0.0 (user decision 2026-11-13).
+21. **Cached `distance` may be stale** (VERIFY). `PlaceR.distance` is the API value for the center of the request that saved it. Sorting recomputes distance from coordinates (`FetchLocationBasedPlacesUseCase`), but check whether any cell displays `place.distance` from a cache hit.
 
 ### Low / structure
 11. **Layering is inconsistent.** 4 reactors use repositories directly (`PlaceDetail`, `TripEditor`, `PlaceSelector`, `TripDetail`) while others go through UseCases. `PlaceDetailReactor` holds business logic (course merge, phone regex) that belongs in a `FetchPlaceDetailUseCase`. `FavoriteRepositoryImpl` writes Realm directly but reads through `TourLocalDataSource`. Pick one rule and document it (e.g. "Reactors only see UseCases").
@@ -45,6 +65,6 @@ Verdict legend: **CONFIRMED** = verified by reading code plus a run/script; **CO
 3. #2 `[weak self]` in transforms (confirm the leak first with Memory Graph = good blog/interview story).
 4. #1 + #7 mock-mode recovery and a single alert owner.
 5. #5 parse the error body (needs one captured real error response).
-6. #4, #8, #9, #17, #18 cache correctness (order: #8, #17, #18, #9, #4).
+6. #4, #8, #9, #17, #18 cache correctness (order: #8, #17, #18, #9, #4). Follow-ups: #19, #21; #20 deferred.
 7. #10 inside the category scroll-sync task.
 8. #11-#16 cleanup when touching those files.
