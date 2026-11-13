@@ -10,6 +10,7 @@ Order agreed with the user (details of each item live in the sections below).
    - Category: two-way scroll sync, per-subcategory images, level-2 merge list (user picks groups).
    - UI polish: font/height/color in `PlaceLocationCell`, `PlaceBasicInfoCell`, `CategorySectionHeader`.
    - App logo: asset replacement (design needed first).
+   - Festival detail screen: Home festival banner tap does nothing (`navigateToFestivalDetail` is a print-only TODO since the first navigation commit, so also broken in 1.1.1). User chose a dedicated festival detail VC over reusing PlaceDetail (2026-11-13).
    - iPhone Duo (large foldable): done on `fix/iphone-duo`, see below.
 3. **After 2.0.0** (version TBD): localization. Follow the system language only (no in-app picker, so no Settings dependency). Extend `LocalizedKeys`; ~140 hardcoded KR literals, mostly `PlaceDetail/Views/Cells/*OperatingInfoCell`. Layouts are already prepared for longer strings during 2.0.0, so this step is mostly key extraction and translation.
 4. **Later**: AI chatbot, after the separate Python project is finished (see section 3). Then tests (Reactor/UseCase first), last.
