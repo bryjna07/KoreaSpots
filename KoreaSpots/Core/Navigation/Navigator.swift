@@ -42,8 +42,14 @@ protocol ScreenNavigatable: Navigator {
 
 // MARK: - Screen Navigation Implementation
 extension ScreenNavigatable where Self: UIViewController {
+    /// 축제/공연/행사(contentTypeId 15)는 축제 상세, 그 외는 장소 상세로 이동
     func navigateToPlaceDetail(place: Place) {
-        let viewController = AppContainer.shared.makePlaceDetailViewController(place: place)
+        let viewController: UIViewController
+        if place.contentTypeId == ContentTypeID.festival.rawValue {
+            viewController = AppContainer.shared.makeFestivalDetailViewController(place: place)
+        } else {
+            viewController = AppContainer.shared.makePlaceDetailViewController(place: place)
+        }
         push(viewController)
     }
 
@@ -62,12 +68,8 @@ extension ScreenNavigatable where Self: UIViewController {
     }
 
     func navigateToFestivalDetail(place: Place) {
-        // TODO: FestivalDetailViewController 구현 후 활성화
-        print("Festival selected: \(place.title)")
-//        showTemporaryAlert(
-//            title: "축제 상세",
-//            message: "축제 상세 화면으로 이동합니다."
-//        )
+        let viewController = AppContainer.shared.makeFestivalDetailViewController(place: place)
+        push(viewController)
     }
 
     private func showTemporaryAlert(title: String, message: String) {

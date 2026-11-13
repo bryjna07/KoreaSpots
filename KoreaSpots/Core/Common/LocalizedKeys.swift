@@ -29,6 +29,30 @@ enum LocalizedKeys {
         static let nearbyPlaces = "section_nearby_places"
     }
 
+    // MARK: - FestivalDetail
+    enum FestivalDetail {
+        static let statusOngoing = "festival_status_ongoing"
+        static let statusUpcoming = "festival_status_upcoming"   // D-%d
+        static let statusEnded = "festival_status_ended"
+        static let sectionInfo = "festival_section_info"
+        static let sectionProgram = "festival_section_program"
+        static let sectionContact = "festival_section_contact"
+        static let period = "festival_row_period"
+        static let place = "festival_row_place"
+        static let playTime = "festival_row_play_time"
+        static let fee = "festival_row_fee"
+        static let discount = "festival_row_discount"
+        static let ageLimit = "festival_row_age_limit"
+        static let duration = "festival_row_duration"
+        static let placeInfo = "festival_row_place_info"
+        static let program = "festival_row_program"
+        static let subEvent = "festival_row_sub_event"
+        static let host = "festival_row_host"
+        static let organizer = "festival_row_organizer"
+        static let homepage = "festival_row_homepage"
+        static let booking = "festival_row_booking"
+    }
+
     // MARK: - Actions
     enum Action {
         static let openMap = "action_open_map"

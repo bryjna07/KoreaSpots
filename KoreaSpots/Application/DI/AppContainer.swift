@@ -167,6 +167,19 @@ final class AppContainer {
         return viewController
     }
 
+    // MARK: FestivalDetail
+    func makeFestivalDetailViewController(place: Place) -> FestivalDetailViewController {
+        let reactor = FestivalDetailReactor(
+            place: place,
+            tourRepository: tourRepository,
+            checkFavoriteUseCase: checkFavoriteUseCase,
+            toggleFavoriteUseCase: toggleFavoriteUseCase
+        )
+        let viewController = FestivalDetailViewController()
+        viewController.reactor = reactor
+        return viewController
+    }
+
     // MARK: Category
     func makeCategoryReactor() -> CategoryReactor {
         return CategoryReactor()

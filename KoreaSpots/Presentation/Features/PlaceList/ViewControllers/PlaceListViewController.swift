@@ -415,12 +415,6 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
         }
     }
 
-    // MARK: - Navigation
-    func navigateToPlaceDetail(place: Place) {
-        let viewController = AppContainer.shared.makePlaceDetailViewController(place: place)
-        navigationController?.pushViewController(viewController, animated: true)
-    }
-
     private func showErrorAlert(message: String) {
         let alert = UIAlertController(
             title: LocalizedKeys.Common.error.localized,
