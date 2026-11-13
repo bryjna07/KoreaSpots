@@ -177,6 +177,13 @@ final class FetchLocationBasedPlacesUseCaseImpl: FetchLocationBasedPlacesUseCase
                 !self.isBlacklisted(place) && !place.title.isEmpty
             }
             .removingDuplicates() // 중복 제거
+            .map { place -> Place in
+                // 캐시된 distance는 저장 당시 요청 위치 기준이므로 현재 위치 기준으로 다시 계산
+                guard let lat = place.mapY, let lon = place.mapX else { return place }
+                var updated = place
+                updated.distance = Int(self.calculateDistance(from: userLocation, to: (latitude: lat, longitude: lon)).rounded())
+                return updated
+            }
             .sorted { (first: Place, second: Place) -> Bool in
                 // 영업중인 장소 우선, 그 다음 거리순
                 let firstOpen = self.isCurrentlyOpen(first)

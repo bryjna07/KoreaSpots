@@ -20,7 +20,7 @@ struct Place {
     let areaCode: Int?  // 커스텀 장소나 위치 기반 검색은 areaCode 없을 수 있음
     let sigunguCode: Int?
     var lclsSystm3: String? = nil  // 신 분류체계 소분류 (테마 필터/태그용, 캐시(PlaceR)에는 저장하지 않음)
-    let distance: Int? // 미터 단위
+    var distance: Int? // 미터 단위 (캐시 적중 시 현재 위치 기준으로 UseCase에서 재계산)
 
     // MARK: - 캐싱 관련
     let modifiedTime: String? // API modifiedtime (변경 감지용, areaBasedList2/detailCommon2/searchKeyword2에서 제공)
