@@ -123,7 +123,13 @@ for model, t in tot.items():
 | **Opus total** | **222** | **352k** | **30.40M** | **133.1k** | **~139k** |
 
 - Opus subagent (Haiku) calls in the same sessions: 38 calls, cache read 0.48M, output 24k.
-- vs Sonnet baseline: average context per call is higher on Opus (~139k vs 71-160k, Sonnet median ~100k), output per call is about the same (~600 vs ~690 tokens).- Caveat: not a controlled comparison. The tasks differ (audit + review fixes vs refactor/split/UI work), so treat it as a rough indication, not a model ranking. Raw tokens are not equal cost; Opus costs more per token.
+- vs Sonnet baseline: average context per call is higher on Opus (~139k vs 71-160k, Sonnet median ~100k), output per call is about the same (~600 vs ~690 tokens).- Subscription usage: the user observed that the usage percentage rose much more during the Opus sessions than during Sonnet sessions. The percentage itself is not in the logs, so it is a manual observation, not a measurement.
+- Likely reasons (from the log numbers, not from the usage meter):
+  - Opus draws more usage per token than Sonnet, so similar token volume costs more of the plan limit. The exact ratio is set by Anthropic and was not measured here.
+  - Cache read dominates (30.40M of the Opus total), and every call re-reads the whole context (~139k per call). More context x more calls is what drives usage, on any model.
+  - 222 Opus calls in under 2 hours, so the usage accumulated in a short window.
+- How to reduce it: use Sonnet for routine edits and builds, and Opus only for review/design steps; reset context at task boundaries (see threshold below); keep subagents for build logs.
+- Caveat: not a controlled comparison. The tasks differ (audit + review fixes vs refactor/split/UI work), so treat it as a rough indication, not a model ranking. Raw tokens are not equal cost; Opus costs more per token.
 
 ### Where tokens were wasted, and the fix
 - Always-loaded tool/skill definitions from MCP servers unrelated to the repo (Figma, Notion, design/computer-use tools) inflate the baseline of every call. Fix: disable them per project with `/mcp`; keep only what the repo uses (`XcodeBuildMCP`, `context7`).
