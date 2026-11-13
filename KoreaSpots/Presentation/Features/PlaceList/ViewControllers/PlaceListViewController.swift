@@ -417,7 +417,7 @@ final class PlaceListViewController: BaseViewController, View, ScreenNavigatable
 
     // MARK: - Navigation
     func navigateToPlaceDetail(place: Place) {
-        let viewController = AppContainer.shared.makePlaceDetailViewController(place: place)
+        let viewController = AppContainer.shared.makeDetailViewController(place: place)
         navigationController?.pushViewController(viewController, animated: true)
     }
 

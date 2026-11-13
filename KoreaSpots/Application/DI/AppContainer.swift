@@ -5,7 +5,7 @@
 //  Created by YoungJin on 9/26/25.
 //
 
-import Foundation
+import UIKit
 import Moya
 
 //MARK: - 간단 DI 컨테이너(팩토리/싱글턴 주입)
@@ -151,6 +151,15 @@ final class AppContainer {
         let viewController = HomeViewController()
         viewController.reactor = reactor
         return viewController
+    }
+
+    // MARK: Detail (contentTypeId에 따라 상세 화면 분기)
+    /// 축제/공연/행사(contentTypeId 15)는 축제 상세, 그 외는 장소 상세로 보낸다
+    func makeDetailViewController(place: Place) -> UIViewController {
+        if place.contentTypeId == ContentTypeID.festival.rawValue {
+            return makeFestivalDetailViewController(place: place)
+        }
+        return makePlaceDetailViewController(place: place)
     }
 
     // MARK: PlaceDetail

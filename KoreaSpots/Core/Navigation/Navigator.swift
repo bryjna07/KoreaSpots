@@ -43,7 +43,7 @@ protocol ScreenNavigatable: Navigator {
 // MARK: - Screen Navigation Implementation
 extension ScreenNavigatable where Self: UIViewController {
     func navigateToPlaceDetail(place: Place) {
-        let viewController = AppContainer.shared.makePlaceDetailViewController(place: place)
+        let viewController = AppContainer.shared.makeDetailViewController(place: place)
         push(viewController)
     }
 
