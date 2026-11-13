@@ -24,18 +24,19 @@ final class AttributionFooterView: BaseReusableView {
     override func configureLayout() {
         divider.snp.makeConstraints {
             $0.top.equalToSuperview().offset(16)
-            $0.leading.trailing.equalToSuperview().inset(Constants.UI.Spacing.large)
+            // 푸터 배경은 전체 폭, 텍스트는 플로팅 탭바에 가려지지 않도록 safe area 기준
+            $0.leading.trailing.equalTo(safeAreaLayoutGuide).inset(Constants.UI.Spacing.large)
             $0.height.equalTo(1)
         }
 
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(divider.snp.bottom).offset(12)
-            $0.leading.trailing.equalToSuperview().inset(Constants.UI.Spacing.large)
+            $0.leading.trailing.equalTo(safeAreaLayoutGuide).inset(Constants.UI.Spacing.large)
         }
 
         contentLabel.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(8)
-            $0.leading.trailing.equalToSuperview().inset(Constants.UI.Spacing.large)
+            $0.leading.trailing.equalTo(safeAreaLayoutGuide).inset(Constants.UI.Spacing.large)
             $0.bottom.equalToSuperview().inset(20)
         }
     }
