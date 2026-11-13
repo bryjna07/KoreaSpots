@@ -7,6 +7,7 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -24,8 +25,39 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = tabBarVC
         window?.makeKeyAndVisible()
 
+        // Mock 모드 Alert는 SceneDelegate 한 곳에서만 표시
+        setupMockModeObserver()
+
         // API 키 유효성 체크 (백그라운드)
         checkAPIKeyValidity()
+    }
+
+    // MARK: - Mock Mode Alert
+    private func setupMockModeObserver() {
+        NotificationCenter.default.rx.notification(.mockModeEntered)
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] _ in
+                self?.presentMockModeAlert()
+            })
+            .disposed(by: disposeBag)
+    }
+
+    private func presentMockModeAlert() {
+        // 화면 계층에 있는 최상단 VC에서 표시 (화면 밖 VC에서 present 실패 방지)
+        guard var topViewController = window?.rootViewController else { return }
+        while let presented = topViewController.presentedViewController {
+            topViewController = presented
+        }
+        // 이미 Alert가 떠 있으면 중복 표시하지 않음
+        guard !(topViewController is UIAlertController) else { return }
+
+        let alert = UIAlertController(
+            title: LocalizedKeys.MockMode.alertTitle.localized,
+            message: LocalizedKeys.MockMode.alertMessage.localized,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: LocalizedKeys.Action.confirm.localized, style: .default))
+        topViewController.present(alert, animated: true)
     }
 
     // MARK: - API Key Validation

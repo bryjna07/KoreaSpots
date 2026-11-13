@@ -83,3 +83,7 @@
 //error
 "common_error" = "서버 오류";
 "common_confirm" = "확인";
+
+// Mock Mode
+"mock_mode_alert_title" = "예시 데이터 사용 중";
+"mock_mode_alert_message" = "서버 오류로 인해\n예시 데이터를 표시합니다.\n\n• 표시되는 데이터는 실제와 다를 수 있습니다.\n• 여행 기록 작성/수정, 좋아요 기능이 제한됩니다.\n• 기존에 작성한 여행 기록은 정상적으로 조회됩니다.\n\n서버 복구 시 자동으로 정확한 데이터가 표시됩니다.";

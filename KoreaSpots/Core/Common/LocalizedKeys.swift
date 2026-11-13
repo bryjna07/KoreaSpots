@@ -52,6 +52,12 @@ enum LocalizedKeys {
         static let cancel = "common_cancel"
     }
 
+    // MARK: - Mock Mode
+    enum MockMode {
+        static let alertTitle = "mock_mode_alert_title"
+        static let alertMessage = "mock_mode_alert_message"
+    }
+
     // MARK: - PlaceList
     enum PlaceList {
         static let title = "place_list_title"
