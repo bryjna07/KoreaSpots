@@ -175,12 +175,18 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
             do {
                 let realm = try self.createRealm()
                 try realm.write {
+                    let placeR: PlaceR
                     if let existing = realm.object(ofType: PlaceR.self, forPrimaryKey: place.contentId) {
                         existing.update(from: place)
                         existing.cachedAt = Date()
+                        placeR = existing
                     } else {
-                        let newPlace = PlaceR(place: place)
-                        realm.add(newPlace, update: .modified)
+                        placeR = PlaceR(place: place)
+                        realm.add(placeR, update: .modified)
+                    }
+                    // 개요가 없는 장소도 상세 캐시로 인식되도록 빈 문자열로 표시 (getPlaceDetail은 overview != nil로 판단)
+                    if placeR.overview == nil {
+                        placeR.overview = ""
                     }
                 }
                 observer(.completed)
