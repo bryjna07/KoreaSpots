@@ -15,7 +15,6 @@ final class TourRepositoryImpl: TourRepository {
     let mockDataSource: TourRemoteDataSource
     let localDataSource: TourLocalDataSource
     let networkMonitor: NetworkMonitor
-    let disposeBag = DisposeBag()
 
     init(
         remoteDataSource: TourRemoteDataSource,
@@ -72,9 +71,11 @@ final class TourRepositoryImpl: TourRepository {
                         print("✅ Festival API Success: \(places.count) festivals (\(areaInfo))")
 
                         // 백그라운드에서 캐시 저장 (contentTypeId=15 축제)
-                        self?.localDataSource.savePlaces(places, areaCode: areaCode, sigunguCode: nil, contentTypeId: 15)
-                            .subscribe()
-                            .disposed(by: self?.disposeBag ?? DisposeBag())
+                        // Completable은 완료 시 구독이 해제되므로 DisposeBag에 보관하지 않음 (bag 무한 증가 방지)
+                        _ = self?.localDataSource.savePlaces(places, areaCode: areaCode, sigunguCode: nil, contentTypeId: 15)
+                            .subscribe(onError: { error in
+                                print("❌ Cache save failed: \(error)")
+                            })
                     }, onError: { error in
                         print("❌ Festival API Error: \(error)")
                     })

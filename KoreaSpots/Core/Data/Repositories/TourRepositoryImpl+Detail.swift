@@ -39,9 +39,11 @@ extension TourRepositoryImpl {
                     .do(onSuccess: { [weak self] place in
                         print("✅ Detail API Success for contentId: \(contentId)")
                         // 백그라운드에서 캐시 저장
-                        self?.localDataSource.savePlaceDetail(place)
-                            .subscribe()
-                            .disposed(by: self?.disposeBag ?? DisposeBag())
+                        // Completable은 완료 시 구독이 해제되므로 DisposeBag에 보관하지 않음 (bag 무한 증가 방지)
+                        _ = self?.localDataSource.savePlaceDetail(place)
+                            .subscribe(onError: { error in
+                                print("❌ Cache save failed: \(error)")
+                            })
                     }, onError: { error in
                         print("❌ Detail API Error for contentId \(contentId): \(error)")
                     })
@@ -86,9 +88,11 @@ extension TourRepositoryImpl {
                         print("📋 UseFee: \(operatingInfo.useFee ?? "nil")")
 
                         // 백그라운드에서 캐시 저장
-                        self?.localDataSource.saveOperatingInfo(operatingInfo, contentId: contentId, contentTypeId: contentTypeId)
-                            .subscribe()
-                            .disposed(by: self?.disposeBag ?? DisposeBag())
+                        // Completable은 완료 시 구독이 해제되므로 DisposeBag에 보관하지 않음 (bag 무한 증가 방지)
+                        _ = self?.localDataSource.saveOperatingInfo(operatingInfo, contentId: contentId, contentTypeId: contentTypeId)
+                            .subscribe(onError: { error in
+                                print("❌ Cache save failed: \(error)")
+                            })
                     }, onError: { error in
                         print("❌ OperatingInfo API Error for contentId \(contentId): \(error)")
                     })

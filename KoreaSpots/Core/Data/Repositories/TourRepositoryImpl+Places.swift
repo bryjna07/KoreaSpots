@@ -75,9 +75,11 @@ extension TourRepositoryImpl {
                         let typeInfo = contentTypeId != nil ? "타입 \(contentTypeId!)" : "전체 타입"
                         print("✅ Location API Success: \(places.count) places (\(typeInfo))")
                         // 백그라운드에서 캐시 저장
-                        self?.localDataSource.saveLocationBasedPlaces(places, mapX: mapX, mapY: mapY, radius: radius)
-                            .subscribe()
-                            .disposed(by: self?.disposeBag ?? DisposeBag())
+                        // Completable은 완료 시 구독이 해제되므로 DisposeBag에 보관하지 않음 (bag 무한 증가 방지)
+                        _ = self?.localDataSource.saveLocationBasedPlaces(places, mapX: mapX, mapY: mapY, radius: radius)
+                            .subscribe(onError: { error in
+                                print("❌ Cache save failed: \(error)")
+                            })
                     }, onError: { error in
                         print("❌ Location API Error: \(error)")
                     })
