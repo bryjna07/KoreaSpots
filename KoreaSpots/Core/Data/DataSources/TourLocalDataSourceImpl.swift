@@ -98,7 +98,7 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
         .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
     }
 
-    func getLocationBasedPlaces(mapX: Double, mapY: Double, radius: Int) -> Single<[Place]> {
+    func getLocationBasedPlaces(mapX: Double, mapY: Double, radius: Int, contentTypeId: Int?) -> Single<[Place]> {
         return Single.create { [weak self] observer in
             guard let self = self else {
                 observer(.success([]))
@@ -110,9 +110,16 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
                 let radiusInDegrees = Double(radius) / 111000.0 // 대략적인 도 변환 (1도 ≈ 111km)
 
                 let realm = try self.createRealm()
-                let predicate = NSPredicate(format: "mapX BETWEEN {%f, %f} AND mapY BETWEEN {%f, %f}",
-                                          mapX - radiusInDegrees, mapX + radiusInDegrees,
-                                          mapY - radiusInDegrees, mapY + radiusInDegrees)
+                var predicates = [
+                    NSPredicate(format: "mapX BETWEEN {%f, %f} AND mapY BETWEEN {%f, %f}",
+                                mapX - radiusInDegrees, mapX + radiusInDegrees,
+                                mapY - radiusInDegrees, mapY + radiusInDegrees)
+                ]
+                // 요청한 타입만 반환 (축제 등 다른 경로로 캐시된 장소가 섞이지 않도록)
+                if let contentTypeId = contentTypeId {
+                    predicates.append(NSPredicate(format: "contentTypeId == %d", contentTypeId))
+                }
+                let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
 
                 let cachedPlaces = realm.objects(PlaceR.self).filter(predicate)
 

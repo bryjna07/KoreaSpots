@@ -51,11 +51,12 @@ extension TourRepositoryImpl {
         print("📦 Normal mode - checking cache first")
 
         // 위치 기반은 짧은 TTL로 캐시 우선 확인
-        return localDataSource.getLocationBasedPlaces(mapX: mapX, mapY: mapY, radius: radius)
+        return localDataSource.getLocationBasedPlaces(mapX: mapX, mapY: mapY, radius: radius, contentTypeId: contentTypeId)
             .flatMap { [weak self] cachedPlaces -> Single<[Place]> in
                 guard let self = self else { return .just([]) }
 
-                if !cachedPlaces.isEmpty {
+                // 첫 페이지이고 요청 개수만큼 캐시가 있을 때만 캐시 사용 (일부만 남은 캐시로 목록이 비는 문제 방지)
+                if pageNo == 1 && cachedPlaces.count >= numOfRows {
                     print("✅ Location Cache Hit: \(cachedPlaces.count) places")
                     return .just(cachedPlaces)
                 }
