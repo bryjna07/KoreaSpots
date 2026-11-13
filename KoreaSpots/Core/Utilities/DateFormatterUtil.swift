@@ -19,20 +19,24 @@ enum DateFormatterUtil {
         return formatter
     }()
 
+    // 표시용도 그레고리력으로 고정 (tripDateRange와 연도 체계 일치)
     static let displayDate: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
         formatter.dateFormat = "M.d"
         return formatter
     }()
 
     static let fullDisplayDate: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
         formatter.dateFormat = "yyyy.MM.dd"
         return formatter
     }()
 
     static let shortDisplayDate: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
         formatter.dateFormat = "yy.MM.dd"
         return formatter
     }()
