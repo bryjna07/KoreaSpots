@@ -214,19 +214,20 @@ extension TripRecordView {
     override func configureLayout() {
         statisticsHeaderView.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide)
-            $0.leading.trailing.equalToSuperview()
+            // Duo 등 넓은 화면에서 플로팅 탭바에 가려지지 않도록 safe area 기준으로 정렬
+            $0.leading.trailing.equalTo(safeAreaLayoutGuide)
             $0.height.equalTo(150)
         }
 
         segmentedControl.snp.makeConstraints {
             $0.top.equalTo(statisticsHeaderView.snp.bottom).offset(12)
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(16)
             $0.height.equalTo(32)
         }
 
         containerView.snp.makeConstraints {
             $0.top.equalTo(segmentedControl.snp.bottom).offset(12)
-            $0.horizontalEdges.equalToSuperview()
+            $0.horizontalEdges.equalTo(safeAreaLayoutGuide)
             $0.bottom.equalTo(safeAreaLayoutGuide)
         }
 
