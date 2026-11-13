@@ -29,7 +29,8 @@ Source: Apple HIG "Designing for iPhone Duo" (via context7).
 - Move hardcoded Korean strings to `LocalizedKeys`; decide on English localization.
 - Comment/dead-code pass (Korean comments, minimal).
 - Add basic tests for Reactors/UseCases (none exist).
-- Verify `Navigator` default `present` recursion.
+- (done) `Navigator` default `present` does not recurse (verified, see `code-review-opus.md` #15); the `present`/`dismiss` defaults are redundant.
+- Fix findings in `code-review-opus.md`, one per commit, in its suggested order.
 
 ## 2. Bugs / TODO
 - `Navigator.swift:64,73` Map/FestivalDetail VCs not implemented

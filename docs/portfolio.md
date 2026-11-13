@@ -1,0 +1,55 @@
+# 포트폴리오 정리 - 어디로 (KoreaSpots)
+
+> 이력서/README/면접용 원재료. "(예정)" 표시는 아직 구현 전이므로 완료로 쓰지 말 것.
+> 근거 문서: `architecture.md`, `architecture-decisions.md`, `code-review-opus.md`, `claude-workflow.md`.
+
+## 한 줄 소개
+한국관광공사 Tour API 기반으로 관광지·축제를 찾고 여행을 기록하는 iOS 앱. App Store 출시(v1.1.1), 1인 개발.
+
+## 기술 스택과 선택 이유
+| 영역 | 선택 | 이유 (면접 답변 포인트) |
+|---|---|---|
+| UI | UIKit(코드 기반) + SnapKit/Then | 복잡한 컬렉션 레이아웃(고정 헤더, 사이드바+그리드)을 세밀하게 제어 |
+| 리스트 | Diffable DataSource, CellRegistration, Compositional Layout | 인덱스 계산 없이 스냅샷으로 상태를 표현, 크래시(불일치 업데이트) 방지 |
+| 상태 관리 | ReactorKit (RxSwift) | Action → Mutation → State 단방향 흐름. 화면 상태가 한 곳(State)에 모여 디버깅과 테스트가 쉬움 |
+| 네트워크 | Moya | API 명세를 enum(TargetType)으로 한 파일에 모음, 플러그인으로 로깅 |
+| 저장소 | Realm | 즐겨찾기·여행기록·API 캐시. 스키마 마이그레이션 지원 |
+| 아키텍처 | Clean Architecture 계층 + 수동 DI 컨테이너 | Presentation → Domain ← Data. 의존성 역전으로 Data 교체/목킹이 쉬움 |
+
+## 아키텍처 (말로 설명하는 버전)
+- 계층: `Presentation`(VC/View/Reactor) → `Domain`(Entity, UseCase, Repository 프로토콜) ← `Data`(RepositoryImpl, DataSource, DTO, Mapper).
+- 모든 경계는 `프로토콜 + Impl`. `AppContainer`가 DataSource → Repository → UseCase → Reactor 순서로 생성자 주입.
+- 화면 이동은 `Navigator` 프로토콜 기본 구현 + `AppContainer.makeXxxViewController()` 팩토리.
+
+## 핵심 구현 포인트
+1. **장애 대응(Graceful degradation)**: API 한도 초과/서버 오류 시 번들 예시 데이터로 전환(`DataSourceMode`). 예시 데이터임을 표시(`[예시]`)하고 쓰기 작업을 막아 가짜 데이터가 저장되지 않게 함.
+2. **외부 API 개편 대응**: 2026 Tour API 분류체계 변경(cat → lclsSystm, 지역코드 → 법정동). 분류표를 Swift enum에서 JSON 데이터로 바꿔, 다음 개편 때는 코드 수정 없이 JSON만 교체.
+3. **출시 앱의 안전한 DB 마이그레이션**: 미출시 스키마 변경 여러 개를 v3 하나로 통합. 1.1.1 → 신버전 실기기 업그레이드 테스트 통과.
+4. **Realm 스레드 규칙 준수**: 백그라운드에서 작업마다 Realm 인스턴스를 새로 만들고, 도메인 struct로 변환한 뒤 UI로 전달.
+5. **캐시 정책**: API 권장사항(1일 1회 갱신)에 맞춘 오전 4시(KST) 기준 갱신 + `modifiedtime` 기반 변경 감지.
+6. **iPhone Duo(대화면 폴더블) 대응**: Apple HIG 확인 → 정규 너비에서 떠 있는 탭바가 콘텐츠를 가리는 문제를 safe area 기준 레이아웃으로 수정.
+
+## 리팩터링/개선 스토리 (STAR로 말하기 좋음)
+- **God Repository 분리**: 관광 데이터와 사용자 데이터(최근 검색어)가 한 Repository에 섞여 있음 → 책임별로 분리(SRP/ISP). 컴파일러가 모든 호출처를 찾아줌.
+- **파일 분리 기준 세우기**: 줄 수가 아니라 "책임이 섞였는가"로 판단. 처음에 과하게 분리한 2건을 스스로 되돌린 경험 포함.
+- **(예정) 날짜 포맷 버그**: 기기 달력을 불교력/일본력으로 바꾸면 API에 `2569…`년이 전송됨을 스크립트로 재현 → Apple 문서대로 `en_US_POSIX` + 그레고리력 고정.
+- **(예정) 메모리 누수**: ReactorKit `transform`에서 `self` 강한 캡처로 생긴 순환 참조를 Memory Graph로 확인하고 `[weak self]`로 수정. 전/후 스크린샷 남기기.
+- **(예정) 장애 모드 복구**: 일시적 서버 오류 한 번으로 세션 내내 예시 데이터 모드가 유지되던 문제 → 정상 API 재확인 후 복귀.
+- **(예정) API 키 로그 노출 차단**: 릴리스 빌드에서 네트워크 로거가 키가 포함된 URL을 출력 → `#if DEBUG`.
+
+## 면접 예상 질문과 답변 키워드
+- ReactorKit을 고른 이유, MVVM과 차이 → 단방향 흐름, State 단일화, `mutate`/`reduce` 분리로 부수효과 위치가 명확.
+- `transform(mutation:)`은 언제 쓰나 → 외부 스트림(Realm 변경, 즐겨찾기 상태)을 Mutation에 합칠 때. 순환 참조 주의.
+- Diffable DataSource 장점 → 스냅샷 기반, `performBatchUpdates` 불일치 크래시 제거, Hashable 식별자.
+- Realm 스레드 문제 → 인스턴스/객체는 스레드에 묶임. 스레드 넘길 땐 struct 변환 또는 ThreadSafeReference.
+- 마이그레이션 전략 → 출시된 스키마만 단계 유지, 미출시 변경은 통합.
+- 테스트가 없는데 리팩터링은 어떻게 → 동작 보존 이동만, 커밋 1개 = 변경 1개, 빌드 + 줄 단위 diff 검증(전용 리뷰 에이전트).
+- 의존성 주입을 라이브러리 없이 한 이유 → 규모상 수동 컨테이너로 충분, 의존 그래프가 코드에 그대로 보임.
+
+## AI 활용 개발 워크플로우 (AI 에이전트 직무 어필)
+- Claude Code에 프로젝트 규칙(CLAUDE.md), 전용 서브에이전트(`build-verifier`, `refactor-reviewer`), 스킬(파일 분리, 주석, 스모크 체크)을 구성.
+- 토큰 사용량을 측정하고(세션/모델별) 컨텍스트 저장·재개 방식으로 비용을 관리. 상세: `claude-workflow.md`.
+- 모델 비교(Sonnet vs Opus) 결과는 측정 후 추가 예정.
+
+## 앞으로 (로드맵 요약)
+2.0.0(카테고리 개선, UI 다듬기, 로고) → 다국어 → AI 챗봇(장소 추천, 백엔드 프록시로 키 보호, Tour API 툴 호출) → 테스트(Reactor/UseCase).

@@ -13,7 +13,7 @@ Presentation (VC/View/Reactor)  ->  Domain (UseCase, Repository protocol, Entity
 Rationale for layering/DI/schema decisions: `architecture-decisions.md`.
 
 ## Navigation
-`Core/Navigation/Navigator.swift` - `Navigator` protocol adopted by view controllers. Unimplemented: MapViewController, FestivalDetailViewController (TODO at lines ~64, 73). Suspect: default `present` may recurse (unverified).
+`Core/Navigation/Navigator.swift` - `Navigator` protocol adopted by view controllers. Unimplemented: MapViewController, FestivalDetailViewController (TODO at lines ~64, 73). Default `present`/`dismiss` do not recurse (UIKit method wins overload resolution) but are redundant.
 
 ## Data
 - Remote: Moya `TourAPI` (`Core/Networking/API/`), `MoyaProviderFactory`.
