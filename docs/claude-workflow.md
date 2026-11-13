@@ -113,6 +113,18 @@ for model, t in tot.items():
 - No clear drop in average context after disabling the Figma/Notion MCP servers; the Duo session read many screenshots, so it is not a clean comparison.
 - Next: run a similar task on Opus in a fresh session and compare with the table above.
 
+### Opus 5.5 sessions (measured 2026-11-13)
+- Task: code review audit (`docs/code-review-opus.md`) and fixing findings #1-#18 on `fix/review-findings`. Two sessions, 2026-11-13 05:32-07:22 UTC.
+
+| session | calls | c_write | c_read | out | avg_ctx |
+|---|---|---|---|---|---|
+| a4becf7e | 88 | 174.2k | 12.24M | 60.2k | 141k |
+| 10db9dd9 | 134 | 177.7k | 18.16M | 72.8k | 137k |
+| **Opus total** | **222** | **352k** | **30.40M** | **133.1k** | **~139k** |
+
+- Opus subagent (Haiku) calls in the same sessions: 38 calls, cache read 0.48M, output 24k.
+- vs Sonnet baseline: average context per call is higher on Opus (~139k vs 71-160k, Sonnet median ~100k), output per call is about the same (~600 vs ~690 tokens).- Caveat: not a controlled comparison. The tasks differ (audit + review fixes vs refactor/split/UI work), so treat it as a rough indication, not a model ranking. Raw tokens are not equal cost; Opus costs more per token.
+
 ### Where tokens were wasted, and the fix
 - Always-loaded tool/skill definitions from MCP servers unrelated to the repo (Figma, Notion, design/computer-use tools) inflate the baseline of every call. Fix: disable them per project with `/mcp`; keep only what the repo uses (`XcodeBuildMCP`, `context7`).
 - `WebSearch` in `extended` mode (several times the cost) was used for a new-device question; official Apple docs via `context7` were cheaper and authoritative, and the web result was wrong ("not in official docs"). Policy: Apple/library docs -> `context7` first; web search `standard` first.
