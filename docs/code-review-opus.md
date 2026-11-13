@@ -1,6 +1,6 @@
 # Code Review (Opus, 2026-11-13)
 
-Scope: whole-project review on branch `review/opus-audit` (from `refactor/structure` @ `d7540c3`). Read in full: Application (3), DI, Navigator, AppStateManager, APIErrorType, MoyaProviderFactory, TourAPI+Builder, TourRepositoryImpl (+Places, +ErrorHandling), FavoriteRepositoryImpl, parts of TourLocalDataSourceImpl / TripLocalDataSourceImpl, DateFormatterUtil, FetchFestivalUseCase, BaseViewController, Category (VC, Reactor), PlaceDetailReactor, transform() in Search/PlaceList/Favorite reactors. The rest was checked by grep for patterns. No code was changed.
+Scope: whole-project review on branch `review/opus-audit` (renamed to `fix/review-findings` once fixes landed; from `refactor/structure` @ `d7540c3`). Read in full: Application (3), DI, Navigator, AppStateManager, APIErrorType, MoyaProviderFactory, TourAPI+Builder, TourRepositoryImpl (+Places, +ErrorHandling), FavoriteRepositoryImpl, parts of TourLocalDataSourceImpl / TripLocalDataSourceImpl, DateFormatterUtil, FetchFestivalUseCase, BaseViewController, Category (VC, Reactor), PlaceDetailReactor, transform() in Search/PlaceList/Favorite reactors. The rest was checked by grep for patterns. No code was changed.
 
 Verdict legend: **CONFIRMED** = verified by reading code plus a run/script; **CODE** = follows from the code, not run in the app; **VERIFY** = plausible, needs a simulator/device check.
 
@@ -28,6 +28,8 @@ Verdict legend: **CONFIRMED** = verified by reading code plus a run/script; **CO
 8. **Favoriting may overwrite cached detail** (VERIFY). `FavoriteRepositoryImpl.swift:30` builds `PlaceR(place:)` from a list item and calls `add(update: .modified)`, which writes every property, so it can null out `overview`/detail fields and reset `cachedAt` of an existing row. Update `isFavorite` on the existing object instead (as `removeFavorite` does).
 9. **Fire-and-forget cache writes into a singleton's bag** (CODE). `TourRepositoryImpl.swift:77`, `+Places.swift:80`: `disposed(by: self?.disposeBag ?? DisposeBag())` on an app-lifetime repository -> the bag only grows; errors are dropped. Use `.andThen`/`flatMap` into the returned stream, or subscribe without a bag (Completable finishes) and log errors.
 10. **Category screen** (CODE; part of the scroll-sync task): `scrollToCat2` + `distinctUntilChanged` blocks re-tapping the same item (`CategoryViewController.swift:238`); `scrollToItem(.top)` puts row 1 under the pinned header; 0.5 s flag timer instead of `scrollViewDidEndScrollingAnimation`; the sidebar does not scroll to keep the highlight visible. Also VERIFY: "더보기/접기" header title after toggle (diffable apply does not reconfigure existing supplementary views).
+17. **Detail cache hit on list-only rows** (VERIFY at runtime; found while planning #8). List/location/festival saves create `PlaceR` rows with `cachedAt = now`; `getPlaceDetail` (`+Detail.swift:31`) treats any fresh row as a detail hit, so a place seen in a list today opens without `overview`/detail fields. `PlaceR.update(from:)` also overwrites a cached `overview` with nil on every list save. Root cause shared with #8: summary and detail data share one row and one `cachedAt`. Fix: keep `overview` when the incoming value is nil; require `overview != nil` for a detail hit (no schema change; a separate `detailCachedAt` would need a migration).
+18. **Mock detail is written to the cache** (CODE). `+Detail.swift:57` saves the mock fallback via `savePlaceDetail`, so mock data stays visible after the server recovers (until the 4 AM refresh). Do not cache mock data.
 
 ### Low / structure
 11. **Layering is inconsistent.** 4 reactors use repositories directly (`PlaceDetail`, `TripEditor`, `PlaceSelector`, `TripDetail`) while others go through UseCases. `PlaceDetailReactor` holds business logic (course merge, phone regex) that belongs in a `FetchPlaceDetailUseCase`. `FavoriteRepositoryImpl` writes Realm directly but reads through `TourLocalDataSource`. Pick one rule and document it (e.g. "Reactors only see UseCases").
@@ -43,6 +45,6 @@ Verdict legend: **CONFIRMED** = verified by reading code plus a run/script; **CO
 3. #2 `[weak self]` in transforms (confirm the leak first with Memory Graph = good blog/interview story).
 4. #1 + #7 mock-mode recovery and a single alert owner.
 5. #5 parse the error body (needs one captured real error response).
-6. #4, #8, #9 cache correctness.
+6. #4, #8, #9, #17, #18 cache correctness (order: #8, #17, #18, #9, #4).
 7. #10 inside the category scroll-sync task.
 8. #11-#16 cleanup when touching those files.
