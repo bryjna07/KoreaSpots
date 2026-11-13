@@ -49,14 +49,15 @@ extension TourRepositoryImpl {
                     })
                     .catch { [weak self] apiError in
                         guard let self else { return .error(apiError) }
-                        print("⚠️ Detail API failed, using fallback Mock Data")
 
-                        return self.mockDataSource
-                            .fetchDetailCommon(contentId: contentId)
-                            .do(onSuccess: { _ in
-                                // Mock 데이터는 캐싱하지 않음 (서버 복구 후에도 예시 데이터가 남는 문제 방지)
-                                print("✅ Mock Fallback Success for contentId: \(contentId)")
-                            })
+                        // 오프라인/에러 분류는 handleAPIError에 위임 (Mock 모드 진입 + 알림 포함)
+                        // Mock 데이터는 캐싱하지 않음 (서버 복구 후에도 예시 데이터가 남는 문제 방지)
+                        return self.handleAPIError(
+                            apiError,
+                            mockFallback: {
+                                self.mockDataSource.fetchDetailCommon(contentId: contentId)
+                            }
+                        )
                     }
             }
     }
@@ -114,13 +115,14 @@ extension TourRepositoryImpl {
             })
             .catch { [weak self] apiError in
                 guard let self else { return .just([]) }
-                print("⚠️ Images API failed, using fallback Mock Data")
 
-                return self.mockDataSource
-                    .fetchDetailImages(contentId: contentId)
-                    .do(onSuccess: { images in
-                        print("✅ Mock Fallback Success: \(images.count) images")
-                    })
+                return self.handleAPIError(
+                    apiError,
+                    mockFallback: {
+                        self.mockDataSource.fetchDetailImages(contentId: contentId)
+                    },
+                    emptyValue: []
+                )
             }
     }
 
@@ -146,25 +148,27 @@ extension TourRepositoryImpl {
             })
             .catch { [weak self] apiError in
                 guard let self else { return .just([]) }
-                print("⚠️ Travel Course Details API failed, using fallback Mock Data")
 
-                return self.mockDataSource
-                    .fetchDetailInfo(contentId: contentId, contentTypeId: contentTypeId)
-                    .map { items in
-                        items.map { item in
-                            CourseDetail(
-                                subNum: item.subNum,
-                                subContentId: item.subContentId,
-                                subName: item.subName,
-                                subDetailOverview: item.subDetailOverview,
-                                subDetailImg: item.subDetailImg,
-                                subDetailAlt: item.subDetailAlt
-                            )
-                        }
-                    }
-                    .do(onSuccess: { details in
-                        print("✅ Mock Fallback Success: \(details.count) course items")
-                    })
+                return self.handleAPIError(
+                    apiError,
+                    mockFallback: {
+                        self.mockDataSource
+                            .fetchDetailInfo(contentId: contentId, contentTypeId: contentTypeId)
+                            .map { items in
+                                items.map { item in
+                                    CourseDetail(
+                                        subNum: item.subNum,
+                                        subContentId: item.subContentId,
+                                        subName: item.subName,
+                                        subDetailOverview: item.subDetailOverview,
+                                        subDetailImg: item.subDetailImg,
+                                        subDetailAlt: item.subDetailAlt
+                                    )
+                                }
+                            }
+                    },
+                    emptyValue: []
+                )
             }
     }
 }

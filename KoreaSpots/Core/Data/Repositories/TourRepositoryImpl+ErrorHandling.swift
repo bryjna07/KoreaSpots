@@ -56,6 +56,26 @@ extension TourRepositoryImpl {
         return .just(emptyValue)
     }
 
+    /// 빈 값을 만들 수 없는 타입(예: Place)용. Mock 폴백 대상이 아닌 에러는 그대로 전파한다.
+    func handleAPIError<T>(
+        _ error: Error,
+        mockFallback: @escaping () -> Single<T>
+    ) -> Single<T> {
+        let errorType = APIErrorType(from: error)
+
+        if !networkMonitor.isConnectedValue {
+            AppStateManager.shared.enterOfflineMode()
+            return .error(TourRepositoryError.networkUnavailable)
+        }
+
+        if errorType.shouldUseMockData {
+            AppStateManager.shared.enterMockMode(reason: errorType.userMessage ?? "API Error")
+            return mockFallback()
+        }
+
+        return .error(error)
+    }
+
     // MARK: - Helper: modifiedTime 기반 스마트 갱신
     /// API에서 받은 Place들의 modifiedTime을 확인하여 변경된 경우에만 캐시 업데이트
     /// - Parameters:
