@@ -10,7 +10,7 @@ Order agreed with the user (details of each item live in the sections below).
    - Category: two-way scroll sync, per-subcategory images, level-2 merge list (user picks groups).
    - UI polish: font/height/color in `PlaceLocationCell`, `PlaceBasicInfoCell`, `CategorySectionHeader`.
    - App logo: asset replacement (design needed first).
-   - iPhone Duo (large foldable): see below.
+   - iPhone Duo (large foldable): done on `fix/iphone-duo`, see below.
 3. **After 2.0.0** (version TBD): localization. Follow the system language only (no in-app picker, so no Settings dependency). Extend `LocalizedKeys`; ~140 hardcoded KR literals, mostly `PlaceDetail/Views/Cells/*OperatingInfoCell`. Layouts are already prepared for longer strings during 2.0.0, so this step is mostly key extraction and translation.
 4. **Later**: AI chatbot, after the separate Python project is finished (see section 3). Then tests (Reactor/UseCase first), last.
 
@@ -18,8 +18,10 @@ Order agreed with the user (details of each item live in the sections below).
 Source: Apple HIG "Designing for iPhone Duo" (via context7).
 - Outer display = compact width, inner display = regular width. Use size classes, layout margins and safe area insets; avoid fixed widths and display-specific code. Do not build per-pose layouts.
 - Fold: prefer an even number of grid columns; use `UIView.ReservedRegion` for content that must avoid the center.
-- Plan: capture Home/Category/Detail/Trip on both displays (Xcode Device Hub or Duo simulator), classify what breaks, then fix. Likely first targets: fixed item sizes/column counts in collection views, fixed-width SnapKit constraints.
-- Not yet verified: how the iPhone-only target behaves on the inner display (compatibility vs. native).
+- (done, branch `fix/iphone-duo`, not merged) Checked every screen in the Duo simulator. The only breakage: the floating tab bar (sidebar style at regular width) covered content pinned with `equalToSuperview()`. Fixed by pinning to `safeAreaLayoutGuide` in Home (search bar, attribution footer), Category (search bar), Favorite, TripRecord, Search. Detail, TripEditor, PlaceList, PlaceSelector needed no change.
+- Horizontal scroll lists may extend under the tab bar (HIG); only fixed content and vertical lists are pinned to the safe area.
+- Portrait-only app, so side safe areas are 0 on regular iPhones (no behavior change there).
+- Not done: shared search bar component (Home `searchButton` and Category `searchBar` are separate implementations).
 
 ## 1. Quality cleanup
 - (done) Empty `SharedUI/` removed.
