@@ -76,8 +76,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func sceneWillEnterForeground(_ scene: UIScene) {
-        // Called as the scene transitions from the background to the foreground.
-        // Use this method to undo the changes made on entering the background.
+        // Mock 모드였다면 다음 요청에서 실제 API 재시도
+        AppStateManager.shared.requestRealAPIRetry()
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {

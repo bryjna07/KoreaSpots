@@ -18,7 +18,7 @@ extension TourRepositoryImpl {
     // MARK: - Detail Operations
     func getPlaceDetail(contentId: String) -> Single<Place> {
         // Mock 모드에서는 캐시 무시하고 Mock 데이터 반환
-        if AppStateManager.shared.currentMode == .mockFallback {
+        if AppStateManager.shared.shouldUseMockData() {
             print("🔄 Mock mode active - skipping cache, using mock data")
             return mockDataSource.fetchDetailCommon(contentId: contentId)
         }
@@ -64,7 +64,7 @@ extension TourRepositoryImpl {
 
     func getPlaceOperatingInfo(contentId: String, contentTypeId: Int) -> Single<OperatingInfo> {
         // Mock 모드에서는 빈 OperatingInfo 반환 (운영정보 선택사항)
-        if AppStateManager.shared.currentMode == .mockFallback {
+        if AppStateManager.shared.shouldUseMockData() {
             print("🔄 Mock mode active - returning empty OperatingInfo")
             return .just(OperatingInfo.empty)
         }

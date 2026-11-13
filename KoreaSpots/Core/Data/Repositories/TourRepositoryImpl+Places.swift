@@ -29,7 +29,7 @@ extension TourRepositoryImpl {
         print("🔍 Current AppStateManager mode: \(AppStateManager.shared.currentMode)")
 
         // Mock 모드에서는 캐시 무시하고 Mock 데이터 반환
-        if AppStateManager.shared.currentMode == .mockFallback {
+        if AppStateManager.shared.shouldUseMockData() {
             print("🔄 Mock mode active - skipping cache, using mock data for location-based")
             return mockDataSource.fetchLocationBasedList(
                 mapX: mapX,
@@ -137,7 +137,7 @@ extension TourRepositoryImpl {
         }
 
         // Mock 모드에서는 Mock 데이터 반환
-        if AppStateManager.shared.currentMode == .mockFallback {
+        if AppStateManager.shared.shouldUseMockData() {
             print("🔄 Mock mode active - using mock data")
             let cat3Filters = parseCat3Filters(cat3)
 
