@@ -62,12 +62,8 @@ extension ScreenNavigatable where Self: UIViewController {
     }
 
     func navigateToFestivalDetail(place: Place) {
-        // TODO: FestivalDetailViewController 구현 후 활성화
-        print("Festival selected: \(place.title)")
-//        showTemporaryAlert(
-//            title: "축제 상세",
-//            message: "축제 상세 화면으로 이동합니다."
-//        )
+        let viewController = AppContainer.shared.makeFestivalDetailViewController(place: place)
+        push(viewController)
     }
 
     private func showTemporaryAlert(title: String, message: String) {
