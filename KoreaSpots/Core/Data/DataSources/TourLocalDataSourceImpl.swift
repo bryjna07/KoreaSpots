@@ -147,7 +147,8 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
 
                 if let cachedPlace = realm.objects(PlaceR.self).filter(predicate).first {
                     // AM 4:00 (KST) 기준으로 needsRefresh() 체크
-                    if !cachedPlace.needsRefresh() {
+                    // 목록 캐시로만 저장된 행(overview 없음)은 상세 캐시로 쓰지 않음
+                    if !cachedPlace.needsRefresh(), cachedPlace.overview != nil {
                         observer(.success(cachedPlace.toDomain()))
                     } else {
                         observer(.success(nil))

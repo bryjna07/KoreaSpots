@@ -98,7 +98,10 @@ extension PlaceR {
         self.mapX = place.mapX
         self.mapY = place.mapY
         self.tel = place.tel
-        self.overview = place.overview
+        // 목록 API는 overview가 없으므로 nil이면 기존 상세 정보 유지
+        if let overview = place.overview {
+            self.overview = overview
+        }
         self.contentTypeId = place.contentTypeId
         self.lclsSystm3 = place.lclsSystm3
         self.distance = place.distance
