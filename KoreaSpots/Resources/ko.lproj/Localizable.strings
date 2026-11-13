@@ -87,3 +87,25 @@
 // Mock Mode
 "mock_mode_alert_title" = "예시 데이터 사용 중";
 "mock_mode_alert_message" = "서버 오류로 인해\n예시 데이터를 표시합니다.\n\n• 표시되는 데이터는 실제와 다를 수 있습니다.\n• 여행 기록 작성/수정, 좋아요 기능이 제한됩니다.\n• 기존에 작성한 여행 기록은 정상적으로 조회됩니다.\n\n서버 복구 시 자동으로 정확한 데이터가 표시됩니다.";
+
+// Festival Detail
+"festival_status_ongoing" = "진행중";
+"festival_status_upcoming" = "D-%d";
+"festival_status_ended" = "종료";
+"festival_section_info" = "행사 정보";
+"festival_section_program" = "프로그램";
+"festival_section_contact" = "문의 · 링크";
+"festival_row_period" = "행사기간";
+"festival_row_place" = "행사장소";
+"festival_row_play_time" = "공연시간";
+"festival_row_fee" = "이용요금";
+"festival_row_discount" = "할인정보";
+"festival_row_age_limit" = "관람연령";
+"festival_row_duration" = "소요시간";
+"festival_row_place_info" = "위치안내";
+"festival_row_program" = "프로그램";
+"festival_row_sub_event" = "부대행사";
+"festival_row_host" = "주최";
+"festival_row_organizer" = "주관";
+"festival_row_homepage" = "행사 홈페이지";
+"festival_row_booking" = "예매처";
