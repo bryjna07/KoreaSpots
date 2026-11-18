@@ -299,7 +299,7 @@ private extension FestivalDetailReactor {
 
     // MARK: Row Helpers
     func row(_ id: String, _ symbol: String, _ titleKey: String, _ value: String?) -> FestivalInfoRow? {
-        guard let content = value?.decodedHTML else { return nil }
+        guard let content = value?.decodedHTML?.withBulletLineBreaks else { return nil }
         return FestivalInfoRow(id: id, symbol: symbol, title: titleKey.localized, content: content, action: nil)
     }
 
@@ -325,6 +325,14 @@ private extension String {
     var nonEmpty: String? {
         let trimmed = trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
+    }
+
+    /// 태그 없이 이어 붙은 항목을 줄바꿈 (예: "70,000원- R석 60,000원※ 변경 가능" → 각 항목 별도 줄)
+    /// 전화번호/날짜의 하이픈은 건드리지 않도록 "- "(하이픈+공백)이 글자 바로 뒤에 올 때만 분리
+    var withBulletLineBreaks: String {
+        self
+            .replacingOccurrences(of: "([^\\s])[ \\t]*(※)", with: "$1\n$2", options: .regularExpression)
+            .replacingOccurrences(of: "([^\\s])(- )", with: "$1\n$2", options: .regularExpression)
     }
 
     /// 첫 번째 전화번호만 추출 (예: "02-123-4567 / 02-765-4321" → "02-123-4567")
