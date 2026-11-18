@@ -107,20 +107,21 @@ final class SearchView: BaseView {
     override func configureLayout() {
         searchBar.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide).offset(8)
-            $0.leading.equalToSuperview().offset(16)
+            // Duo 등 넓은 화면에서 플로팅 탭바에 가려지지 않도록 safe area 기준으로 정렬
+            $0.leading.equalTo(safeAreaLayoutGuide).offset(16)
             $0.trailing.equalTo(searchButton.snp.leading).offset(-8)
         }
 
         searchButton.snp.makeConstraints {
             $0.centerY.equalTo(searchBar)
-            $0.trailing.equalToSuperview().offset(-16)
+            $0.trailing.equalTo(safeAreaLayoutGuide).offset(-16)
             $0.width.equalTo(60)
             $0.height.equalTo(36)
         }
 
         recentKeywordsContainerView.snp.makeConstraints {
             $0.top.equalTo(searchBar.snp.bottom).offset(8)
-            $0.leading.trailing.equalToSuperview()
+            $0.leading.trailing.equalTo(safeAreaLayoutGuide)
             $0.height.equalTo(200)
         }
 
@@ -174,12 +175,14 @@ final class SearchView: BaseView {
 
         resultsCollectionView.snp.makeConstraints {
             $0.top.equalTo(filterContainerView.snp.bottom)
-            $0.leading.trailing.bottom.equalToSuperview()
+            $0.leading.trailing.equalTo(safeAreaLayoutGuide)
+            $0.bottom.equalToSuperview()
         }
 
         emptyStateView.snp.makeConstraints {
             $0.top.equalTo(filterContainerView.snp.bottom)
-            $0.leading.trailing.bottom.equalToSuperview()
+            $0.leading.trailing.equalTo(safeAreaLayoutGuide)
+            $0.bottom.equalToSuperview()
         }
 
         emptyStateLabel.snp.makeConstraints {

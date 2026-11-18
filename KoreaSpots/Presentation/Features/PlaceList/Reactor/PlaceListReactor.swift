@@ -257,7 +257,9 @@ final class PlaceListReactor: Reactor {
                     return nil
                 }
             }
-            .flatMap { places -> Observable<Mutation> in
+            // state 스트림이 Reactor의 disposeBag에 보관되므로 self를 약하게 캡처 (순환 참조 방지)
+            .flatMap { [weak self] places -> Observable<Mutation> in
+                guard let self else { return .empty() }
                 let contentIds = places.map { $0.contentId }
                 return self.checkFavoritesStatus(contentIds: contentIds)
             }

@@ -30,6 +30,13 @@ final class AppStateManager {
     private var mockModeEnteredAt: Date?
     private var hasNotifiedMockMode = false  // Notification 1회만 발송
 
+    // MARK: - Mock 모드 복구 시도 (half-open)
+    // Mock 모드 중에도 일정 주기/포그라운드 복귀 시 요청 1건은 실제 API로 보내 서버 복구를 확인
+    private let realAPIRetryInterval: TimeInterval = 5 * 60
+    private var lastRealAPIAttemptAt: Date?
+    private var isRealAPIRetryRequested = false
+    private let retryLock = NSLock()
+
     private init() {
         // NetworkMonitor 연동
         NetworkMonitor.shared.isConnected
@@ -61,6 +68,10 @@ final class AppStateManager {
 
         print("⚠️ Entering Mock Mode: \(reason)")
         mockModeEnteredAt = Date()
+        retryLock.lock()
+        lastRealAPIAttemptAt = Date()
+        isRealAPIRetryRequested = false
+        retryLock.unlock()
         _dataSourceMode.accept(.mockFallback)
         print("✅ Mock Mode entered. Current mode: \(_dataSourceMode.value)")
 
@@ -100,6 +111,43 @@ final class AppStateManager {
         }
 
         _dataSourceMode.accept(.normal)
+    }
+
+    // MARK: - Mock 모드 복구
+
+    /// 이번 요청에 Mock 데이터를 써야 하는지 판단
+    /// - Mock 모드라도 마지막 시도 후 5분이 지났거나 포그라운드 복귀 직후면 1건만 실제 API로 보냄
+    func shouldUseMockData() -> Bool {
+        guard currentMode == .mockFallback else { return false }
+
+        retryLock.lock()
+        defer { retryLock.unlock() }
+
+        let isIntervalElapsed = lastRealAPIAttemptAt.map {
+            Date().timeIntervalSince($0) >= realAPIRetryInterval
+        } ?? true
+
+        guard isRealAPIRetryRequested || isIntervalElapsed else { return true }
+
+        // 동시 요청 중 1건만 실제 API로 보내도록 시각 갱신
+        isRealAPIRetryRequested = false
+        lastRealAPIAttemptAt = Date()
+        print("🔁 Mock Mode - retrying real API")
+        return false
+    }
+
+    /// 포그라운드 복귀 시 다음 요청에서 실제 API 재시도
+    func requestRealAPIRetry() {
+        guard currentMode == .mockFallback else { return }
+        retryLock.lock()
+        isRealAPIRetryRequested = true
+        retryLock.unlock()
+    }
+
+    /// 실제 API 응답 파싱 성공 → Mock 모드였다면 정상 모드로 복구
+    func reportRealAPISuccess() {
+        guard currentMode == .mockFallback else { return }
+        enterNormalMode()
     }
 
     /// 쓰기 작업 가능 여부 체크

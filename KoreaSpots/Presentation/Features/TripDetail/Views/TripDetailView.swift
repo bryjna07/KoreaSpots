@@ -260,8 +260,7 @@ final class TripDetailView: BaseView {
 
     func configure(with trip: Trip) {
         // Date formatting
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy.MM.dd"
+        let dateFormatter = DateFormatterUtil.fullDisplayDate
 
         let startDateString = dateFormatter.string(from: trip.startDate)
         let endDateString = dateFormatter.string(from: trip.endDate)

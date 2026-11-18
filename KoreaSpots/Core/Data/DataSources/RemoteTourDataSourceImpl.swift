@@ -42,6 +42,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
                 arrange: arrange
             ))
             .map(TourAPIResponse.self)
+            .reportingRealAPISuccess()
             .map { response in
                 response.toPlaces()
             }
@@ -65,6 +66,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
                 arrange: arrange
             ))
             .map(TourAPIResponse.self)
+            .reportingRealAPISuccess()
             .map { response in
                 response.toFestivalPlaces()  // Festival → Place (eventMeta 포함)
             }
@@ -90,6 +92,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
                 arrange: arrange
             ))
             .map(TourAPIResponse.self)
+            .reportingRealAPISuccess()
             .map { response in
                 response.toPlaces()
             }
@@ -121,6 +124,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
                 arrange: arrange
             ))
             .map(TourAPIResponse.self)
+            .reportingRealAPISuccess()
             .map { response in
                 response.toPlaces()
             }
@@ -129,6 +133,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
     func fetchDetailImages(contentId: String) -> Single<[PlaceImage]> {
         return provider.rx.request(.detailImage(contentId: contentId))
             .map(TourAPIImageResponse.self)
+            .reportingRealAPISuccess()
             .map { response in
                 response.toPlaceImages()
             }
@@ -139,6 +144,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
     ) -> Single<Place> {
         return provider.rx.request(.detailCommon(contentId: contentId))
         .map(TourAPIResponse.self)
+        .reportingRealAPISuccess()
         .map { response in
             response.toPlaces().first ?? Place.empty
         }
@@ -153,6 +159,7 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
             contentTypeId: contentTypeId
         ))
         .map(TourAPIDetailIntroResponse.self)
+        .reportingRealAPISuccess()
         .map { response in
             response.toOperatingInfo()
         }
@@ -167,9 +174,20 @@ final class RemoteTourDataSourceImpl: TourRemoteDataSource {
             contentTypeId: contentTypeId
         ))
         .map(TravelCourseDetailResponse.self)
+        .reportingRealAPISuccess()
         .map { response in
             response.items
         }
+    }
+}
+
+// MARK: - Real API Success Report
+private extension PrimitiveSequence where Trait == SingleTrait {
+    /// 응답 디코딩까지 성공해야 서버 정상으로 판단 (HTTP 200 + 오류 본문은 디코딩 단계에서 실패)
+    func reportingRealAPISuccess() -> Single<Element> {
+        return self.do(onSuccess: { _ in
+            AppStateManager.shared.reportRealAPISuccess()
+        })
     }
 }
 

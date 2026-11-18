@@ -10,6 +10,7 @@ import Moya
 
 //MARK: - Moya TargetType
 enum TourAPI {
+    // 케이스의 areaCode/sigunguCode 값은 법정동 코드(lDongRegnCd/lDongSignguCd)로 전송됨 (2026 API 개편)
     /// 지역기반 목록: areaCode(옵셔널), sigunguCode/ contentTypeId는 옵셔널
     case areaBasedList(areaCode: Int?, sigunguCode: Int?, contentTypeId: Int?, cat1: String?, cat2: String?, cat3: String?, numOfRows: Int, pageNo: Int, arrange: String)
     /// 축제 검색: eventStartDate/eventEndDate로 현재 진행중인 축제 조회, areaCode로 지역 필터링 가능
@@ -80,22 +81,22 @@ extension TourAPI: TargetType {
                 "arrange": arrange
             ]
             if let a = areaCode {
-                p["areaCode"] = a
+                p["lDongRegnCd"] = a
             }
             if let s = sigunguCode {
-                p["sigunguCode"] = s
+                p["lDongSignguCd"] = s
             }
             if let c = contentTypeId {
                 p["contentTypeId"] = c
             }
             if let c1 = cat1, !c1.isEmpty {
-                p["cat1"] = c1
+                p["lclsSystm1"] = c1
             }
             if let c2 = cat2, !c2.isEmpty {
-                p["cat2"] = c2
+                p["lclsSystm2"] = c2
             }
             if let c3 = cat3, !c3.isEmpty {
-                p["cat3"] = c3
+                p["lclsSystm3"] = c3
             }
             return p
 
@@ -108,7 +109,7 @@ extension TourAPI: TargetType {
                 "arrange": arrange
             ]
             if let a = areaCode {
-                p["areaCode"] = a
+                p["lDongRegnCd"] = a
             }
             return p
 
@@ -134,22 +135,22 @@ extension TourAPI: TargetType {
                 "arrange": arrange
             ]
             if let a = areaCode {
-                p["areaCode"] = a
+                p["lDongRegnCd"] = a
             }
             if let s = sigunguCode {
-                p["sigunguCode"] = s
+                p["lDongSignguCd"] = s
             }
             if let c = contentTypeId {
                 p["contentTypeId"] = c
             }
             if let c1 = cat1, !c1.isEmpty {
-                p["cat1"] = c1
+                p["lclsSystm1"] = c1
             }
             if let c2 = cat2, !c2.isEmpty {
-                p["cat2"] = c2
+                p["lclsSystm2"] = c2
             }
             if let c3 = cat3, !c3.isEmpty {
-                p["cat3"] = c3
+                p["lclsSystm3"] = c3
             }
             return p
 

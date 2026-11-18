@@ -1,0 +1,11 @@
+{
+  "counts": {
+    "lclsSystm1": 10,
+    "lclsSystm2": 59,
+    "lclsSystm3": 246,
+    "sido": 16,
+    "sigungu": 269
+  },
+  "generatedAt": "2026-11-12T05:40:48+00:00",
+  "source": "https://apis.data.go.kr/B551011/KorService2/(ldongCode2, lclsSystmCode2)"
+}

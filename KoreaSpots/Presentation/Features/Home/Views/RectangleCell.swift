@@ -25,7 +25,7 @@ final class RectangleCell: BaseCollectionViewCell {
 
     func configure(with cat3: String, cat2Code: String) {
         // CodeBookStore에서 이름 조회
-        titleLabel.text = CodeBookStore.Cat3.name(cat2Code: cat2Code, cat3Code: cat3) ?? cat3
+        titleLabel.text = CodeBookStore.Lcls.name(parentCode: cat2Code, code: cat3) ?? cat3
         // Cat3에 대한 기본 아이콘 설정 (추후 개별 아이콘 매핑 가능)
         iconImageView.image = UIImage(systemName: "mappin.circle.fill")
     }

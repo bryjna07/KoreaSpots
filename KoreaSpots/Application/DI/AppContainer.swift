@@ -45,6 +45,10 @@ final class AppContainer {
         TripRepositoryImpl(localDataSource: tripLocalDataSource)
     }()
 
+    private lazy var recentKeywordRepository: RecentKeywordRepository = {
+        RecentKeywordRepositoryImpl(localDataSource: tourLocalDataSource)
+    }()
+
     private lazy var favoriteRepository: FavoriteRepository = {
         FavoriteRepositoryImpl(localDataSource: tourLocalDataSource)
     }()
@@ -63,19 +67,19 @@ final class AppContainer {
     }()
 
     private lazy var searchPlacesUseCase: SearchPlacesUseCase = {
-        SearchPlacesUseCaseImpl(tourRepository: tourRepository)
+        SearchPlacesUseCaseImpl(tourRepository: tourRepository, recentKeywordRepository: recentKeywordRepository)
     }()
 
     private lazy var getRecentKeywordsUseCase: GetRecentKeywordsUseCase = {
-        GetRecentKeywordsUseCaseImpl(tourRepository: tourRepository)
+        GetRecentKeywordsUseCaseImpl(recentKeywordRepository: recentKeywordRepository)
     }()
 
     private lazy var deleteRecentKeywordUseCase: DeleteRecentKeywordUseCase = {
-        DeleteRecentKeywordUseCaseImpl(tourRepository: tourRepository)
+        DeleteRecentKeywordUseCaseImpl(recentKeywordRepository: recentKeywordRepository)
     }()
 
     private lazy var clearAllRecentKeywordsUseCase: ClearAllRecentKeywordsUseCase = {
-        ClearAllRecentKeywordsUseCaseImpl(tourRepository: tourRepository)
+        ClearAllRecentKeywordsUseCaseImpl(recentKeywordRepository: recentKeywordRepository)
     }()
 
     // Trip UseCases
@@ -159,6 +163,19 @@ final class AppContainer {
             toggleFavoriteUseCase: toggleFavoriteUseCase
         )
         let viewController = PlaceDetailViewController()
+        viewController.reactor = reactor
+        return viewController
+    }
+
+    // MARK: FestivalDetail
+    func makeFestivalDetailViewController(place: Place) -> FestivalDetailViewController {
+        let reactor = FestivalDetailReactor(
+            place: place,
+            tourRepository: tourRepository,
+            checkFavoriteUseCase: checkFavoriteUseCase,
+            toggleFavoriteUseCase: toggleFavoriteUseCase
+        )
+        let viewController = FestivalDetailViewController()
         viewController.reactor = reactor
         return viewController
     }
@@ -270,6 +287,7 @@ final class AppContainer {
     ) -> PlaceSelectorReactor {
         return PlaceSelectorReactor(
             tourRepository: tourRepository,
+            favoriteRepository: favoriteRepository,
             maxSelectionCount: maxSelectionCount,
             preSelectedPlaceIds: preSelectedPlaceIds,
             preSelectedPlaces: preSelectedPlaces

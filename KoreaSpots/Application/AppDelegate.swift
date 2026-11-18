@@ -26,11 +26,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         IQKeyboardManager.shared.isEnabled = true
         IQKeyboardManager.shared.resignOnTouchOutside = true
 
-        // CodeBook 데이터 미리 로드 (Cat3, Sigungu)
+        // CodeBook 데이터 미리 로드 (Ldong, Lcls)
         loadCodeBooks()
-
-        // 앱 시작 시 만료된 캐시 정리 (백그라운드)
-//        clearExpiredCacheOnStartup()
 
         return true
     }
@@ -38,7 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Realm Configuration
     private func configureRealm() {
         // 현재 스키마 버전
-        let currentSchemaVersion: UInt64 = 2
+        let currentSchemaVersion: UInt64 = 3
 
         let config = Realm.Configuration(
             schemaVersion: currentSchemaVersion,
@@ -64,10 +61,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     // 스키마 구조 변경만 처리 (Realm이 자동으로 처리)
                 }
 
-                // Version 2 → 3: 향후 추가 기능
-                // if oldSchemaVersion < 3 {
-                //     // 필드 추가/삭제/변경 처리
-                // }
+                // Version 2 → 3 (2026 TourAPI 개편 대응, 미출시 변경을 하나로 통합)
+                // - 저장된 지역 코드를 법정동 코드로 변환 (PlaceR 일반 캐시는 삭제)
+                // - PlaceR.lclsSystm3 추가, PlaceR.cat1~3 제거: 스키마 변경은 Realm이 자동 처리
+                if oldSchemaVersion < 3 {
+                    RealmRegionMigration.migrate(migration)
+                }
             },
             shouldCompactOnLaunch: { totalBytes, usedBytes in
                 // 100MB 이상이고 사용률 50% 미만이면 압축
@@ -107,39 +106,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - CodeBook Loading
     private func loadCodeBooks() {
-        // Cat3 코드 로드
-        CodeBookStore.Cat3.loadFromBundleAsync(fileName: "cat3_codes") { success in
-            if success {
-                print("✅ AppDelegate: cat3_codes.json loaded successfully")
-            } else {
-                print("⚠️ AppDelegate: cat3_codes.json load failed")
-            }
+        // 법정동 코드 로드 (TourAPI 개편 대응, 생성: scripts/fetch_codebook.py)
+        CodeBookStore.Ldong.loadFromBundleAsync { success in
+            print(success ? "✅ AppDelegate: ldong_codes.json loaded successfully" : "⚠️ AppDelegate: ldong_codes.json load failed")
         }
 
-        // Sigungu 코드 로드
-        CodeBookStore.Sigungu.loadFromBundleAsync(fileName: "sigungu_codes") { success in
-            if success {
-                print("✅ AppDelegate: sigungu_codes.json loaded successfully")
-            } else {
-                print("⚠️ AppDelegate: sigungu_codes.json load failed")
-            }
+        // 분류체계 코드 로드
+        CodeBookStore.Lcls.loadFromBundleAsync { success in
+            print(success ? "✅ AppDelegate: lcls_codes.json loaded successfully" : "⚠️ AppDelegate: lcls_codes.json load failed")
         }
     }
-
-    // MARK: - Cache Management
-//    private func clearExpiredCacheOnStartup() {
-//        let localDataSource = TourLocalDataSourceImpl()
-//        localDataSource.clearExpiredCache()
-//            .subscribe(
-//                onCompleted: {
-//                    print("✅ AppDelegate: Expired cache cleared on startup")
-//                },
-//                onError: { error in
-//                    print("⚠️ AppDelegate: Failed to clear expired cache: \(error)")
-//                }
-//            )
-//            .disposed(by: disposeBag)
-//    }
 
     // MARK: UISceneSession Lifecycle
 

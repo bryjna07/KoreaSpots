@@ -34,7 +34,8 @@ final class CategoryView: BaseView {
     override func configureLayout() {
         searchBar.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide).offset(Constants.UI.Spacing.small)
-            $0.leading.trailing.equalToSuperview().inset(Constants.UI.Spacing.xLarge)
+            // Duo 등 넓은 화면에서 플로팅 탭바에 가려지지 않도록 safe area 기준으로 정렬
+            $0.leading.trailing.equalTo(safeAreaLayoutGuide).inset(Constants.UI.Spacing.xLarge)
             $0.height.equalTo(Constants.UI.Button.searchHeight)
         }
 

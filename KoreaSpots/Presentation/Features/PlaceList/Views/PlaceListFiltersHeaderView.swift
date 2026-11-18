@@ -114,12 +114,12 @@ final class PlaceListFiltersHeaderView: BaseReusableView {
             $0.alignment = .center
         }
 
-        // Load sigungu_codes.json into CodeBookStore
-        CodeBookStore.Sigungu.loadFromBundleAsync(fileName: "sigungu_codes") { success in
+        // Load ldong_codes.json into CodeBookStore
+        CodeBookStore.Ldong.loadFromBundleAsync { success in
             if success {
-                print("✅ sigungu_codes.json loaded successfully")
+                print("✅ ldong_codes.json loaded successfully")
             } else {
-                print("⚠️ Failed to load sigungu_codes.json")
+                print("⚠️ Failed to load ldong_codes.json")
             }
         }
     }
@@ -189,22 +189,12 @@ final class PlaceListFiltersHeaderView: BaseReusableView {
     }
 
     private func getSigungus(for areaCode: AreaCode) -> [(code: Int, name: String)] {
-        guard CodeBookStore.Sigungu.isLoaded else {
-            print("⚠️ CodeBookStore.Sigungu not loaded yet")
+        guard CodeBookStore.Ldong.isLoaded else {
+            print("⚠️ CodeBookStore.Ldong not loaded yet")
             return []
         }
 
-        // CodeBookStore에서 시군구 목록 조회
-        var sigungus: [(code: Int, name: String)] = []
-
-        // 모든 가능한 시군구 코드를 순회하며 이름 조회 (1~999)
-        for code in 1...999 {
-            if let name = CodeBookStore.Sigungu.name(areaCode: areaCode.rawValue, sigunguCode: code, preferred: .ko) {
-                sigungus.append((code: code, name: name))
-            }
-        }
-
-        return sigungus
+        return CodeBookStore.Ldong.signguList(for: areaCode.rawValue)
     }
 
     private func createChipButton(title: String, isSelected: Bool, isSmall: Bool) -> UIButton {

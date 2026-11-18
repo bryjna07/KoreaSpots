@@ -166,9 +166,9 @@ extension TripPhotoE {
 
 // MARK: - VisitIndexR Mapping
 extension VisitIndexR {
-    convenience init(from trip: Trip, visitedPlace: VisitedPlace) {
+    convenience init(from trip: Trip, visitedPlace: VisitedPlace) throws {
         self.init()
-        self.tripId = try! ObjectId(string: trip.id)
+        self.tripId = try ObjectId(string: trip.id)
         self.entryId = visitedPlace.entryId
         self.placeId = visitedPlace.placeId
         self.placeNameSnapshot = visitedPlace.placeNameSnapshot

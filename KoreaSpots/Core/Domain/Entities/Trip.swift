@@ -104,7 +104,7 @@ struct VisitedArea: Hashable {
     let lastVisitedAt: Date
 
     var areaName: String {
-        AreaCode(rawValue: areaCode ?? 12)?.displayName ?? "알 수 없음"
+        areaCode.flatMap { AreaCode(rawValue: $0) }?.displayName ?? "알 수 없음"
     }
 }
 

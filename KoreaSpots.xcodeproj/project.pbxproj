@@ -25,6 +25,16 @@
 		17DDE76D2E853B0F00E6057A /* ReactorKit in Frameworks */ = {isa = PBXBuildFile; productRef = 17DDE76C2E853B0F00E6057A /* ReactorKit */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		17F0E94230A6F7C4002567E4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 17DDE67E2E851F2D00E6057A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 17DDE6852E851F2D00E6057A;
+			remoteInfo = KoreaSpots;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		175235C92E9A2F1100333245 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -41,6 +51,7 @@
 
 /* Begin PBXFileReference section */
 		17DDE6862E851F2D00E6057A /* KoreaSpots.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KoreaSpots.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		17F0E93E30A6F7C3002567E4 /* KoreaSpotsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KoreaSpotsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -60,6 +71,11 @@
 				17DDE6982E851F2E00E6057A /* Exceptions for "KoreaSpots" folder in "KoreaSpots" target */,
 			);
 			path = KoreaSpots;
+			sourceTree = "<group>";
+		};
+		17F0E93F30A6F7C4002567E4 /* KoreaSpotsTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = KoreaSpotsTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -87,6 +103,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		17F0E93B30A6F7C3002567E4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -94,6 +117,7 @@
 			isa = PBXGroup;
 			children = (
 				17DDE6882E851F2D00E6057A /* KoreaSpots */,
+				17F0E93F30A6F7C4002567E4 /* KoreaSpotsTests */,
 				17DDE6872E851F2D00E6057A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -102,6 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				17DDE6862E851F2D00E6057A /* KoreaSpots.app */,
+				17F0E93E30A6F7C3002567E4 /* KoreaSpotsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -148,6 +173,29 @@
 			productReference = 17DDE6862E851F2D00E6057A /* KoreaSpots.app */;
 			productType = "com.apple.product-type.application";
 		};
+		17F0E93D30A6F7C3002567E4 /* KoreaSpotsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17F0E94630A6F7C4002567E4 /* Build configuration list for PBXNativeTarget "KoreaSpotsTests" */;
+			buildPhases = (
+				17F0E93A30A6F7C3002567E4 /* Sources */,
+				17F0E93B30A6F7C3002567E4 /* Frameworks */,
+				17F0E93C30A6F7C3002567E4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				17F0E94330A6F7C4002567E4 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				17F0E93F30A6F7C4002567E4 /* KoreaSpotsTests */,
+			);
+			name = KoreaSpotsTests;
+			packageProductDependencies = (
+			);
+			productName = KoreaSpotsTests;
+			productReference = 17F0E93E30A6F7C3002567E4 /* KoreaSpotsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -155,11 +203,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 2720;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					17DDE6852E851F2D00E6057A = {
 						CreatedOnToolsVersion = 16.4;
+					};
+					17F0E93D30A6F7C3002567E4 = {
+						CreatedOnToolsVersion = 27.2;
+						TestTargetID = 17DDE6852E851F2D00E6057A;
 					};
 				};
 			};
@@ -193,12 +245,20 @@
 			projectRoot = "";
 			targets = (
 				17DDE6852E851F2D00E6057A /* KoreaSpots */,
+				17F0E93D30A6F7C3002567E4 /* KoreaSpotsTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		17DDE6842E851F2D00E6057A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17F0E93C30A6F7C3002567E4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -240,7 +300,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		17F0E93A30A6F7C3002567E4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		17F0E94330A6F7C4002567E4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 17DDE6852E851F2D00E6057A /* KoreaSpots */;
+			targetProxy = 17F0E94230A6F7C4002567E4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		17DDE69A2E851F2E00E6057A /* Debug */ = {
@@ -249,7 +324,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = K9Z452TQ46;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -263,7 +338,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.watson.KoreaSpots;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -283,7 +358,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = K9Z452TQ46;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KoreaSpots/Resources/Info.plist;
@@ -296,7 +371,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.watson.KoreaSpots;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -433,6 +508,50 @@
 			};
 			name = Release;
 		};
+		17F0E94430A6F7C4002567E4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K9Z452TQ46;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.watson.KoreaSpotsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KoreaSpots.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KoreaSpots";
+			};
+			name = Debug;
+		};
+		17F0E94530A6F7C4002567E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K9Z452TQ46;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.watson.KoreaSpotsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KoreaSpots.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KoreaSpots";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -450,6 +569,15 @@
 			buildConfigurations = (
 				17DDE69A2E851F2E00E6057A /* Debug */,
 				17DDE69B2E851F2E00E6057A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		17F0E94630A6F7C4002567E4 /* Build configuration list for PBXNativeTarget "KoreaSpotsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17F0E94430A6F7C4002567E4 /* Debug */,
+				17F0E94530A6F7C4002567E4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -494,7 +622,7 @@
 			repositoryURL = "https://github.com/realm/realm-swift.git";
 			requirement = {
 				kind = exactVersion;
-				version = 20.0.3;
+				version = 20.0.6;
 			};
 		};
 		17DDE7562E85327700E6057A /* XCRemoteSwiftPackageReference "Moya" */ = {

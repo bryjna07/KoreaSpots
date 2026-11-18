@@ -10,26 +10,33 @@ import Foundation
 enum DateFormatterUtil {
 
     // MARK: - Shared DateFormatters
+    /// API 파라미터/비교용 고정 포맷: 기기 달력·지역 설정(불교력 등)과 무관하게 그레고리력 연도 사용
     static let yyyyMMdd: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = Calendar(identifier: .gregorian)
         formatter.dateFormat = "yyyyMMdd"
         return formatter
     }()
 
+    // 표시용도 그레고리력으로 고정 (tripDateRange와 연도 체계 일치)
     static let displayDate: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
         formatter.dateFormat = "M.d"
         return formatter
     }()
 
     static let fullDisplayDate: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
         formatter.dateFormat = "yyyy.MM.dd"
         return formatter
     }()
 
     static let shortDisplayDate: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
         formatter.dateFormat = "yy.MM.dd"
         return formatter
     }()

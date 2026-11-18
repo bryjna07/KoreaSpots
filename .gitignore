@@ -83,3 +83,9 @@ fastlane/test_output
 # https://github.com/johnno1962/injectionforxcode
 
 iOSInjectionProject/
+
+## Claude local
+.claude/settings.local.json
+
+# XcodeBuildMCP local defaults (machine-specific simulator id)
+.xcodebuildmcp/

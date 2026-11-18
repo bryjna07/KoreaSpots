@@ -67,7 +67,7 @@ final class CategorySidebarCell: UICollectionViewListCell {
     }
 
     // MARK: - Configuration
-    func configure(cat2: Cat2, isHighlighted: Bool) {
+    func configure(cat2: LclsCategory, isHighlighted: Bool) {
         titleLabel.text = cat2.labelKo
         titleLabel.font = isHighlighted ? FontManager.caption2Bold : FontManager.caption2
         titleLabel.textColor = isHighlighted ? .textSecondary : .textPrimary

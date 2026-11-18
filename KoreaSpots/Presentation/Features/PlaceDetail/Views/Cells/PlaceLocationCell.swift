@@ -98,7 +98,6 @@ extension PlaceLocationCell {
         }
 
         addressLabel.do {
-            ///TODO: - 폰트, 높이 조절 필요
             $0.font = UIFont.systemFont(ofSize: 16)
             $0.textColor = .secondaryLabel
             $0.numberOfLines = 2

@@ -31,9 +31,6 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
             contentTypeId: place.contentTypeId,
             areaCode: place.areaCode,
             sigunguCode: place.sigunguCode,
-            cat1: place.cat1,
-            cat2: place.cat2,
-            cat3: place.cat3,
             distance: place.distance,
             modifiedTime: place.modifiedTime,
             eventMeta: place.eventMeta,
@@ -79,29 +76,8 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
                     places = places.filter { $0.contentTypeId == contentTypeId }
                 }
 
-                // cat1 필터링 (대분류)
-                if let cat1 = cat1, !cat1.isEmpty {
-                    places = places.filter { $0.cat1 == cat1 }
-                    print("🔍 cat1 filter applied: \(cat1), results: \(places.count)")
-                }
-
-                // cat2 필터링 (중분류)
-                if let cat2 = cat2, !cat2.isEmpty {
-                    places = places.filter { $0.cat2 == cat2 }
-                    print("🔍 cat2 filter applied: \(cat2), results: \(places.count)")
-                }
-
-                // cat3 필터링 (쉼표 구분 복수 값 지원, 소분류)
-                if let cat3 = cat3, !cat3.isEmpty {
-                    let cat3List = cat3.split(separator: ",").map { String($0.trimmingCharacters(in: .whitespaces)) }
-                    if !cat3List.isEmpty {
-                        places = places.filter { place in
-                            guard let placeCat3 = place.cat3 else { return false }
-                            return cat3List.contains(placeCat3)
-                        }
-                        print("🔍 cat3 filter applied: \(cat3List), results: \(places.count)")
-                    }
-                }
+                // 분류(cat1~3) 필터링은 생략: Mock JSON은 옛 분류 코드(cat1~3)만 갖고 있어
+                // 신 분류체계(lclsSystm) 파라미터와 매칭되지 않는다
 
                 print("📊 Filtered results: \(places.count) places")
 
@@ -199,29 +175,8 @@ final class MockTourRemoteDataSource: TourRemoteDataSource {
                     print("🔍 ContentTypeId filter applied: \(contentTypeId), results: \(places.count)")
                 }
 
-                // 5. cat1 필터링 (대분류)
-                if let cat1 = cat1, !cat1.isEmpty {
-                    places = places.filter { $0.cat1 == cat1 }
-                    print("🔍 cat1 filter applied: \(cat1), results: \(places.count)")
-                }
-
-                // 6. cat2 필터링 (중분류)
-                if let cat2 = cat2, !cat2.isEmpty {
-                    places = places.filter { $0.cat2 == cat2 }
-                    print("🔍 cat2 filter applied: \(cat2), results: \(places.count)")
-                }
-
-                // 7. cat3 필터링 (쉼표 구분 복수 값 지원, 소분류)
-                if let cat3 = cat3, !cat3.isEmpty {
-                    let cat3List = cat3.split(separator: ",").map { String($0.trimmingCharacters(in: .whitespaces)) }
-                    if !cat3List.isEmpty {
-                        places = places.filter { place in
-                            guard let placeCat3 = place.cat3 else { return false }
-                            return cat3List.contains(placeCat3)
-                        }
-                        print("🔍 cat3 filter applied: \(cat3List), results: \(places.count)")
-                    }
-                }
+                // 분류(cat1~3) 필터링은 생략: Mock JSON은 옛 분류 코드만 갖고 있어
+                // 신 분류체계(lclsSystm) 파라미터와 매칭되지 않는다
 
                 print("📊 Final search results: \(places.count) places")
                 return self.addMockPrefix(to: places)

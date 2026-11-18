@@ -60,17 +60,4 @@ protocol TourRepository {
     func getPlaceOperatingInfo(contentId: String, contentTypeId: Int) -> Single<OperatingInfo>
     func getPlaceImages(contentId: String) -> Single<[PlaceImage]>
     func getTravelCourseDetails(contentId: String, contentTypeId: Int) -> Single<[CourseDetail]>
-
-    // MARK: - Favorites
-    func getFavoritePlaces() -> Single<[Place]>
-    func toggleFavorite(contentId: String) -> Completable
-
-    // MARK: - Recent Search Keywords
-    func saveRecentKeyword(_ keyword: String) -> Completable
-    func getRecentKeywords(limit: Int) -> Single<[String]>
-    func deleteRecentKeyword(_ keyword: String) -> Completable
-    func clearAllRecentKeywords() -> Completable
-
-    // MARK: - Cache Management
-    func clearExpiredCache() -> Completable
 }

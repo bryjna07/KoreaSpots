@@ -77,14 +77,17 @@ final class PlaceSelectorReactor: Reactor {
     let initialState: State
 
     private let tourRepository: TourRepository
+    private let favoriteRepository: FavoriteRepository
 
     init(
         tourRepository: TourRepository,
+        favoriteRepository: FavoriteRepository,
         maxSelectionCount: Int,
         preSelectedPlaceIds: [String],
         preSelectedPlaces: [Place] = []  // 기존 선택된 장소의 Place 객체들
     ) {
         self.tourRepository = tourRepository
+        self.favoriteRepository = favoriteRepository
 
         // preSelectedPlaces를 딕셔너리로 변환
         var selectedPlacesDict: [String: Place] = [:]
@@ -202,7 +205,7 @@ final class PlaceSelectorReactor: Reactor {
     private func loadFavorites() -> Observable<Mutation> {
         return .concat([
             .just(.setLoading(true)),
-            tourRepository.getFavoritePlaces()
+            favoriteRepository.getFavoritePlaces()
                 .asObservable()
                 .map { Mutation.setFavorites($0) }
                 .catch { error in

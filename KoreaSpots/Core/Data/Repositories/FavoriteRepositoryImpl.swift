@@ -27,9 +27,16 @@ final class FavoriteRepositoryImpl: FavoriteRepository {
             do {
                 let realm = try Realm()
                 try realm.write {
-                    let placeR = PlaceR(place: place)
-                    placeR.isFavorite = true
-                    realm.add(placeR, update: .modified)
+                    if let existing = realm.object(ofType: PlaceR.self, forPrimaryKey: place.contentId) {
+                        // 기존 행은 즐겨찾기 상태만 변경 (목록 데이터로 덮어쓰면 상세 정보가 사라짐)
+                        existing.isFavorite = true
+                        // 즐겨찾기 목록이 cachedAt 내림차순이라 최근 추가 순서 유지
+                        existing.cachedAt = Date()
+                    } else {
+                        let placeR = PlaceR(place: place)
+                        placeR.isFavorite = true
+                        realm.add(placeR)
+                    }
                 }
                 single(.completed)
             } catch {
@@ -74,6 +81,11 @@ final class FavoriteRepositoryImpl: FavoriteRepository {
         } else {
             return addFavorite(place: place)
         }
+    }
+
+    func getFavoritePlaces() -> Single<[Place]> {
+        // 읽기 작업은 항상 허용
+        return localDataSource.getFavoritePlaces()
     }
 
     func getFavorites() -> Observable<[Place]> {

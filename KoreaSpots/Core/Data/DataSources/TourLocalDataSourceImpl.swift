@@ -19,7 +19,6 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
 
     // 스레드별 Realm 인스턴스 생성
     private func createRealm() throws -> Realm {
-        let realm = try Realm()
         return try Realm()
     }
 
@@ -98,7 +97,7 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
         .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
     }
 
-    func getLocationBasedPlaces(mapX: Double, mapY: Double, radius: Int) -> Single<[Place]> {
+    func getLocationBasedPlaces(mapX: Double, mapY: Double, radius: Int, contentTypeId: Int?) -> Single<[Place]> {
         return Single.create { [weak self] observer in
             guard let self = self else {
                 observer(.success([]))
@@ -110,9 +109,16 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
                 let radiusInDegrees = Double(radius) / 111000.0 // 대략적인 도 변환 (1도 ≈ 111km)
 
                 let realm = try self.createRealm()
-                let predicate = NSPredicate(format: "mapX BETWEEN {%f, %f} AND mapY BETWEEN {%f, %f}",
-                                          mapX - radiusInDegrees, mapX + radiusInDegrees,
-                                          mapY - radiusInDegrees, mapY + radiusInDegrees)
+                var predicates = [
+                    NSPredicate(format: "mapX BETWEEN {%f, %f} AND mapY BETWEEN {%f, %f}",
+                                mapX - radiusInDegrees, mapX + radiusInDegrees,
+                                mapY - radiusInDegrees, mapY + radiusInDegrees)
+                ]
+                // 요청한 타입만 반환 (축제 등 다른 경로로 캐시된 장소가 섞이지 않도록)
+                if let contentTypeId = contentTypeId {
+                    predicates.append(NSPredicate(format: "contentTypeId == %d", contentTypeId))
+                }
+                let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
 
                 let cachedPlaces = realm.objects(PlaceR.self).filter(predicate)
 
@@ -147,7 +153,8 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
 
                 if let cachedPlace = realm.objects(PlaceR.self).filter(predicate).first {
                     // AM 4:00 (KST) 기준으로 needsRefresh() 체크
-                    if !cachedPlace.needsRefresh() {
+                    // 목록 캐시로만 저장된 행(overview 없음)은 상세 캐시로 쓰지 않음
+                    if !cachedPlace.needsRefresh(), cachedPlace.overview != nil {
                         observer(.success(cachedPlace.toDomain()))
                     } else {
                         observer(.success(nil))
@@ -174,12 +181,18 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
             do {
                 let realm = try self.createRealm()
                 try realm.write {
+                    let placeR: PlaceR
                     if let existing = realm.object(ofType: PlaceR.self, forPrimaryKey: place.contentId) {
                         existing.update(from: place)
                         existing.cachedAt = Date()
+                        placeR = existing
                     } else {
-                        let newPlace = PlaceR(place: place)
-                        realm.add(newPlace, update: .modified)
+                        placeR = PlaceR(place: place)
+                        realm.add(placeR, update: .modified)
+                    }
+                    // 개요가 없는 장소도 상세 캐시로 인식되도록 빈 문자열로 표시 (getPlaceDetail은 overview != nil로 판단)
+                    if placeR.overview == nil {
+                        placeR.overview = ""
                     }
                 }
                 observer(.completed)
@@ -264,63 +277,6 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
     }
 
     // MARK: - Cache Management
-    func isCacheValid(for key: String, ttl: TimeInterval) -> Single<Bool> {
-        return Single.create { [weak self] observer in
-            guard let self = self else {
-                observer(.success(false))
-                return Disposables.create()
-            }
-
-            do {
-                let realm = try self.createRealm()
-                // contentId를 캐시 키로 사용하여 PlaceR에서 검색 (이벤트 포함)
-                let expiryDate = Date().addingTimeInterval(-ttl)
-
-                let hasValidPlace = realm.objects(PlaceR.self)
-                    .filter("contentId == %@ AND cachedAt > %@", key, expiryDate as NSDate)
-                    .count > 0
-
-                observer(.success(hasValidPlace))
-            } catch {
-                observer(.failure(DataSourceError.cacheError))
-            }
-
-            return Disposables.create()
-        }
-        .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
-    }
-
-    func clearExpiredCache() -> Completable {
-        return Completable.create { [weak self] observer in
-            guard let self = self else {
-                observer(.completed)
-                return Disposables.create()
-            }
-
-            do {
-                let realm = try self.createRealm()
-                try realm.write {
-                    let now = Date()
-
-                    // Place 캐시: 7일 TTL (이벤트성 콘텐츠 포함)
-                    let expiredPlaceDate = now.addingTimeInterval(-7 * 24 * 60 * 60) as NSDate
-                    let expiredPlaces = realm.objects(PlaceR.self)
-                        .filter("cachedAt < %@ AND isFavorite == false", expiredPlaceDate)
-                    realm.delete(expiredPlaces)
-
-                    print("✅ Expired cache cleared - Places: \(expiredPlaces.count)")
-                }
-                observer(.completed)
-            } catch {
-                print("❌ Failed to clear expired cache: \(error)")
-                observer(.error(DataSourceError.cacheError))
-            }
-
-            return Disposables.create()
-        }
-        .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
-    }
-
     func clearAllCache() -> Completable {
         return Completable.create { [weak self] observer in
             guard let self = self else {
@@ -485,40 +441,6 @@ final class TourLocalDataSourceImpl: TourLocalDataSource {
                 observer(.success(places))
             } catch {
                 observer(.failure(DataSourceError.cacheError))
-            }
-
-            return Disposables.create()
-        }
-        .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .background))
-    }
-
-    func toggleFavorite(contentId: String) -> Completable {
-        return Completable.create { [weak self] observer in
-            guard let self = self else {
-                observer(.completed)
-                return Disposables.create()
-            }
-
-            do {
-                let realm = try self.createRealm()
-                try realm.write {
-                    if let place = realm.object(ofType: PlaceR.self, forPrimaryKey: contentId) {
-                        place.isFavorite.toggle()
-                        print("✅ Favorite toggled for contentId: \(contentId), isFavorite: \(place.isFavorite)")
-                    } else {
-                        // Place가 Realm에 없으면 새로 생성하고 isFavorite = true로 설정
-                        print("⚠️ Place not found for contentId: \(contentId), creating new entry")
-                        let newPlace = PlaceR()
-                        newPlace.contentId = contentId
-                        newPlace.isFavorite = true
-                        realm.add(newPlace, update: .modified)
-                        print("✅ Created new favorite place: \(contentId)")
-                    }
-                }
-                observer(.completed)
-            } catch {
-                print("❌ Failed to toggle favorite: \(error)")
-                observer(.error(DataSourceError.cacheError))
             }
 
             return Disposables.create()

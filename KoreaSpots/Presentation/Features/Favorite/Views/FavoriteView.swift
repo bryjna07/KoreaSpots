@@ -69,7 +69,8 @@ final class FavoriteView: BaseView {
     override func configureLayout() {
         headerView.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide).inset(16)
-            $0.leading.trailing.equalToSuperview()
+            // Duo 등 넓은 화면에서 플로팅 탭바에 가려지지 않도록 safe area 기준으로 정렬
+            $0.leading.trailing.equalTo(safeAreaLayoutGuide)
             $0.height.equalTo(60)
         }
 
@@ -85,12 +86,14 @@ final class FavoriteView: BaseView {
 
         collectionView.snp.makeConstraints {
             $0.top.equalTo(headerView.snp.bottom)
-            $0.leading.trailing.bottom.equalToSuperview()
+            $0.leading.trailing.equalTo(safeAreaLayoutGuide)
+            $0.bottom.equalToSuperview()
         }
 
         emptyStateView.snp.makeConstraints {
             $0.top.equalTo(headerView.snp.bottom)
-            $0.leading.trailing.bottom.equalToSuperview()
+            $0.leading.trailing.equalTo(safeAreaLayoutGuide)
+            $0.bottom.equalToSuperview()
         }
 
         emptyStateLabel.snp.makeConstraints {

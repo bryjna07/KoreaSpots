@@ -21,6 +21,9 @@ protocol FavoriteRepository {
     /// Get all favorite places (with Realm auto-update)
     func getFavorites() -> Observable<[Place]>
 
+    /// Get favorite places once (sorted by cachedAt desc, no observation)
+    func getFavoritePlaces() -> Single<[Place]>
+
     /// Check if a place is favorited
     func isFavorite(contentId: String) -> Single<Bool>
 

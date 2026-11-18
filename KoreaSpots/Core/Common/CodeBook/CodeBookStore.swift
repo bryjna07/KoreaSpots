@@ -18,9 +18,9 @@ public enum LanguageTag: String {
 }
 
 // MARK: - 통합 CodeBookStore (Generic)
-/// Cat3, Sigungu 등 계층 구조를 가진 코드북을 관리하는 통합 Store
-/// - Key1: 상위 코드 (예: Cat2, AreaCode)
-/// - Key2: 하위 코드 (예: Cat3, SigunguCode)
+/// Ldong, Lcls 등 계층 구조를 가진 코드북을 관리하는 통합 Store
+/// - Key1: 상위 코드 (예: 법정동 시도코드, 분류 중분류)
+/// - Key2: 하위 코드 (예: 시군구코드, 분류 소분류)
 public enum CodeBookStore {
     // cache: category -> (parentCode -> (childCode -> record))
     private static var cache: [String: [String: [String: CodeNameRecord]]] = [:]
@@ -140,80 +140,85 @@ public enum CodeBookStore {
 // MARK: - Convenience Extensions
 
 extension CodeBookStore {
-    // Cat3 관련 편의 메서드
-    public enum Cat3 {
-        private static let category = "cat3"
-
-        public static func load(from data: Data) throws {
-            try CodeBookStore.load(category: category, from: data)
-        }
+    // 법정동 코드 (ldongCode2): ROOT = 시도, 시도코드 = 시군구
+    public enum Ldong {
+        private static let category = "ldong"
+        /// 최상위(시도) 목록을 담는 부모 키 (scripts/fetch_codebook.py 출력 형식)
+        private static let root = "ROOT"
 
         public static func loadFromBundleAsync(
-            fileName: String = "cat3_codes",
+            fileName: String = "ldong_codes",
             completion: @escaping (Bool) -> Void
         ) {
-            CodeBookStore.loadFromBundleAsync(
-                category: category,
-                fileName: fileName,
-                completion: completion
-            )
+            CodeBookStore.loadFromBundleAsync(category: category, fileName: fileName, completion: completion)
         }
 
         public static var isLoaded: Bool {
             CodeBookStore.isLoaded(category: category)
         }
 
-        public static func name(cat2Code: String, cat3Code: String, preferred: LanguageTag = .ko) -> String? {
-            CodeBookStore.name(category: category, parentCode: cat2Code, childCode: cat3Code, preferred: preferred)
+        public static func sidoName(regnCd: Int) -> String? {
+            CodeBookStore.name(category: category, parentCode: root, childCode: "\(regnCd)")
         }
 
-        public static func allCat3Codes(for cat2Code: String) -> [String] {
-            CodeBookStore.allChildCodes(category: category, parentCode: cat2Code)
+        public static func signguName(regnCd: Int, signguCd: Int) -> String? {
+            CodeBookStore.name(category: category, parentCode: "\(regnCd)", childCode: "\(signguCd)")
         }
 
-        public static func merge(cat2Code: String, entries: [String: CodeNameRecord]) {
-            CodeBookStore.merge(category: category, parentCode: cat2Code, entries: entries)
+        public static func allSidoCodes() -> [String] {
+            CodeBookStore.allChildCodes(category: category, parentCode: root)
+        }
+
+        public static func allSignguCodes(for regnCd: Int) -> [String] {
+            CodeBookStore.allChildCodes(category: category, parentCode: "\(regnCd)")
+        }
+
+        /// 시도의 시군구 목록 (코드 숫자순). 세종처럼 5자리 코드도 포함
+        public static func signguList(for regnCd: Int) -> [(code: Int, name: String)] {
+            allSignguCodes(for: regnCd)
+                .compactMap { codeString -> (code: Int, name: String)? in
+                    guard let code = Int(codeString),
+                          let name = signguName(regnCd: regnCd, signguCd: code) else { return nil }
+                    return (code: code, name: name)
+                }
+                .sorted { $0.code < $1.code }
         }
     }
 
-    // Sigungu 관련 편의 메서드
-    public enum Sigungu {
-        private static let category = "sigungu"
-
-        public static func load(from data: Data) throws {
-            try CodeBookStore.load(category: category, from: data)
-        }
+    // 분류체계 코드 (lclsSystmCode2): ROOT = 대분류, 대분류 = 중분류, 중분류 = 소분류
+    public enum Lcls {
+        private static let category = "lcls"
+        private static let root = "ROOT"
 
         public static func loadFromBundleAsync(
-            fileName: String = "sigungu_codes",
+            fileName: String = "lcls_codes",
             completion: @escaping (Bool) -> Void
         ) {
-            CodeBookStore.loadFromBundleAsync(
-                category: category,
-                fileName: fileName,
-                completion: completion
-            )
+            CodeBookStore.loadFromBundleAsync(category: category, fileName: fileName, completion: completion)
         }
 
         public static var isLoaded: Bool {
             CodeBookStore.isLoaded(category: category)
         }
 
-        public static func name(areaCode: Int, sigunguCode: Int, preferred: LanguageTag = .ko) -> String? {
-            CodeBookStore.name(
-                category: category,
-                parentCode: "\(areaCode)",
-                childCode: "\(sigunguCode)",
-                preferred: preferred
-            )
+        /// 대분류 목록 (예: AC, EV, FD ...)
+        public static func allLevel1Codes() -> [String] {
+            CodeBookStore.allChildCodes(category: category, parentCode: root)
         }
 
-        public static func allSigunguCodes(for areaCode: Int) -> [String] {
-            CodeBookStore.allChildCodes(category: category, parentCode: "\(areaCode)")
+        /// 하위 코드 목록: 대분류 -> 중분류, 중분류 -> 소분류
+        public static func childCodes(of parentCode: String) -> [String] {
+            CodeBookStore.allChildCodes(category: category, parentCode: parentCode)
         }
 
-        public static func merge(areaCode: Int, entries: [String: CodeNameRecord]) {
-            CodeBookStore.merge(category: category, parentCode: "\(areaCode)", entries: entries)
+        public static func level1Name(_ code: String) -> String? {
+            CodeBookStore.name(category: category, parentCode: root, childCode: code)
+        }
+
+        /// 중분류/소분류 이름: parentCode는 한 단계 위 코드
+        public static func name(parentCode: String, code: String) -> String? {
+            CodeBookStore.name(category: category, parentCode: parentCode, childCode: code)
         }
     }
+
 }
